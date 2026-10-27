@@ -22,6 +22,7 @@ Running log. Append, never rewrite history: if a decision changes, add a new ent
 | D14 | 10-27 | Plan approved as-is; D1-D13 approved. Track = **Indie** (overrides Startup recommendation in PRD/A10 framing). Public GitHub repo `showme`, MIT licence. Vercel + Supabase accounts ready (EU London preferred). Demo cap $60 total / $5 per day confirmed; $107 total plan pre-approved, stop at $110 (R6). Founder narrative ("family calls me") confirmed true. Credit expiry date not yet pasted (Q6 sub-item stays open) | Founder answers 2026-10-27 in kickoff session | This session; audits in `.learnings/daily/2026-10-27.md` | Approved |
 | D15 | 10-27 | Day-1 score gate: `scripts/score_gate.py` must print ≥ 8.5/10 before a day is called done; below that, fix-and-rerun loop, never hand-edit the score | Founder request: persistent 0-10 gate with loop engineering | `docs/SCORE.md` (generated) | Approved |
 | D16 | 10-27 | Honesty wording: PRIV-1/2/5 hold for the official client; the backend cannot prove an arbitrary API caller redacted or consented. Privacy copy must say so | Security audit finding 3 | `.learnings/daily/2026-10-27.md` | Approved (doc fix in ARCHITECTURE §4) |
+| D17 | 10-27 | Indie track judging basis recorded: "creativity, technical ambition, and whether it works" (official hackathon page, fetched 2026-10-27). Official Rules/submission format (video length, repo, URL requirements) still not on the public page - Q4 stays a founder dashboard task | https://dev.meta.ai/events/global-hackathon | D14 track choice | Approved |
 
 ## Assumptions
 

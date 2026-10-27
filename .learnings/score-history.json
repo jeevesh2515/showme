@@ -7,5 +7,31 @@
    "Day2 readiness: git repo exists",
    "Day2 readiness: public remote origin set"
   ]
+ },
+ {
+  "label": "day1-final",
+  "score": 10.0,
+  "sha": "34a94af",
+  "fails": []
+ },
+ {
+  "label": "verify",
+  "score": 10.0,
+  "sha": "34a94af",
+  "fails": []
+ },
+ {
+  "label": "day1-loop2",
+  "score": 10.73,
+  "sha": "34a94af",
+  "fails": [
+   "Evidence: SPIKES labels estimates/UNVERIFIED + stdout gap stated"
+  ]
+ },
+ {
+  "label": "day1-loop2",
+  "score": 11.07,
+  "sha": "34a94af",
+  "fails": []
  }
 ]

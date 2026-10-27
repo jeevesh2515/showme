@@ -1,0 +1,19 @@
+00_windows_text.png      HIT  pred=(611,316) gt=[258, 139, 1658, 371] conf=0.95 visible=True 3067 ms tokens=(2827, 202, 149)
+01_windows_icon.png      HIT  pred=(929,89) gt=[910, 78, 954, 112] conf=0.98 visible=True 3500 ms tokens=(778, 190, 137)
+02_macos_text.png        HIT  pred=(605,375) gt=[520, 349, 704, 399] conf=0.95 visible=True 2473 ms tokens=(3334, 184, 131)
+03_ios_text.jpeg         HIT  pred=(488,2329) gt=[427, 2261, 555, 2400] conf=0.95 visible=True 3482 ms tokens=(3955, 231, 178)
+04_ios_icon.jpeg         HIT  pred=(1085,230) gt=[1045, 187, 1123, 277] conf=0.96 visible=True 2438 ms tokens=(3954, 170, 117)
+05_android_text.jpeg     HIT  pred=(213,480) gt=[121, 339, 309, 588] conf=0.95 visible=True 4133 ms tokens=(3362, 280, 239)
+06_android_icon.jpeg     HIT  pred=(991,132) gt=[930, 90, 1064, 220] conf=0.97 visible=True 2927 ms tokens=(3362, 143, 90)
+07_gitlab_text.png       HIT  pred=(351,206) gt=[112, 170, 592, 241] conf=0.95 visible=True 3172 ms tokens=(4214, 171, 118)
+08_gitlab_icon.png       HIT  pred=(886,603) gt=[853, 573, 920, 636] conf=0.95 visible=True 3015 ms tokens=(4216, 168, 115)
+09_forum_text.png        HIT  pred=(1818,982) gt=[1292, 904, 2363, 1050] conf=0.95 visible=True 4046 ms tokens=(4214, 261, 208)
+
+muse-spark-1.3 effort=minimal: point-in-box 10/10  latency p50=3172 ms max=4133 ms
+mean tokens in/out/reasoning: 3422 / 200 / 148
+NEG 00_windows_text.png    'open the shopping cart' -> visible=False conf=0.10 OK 4803 ms
+NEG 02_macos_text.png      'turn on airplane mode' -> visible=False conf=0.00 OK 3712 ms
+NEG 04_ios_icon.jpeg       'cancel my Netflix subscription' -> visible=False conf=0.00 OK 3418 ms
+NEG 07_gitlab_text.png     'play the next song' -> visible=False conf=0.00 OK 2898 ms
+NEG 09_forum_text.png      'log out of the banking app' -> visible=False conf=0.00 OK 3169 ms
+absent-target honesty: 5/5

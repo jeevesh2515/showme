@@ -1,6 +1,6 @@
 # Step 1: Verification spikes
 
-Date: 2026-10-27. Every number here was produced by a script in `spikes/` or comes from an official page linked inline. Nothing below is estimated unless it is labelled **estimate** or **UNVERIFIED**. Known gap: spike scripts `print()` their results and Day 1 stdout was not archived as files, so re-running the script is the reproduction path; from Day 2 the eval harness writes `predictions.jsonl` for every run (RULES §2 applies to published product numbers).
+Date: 2026-10-27. Every number here was produced by a script in `spikes/` or comes from an official page linked inline. Nothing below is estimated unless it is labelled **estimate** or **UNVERIFIED**. Reproduction logs: `spikes/results/2026-10-27-grounding-spark-minimal.txt` (re-run 2026-10-27 evening: 10/10, 5/5, p50 3,172 ms vs 2,809 ms in the first run - run-to-run latency variance, accuracy unchanged) and `spikes/results/2026-10-27-redaction.txt`. SAM spike stdout from the first run was not archived; re-running `spikes/sam/api_sam.py` is its reproduction path. From Day 2 the eval harness writes `predictions.jsonl` for every run.
 
 Spike code is throwaway and never imported by the product. To re-run anything: `set -a; . ./.env; set +a`, then the command shown.
 

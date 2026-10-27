@@ -1,7 +1,7 @@
 # PRD: ShowMe
 
 Status: approved 2026-10-27 (MEMORY D14) · Owner: founder · Last updated: 2026-10-27
-Track: Indie (founder decision D14; Startup was the recommendation, Indie criteria to confirm against Official Rules Q4)
+Track: Indie (founder decision D14; judged on creativity, technical ambition, and whether it works per the official hackathon page, D17; submission format still Q4)
 Related: [REQUIREMENTS.md](REQUIREMENTS.md) (testable requirements), [ARCHITECTURE.md](ARCHITECTURE.md), [DESIGN.md](DESIGN.md), [PHASES.md](PHASES.md), evidence in [SPIKES.md](SPIKES.md).
 
 ## 1. One line

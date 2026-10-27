@@ -1,0 +1,27 @@
+# secrets: never commit
+.env
+.env.*
+!.env.example
+.mcp.json
+
+# eval artefacts (results summaries commit; datasets/debug/cache do not)
+eval/data/
+eval/debug/
+eval/results/**/cache/
+
+# spike artefacts (throwaway verification code keeps its scripts, not its data)
+spikes/**/node_modules/
+spikes/**/.venv/
+spikes/data/
+spikes/**/out_*.png
+spikes/**/*_redacted.png
+spikes/**/*.traineddata
+spikes/redaction/fixtures/*.png
+
+# python / node
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.next/
+.DS_Store

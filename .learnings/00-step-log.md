@@ -1,0 +1,107 @@
+# Step log
+
+Chronological record of every step taken on ShowMe: what was done, why, what the evidence showed, and what changed as a result. Newest entries at the bottom. Each entry links to the evidence so any claim can be re-checked.
+
+Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **Decision it drove**.
+
+---
+
+## 2026-10-27 · S0 · Repo bootstrap
+
+- **Why:** Start from an empty folder so every line of code is written during the hackathon (rule: no copying from previous repos).
+- **What I did:** Ran `/init`. The folder held only an empty `README.md`; no git repo.
+- **Result:** Placeholder `CLAUDE.md` created. Later replaced by the agent guide that points at `/docs`.
+- **Decision:** All planning docs live in `/docs`; all learning notes live in `.learnings/`; throwaway verification code lives in `spikes/` and never ships.
+
+## 2026-10-27 · S1 · Environment check
+
+- **Why:** The plan has to fit the machine and the £0 budget.
+- **What I did:** Checked toolchain and API key env vars (names only, never values).
+- **Result:** Apple M5, 16 GB RAM. Python 3.11.15, Node 22.22.3, pnpm 10.19, uv 0.11, Docker 29.8, gh 2.98, tesseract 5.5.2. No Meta API key, no Hugging Face login, no Modal/Baseten/Fireworks keys in the environment.
+- **Decision:** Spikes that need the Meta API key (grounding smoke test) or gated weights (SAM 3.x) are blocked on the founder. Everything else runs locally now.
+
+## 2026-10-27 · S2 · Parallel research (Meta Model API, SAM 3.1, ScreenSpot)
+
+- **Why:** Spike (a) and the eval design depend on public facts that may have changed after the model knowledge cutoff. Verify from official sources instead of memory.
+- **What I did:** Three research subagents in parallel: Meta Model API + hackathon rules (Sonnet), SAM 3.1 availability + hosting (Sonnet), ScreenSpot v1/v2/Pro datasets (Haiku). Each had to cite a URL per claim and mark anything unconfirmed as UNVERIFIED.
+- **Result:** See `docs/SPIKES.md` sections (a), (b), (c).
+
+## 2026-10-27 · S3 · Spike (d): client-side redaction
+
+- **Why:** Privacy is a hard requirement: the raw screenshot must never leave the browser. If OCR-based redaction is too slow or misses PII, the whole product promise breaks, so test it before planning around it.
+- **What I did:**
+  1. Wrote 3 fixture pages with known fake PII (`spikes/redaction/fixtures/*.html`): a light desktop billing page, a 3x-density mobile login, a 2x dark-mode settings page.
+  2. Rendered them with headless Chrome to PNG (1280x800, 1170x2532, 2560x1440).
+  3. `spikes/redaction/run.mjs`: tesseract.js 5.1.1 (the same WASM engine that runs in the browser) → word boxes → regex for email, phone (9 to 15 digits), card (13 to 19 digits plus Luhn check) → black boxes over matched words.
+  4. `spikes/redaction/run_inputs.mjs`: a pixel heuristic to find text inside input fields (names, addresses).
+- **Result:**
+  - Regex layer: 10/10 PII strings found, 0 false positives, OCR 154 to 375 ms per image on the M5 in Node. Redacted images: `spikes/redaction/fixtures/*_redacted.png`.
+  - Input-field heuristic: 7/11 recall, 6 false positives (field labels), 0/3 on dark mode. Not reliable.
+  - Known gap: free text inside inputs (names like "Maria Okafor", street addresses, CVC) is not caught by regex.
+- **Decision:** MVP redaction = regex layer + mandatory review screen with a manual blur brush and one-tap "blur this field". Pixel input detection moves to stretch. Fixtures are synthetic and clean, so real-world recall will be lower: the review screen is not optional.
+
+## 2026-10-27 · S4 · Spike (c), local stand-in: SAM 2.1 tiny
+
+- **Why:** SAM 3 / 3.1 weights on Hugging Face are gated (access request), so I tested the same click-to-mask idea with Meta's open SAM 2.1 tiny (Apache-2.0) to learn how SAM behaves on flat UI before the API was available.
+- **What I did:** `spikes/sam/run.py` (centre clicks on 6 UI elements), `jitter.py` (8 random clicks per element), `policies.py` (which of SAM's 3 candidate masks to pick), `screenspot_sam.py` (near-miss clicks on 10 real ScreenSpot screenshots).
+- **Result:** centre clicks IoU 0.77 to 0.99, 209 ms warm on Apple MPS. Off-centre clicks: my first selection policy ("largest candidate") only got 17% whole-element; single-mask output got 88% (ceiling 90%). Near-miss clicks: point-in-box 38% raw vs 34% after refinement (helped 0, hurt 4).
+- **Lesson:** `AutoModel` loads the SAM video model; the image click API needs `Sam2Model` / `Sam3TrackerModel`. And the big one: SAM cannot fix a click on the wrong element, it just segments the wrong element precisely.
+- **Decision:** SAM is a highlight tool, not an accuracy tool. The ablation reports click accuracy and highlight quality separately.
+
+## 2026-10-27 · S5 · Data for the grounding smoke test
+
+- **Why:** Spike (b) needs real screenshots with ground truth, without downloading 600 MB+.
+- **What I did:** `spikes/grounding/fetch_samples.py` pulls 10 stratified rows (4 mobile, 3 desktop, 3 web; text and icon) from ScreenSpot v1 via the Hugging Face datasets-server `/rows` API. The old id `rootsautomation/ScreenSpot` was renamed to `bevaya/ScreenSpot`; `/filter` timed out; rows are grouped by source, so I probed offsets; mobile rows are JPEG not PNG; added retries for sporadic 502s.
+- **Result:** 10 images + `samples.json` with pixel xyxy boxes (dataset stores normalised xyxy).
+
+## 2026-10-27 · S6 · Spike (b): grounding with the Meta Model API
+
+- **Why:** The whole product depends on the model returning a correct point on a screenshot.
+- **What I did:** Founder provided a Meta Model API key in `.env` ($150 credit). `spikes/grounding/smoke.py`: Chat Completions, strict JSON schema, 0 to 1000 grid (from Meta's image-understanding docs), temperature 0. Swept `reasoning_effort` (default, low, minimal) on `muse-spark-1.3` and ran `muse-wonder-1.0` at minimal. Added 5 absent-target probes.
+- **Result:** Muse Spark 10/10 at every effort; minimal halves latency (p50 2,809 ms vs 5,485 ms) and cost (~$0.0051 per call). 5/5 honest "not visible". Muse Wonder also 10/10 and 5/5, p50 3,069 ms, ~3x cost. Confidence 0.95 to 0.98 on every hit: not useful as a signal.
+- **Lesson:** strict mode needs `additionalProperties: false` on every object. Reasoning tokens are billed as output, so `minimal` effort is the cheap, fast default for a single-point task.
+- **Decision:** D1 (Spark minimal default), D2 (Wonder as escalation), honesty needs a calibration step and possibly a verifier pass.
+
+## 2026-10-27 · S7 · Spike (c) for real: SAM 3.1 through the Meta API
+
+- **Why:** Research showed SAM 3.1 is served by the Meta Model API, so no hosting is needed and the hackathon's "use SAM 3.1" path is direct.
+- **What I did:** `spikes/sam/api_sam.py` (Responses API, model `sam-3.1`, point prompts built with `meta-sam-parser`); `pipeline_preview.py` (Muse Spark → highlight via model box vs SAM point prompt vs SAM box prompt on 16 targets); decoded a mask to an SVG path.
+- **Result:** 73% whole-element masks from off-centre clicks; p50 1,338 ms, p95 2,454 ms. Near-miss refinement 10/30 → 11/30. Highlight IoU vs ScreenSpot boxes: model box 0.57, SAM box prompt 0.51, SAM point prompt 0.41 (ScreenSpot boxes are often loose, which penalises tight masks; on synthetic UIs SAM won 3 of 5). Mask payload must keep its leading `!` marker or the parser rejects it.
+- **Decision:** D3 (SAM via API), D4 (box prompt, agreement gate, never move the click), D5 (two-call step so the box shows first).
+
+## 2026-10-27 · S8 · Planning docs
+
+- **Why:** One source of truth that every agent and the founder follow daily.
+- **What I did:** Wrote `docs/` SPIKES, PRD, REQUIREMENTS (IDs used by tests), ARCHITECTURE (contracts, prompt, schema, SAM, redaction, storage, hosting, eval), RULES (privacy P1 to P9, never fake a result), PHASES (Day 1 to 8 with DoD, freeze Nov 2), DESIGN (ink-and-highlighter identity, overlay, screens, demo script), MEMORY (decisions, assumptions, ranked questions), RISKS (8 risks with kill criteria). Rewrote `CLAUDE.md` as the agent entry point; `AGENTS.md` symlinks to it for other coding agents. Added `.gitignore` (protects `.env`).
+- **Checks:** WCAG contrast ratios computed with a script, not from memory; Atkinson Hyperlegible Next confirmed on Google Fonts; cross-references between docs checked.
+- **Decision:** D6 to D13 in MEMORY.md.
+
+## 2026-10-27 · S9 · Interview Q&A
+
+- **Why:** The founder must be able to explain every choice, number and limitation.
+- **What I did:** A Sonnet subagent wrote `.learnings/01` to `10` from the docs only, tagging each answer as Measured, Decided, Planned, Hypothesis or Known limitation; then I verified the files against the docs.
+
+## 2026-10-27 · S10 · Docs corrected, Q&A synced
+
+- **Why:** The Q&A was written before a round of doc corrections, so some answers carried open notes that the docs had since settled.
+- **What I did:** Re-read every doc and Q&A file. Updated the Q&A for the settled points: raw IPs never stored (only a salted daily hash for 48 h), prompt v1 not yet measured, Growth overage about 5x API cost, box shown after the grounding call, judging Nov 4 to 8 and ceremony Nov 9, R6 trigger as total account spend, solid-block redaction with postcodes, IBANs and digit runs tested on Day 3, self-hosted font, Muse Spark Open and the Benchmarks section in SPIKES, and Startup as a recommendation pending MEMORY Q3. Fixed wrong or missing references (a non-existent rule ID, a refine response shape, a retention open question).
+- **Decision:** No product decision changed. Items that need the founder are listed in the verifier report.
+
+## 2026-10-27 · S11 · Verifier follow-ups closed
+
+- **Why:** The independent verifier left five items for the lead.
+- **What I did:** Added the measured pipeline latency (p50 5,319 ms, max 7,677 ms with two SAM calls) and the 90% candidate ceiling to SPIKES.md so RISKS R4 and this log cite evidence; clarified that the R6 $110 trigger sits above the $107 plan, so reaching it means spend is off-plan; added `make smoke` to ARCHITECTURE and CLAUDE.md; settled keepalive on Vercel Cron (GitHub Actions schedule is the fallback).
+- **Result:** No em or en dashes, all relative links resolve, every requirement ID cited exists. Plan is ready for founder approval; no application code written.
+
+## 2026-10-27 · S12 · Daily agent prompt pack
+
+- **Why:** The founder wants one copy-paste prompt per day, in sync with the plan, so any agent session starts with the same context, rules and definition of done, and the founder learns what was built each day.
+- **What I did:** Wrote `docs/prompts/00-common.md` (session start protocol with a carry-over check, non-negotiables, spend control, skills, subagent rules, git, end-of-session duties including a daily founder briefing) and one prompt per date from Oct 28 to Nov 4, each split into phases with checks, a DoD, an API ceiling and founder tasks. Added real use-case evidence points: manual runs on public sites (Day 4), a 20-task E2E suite (Day 5), a usability test with real people (Day 6). Synced PHASES.md, RULES.md §7 and CLAUDE.md to point at the prompts; removed the superseded single prompt file.
+- **Decision:** Feature freeze stays Nov 2 23:59; Nov 3 is regression, video and submission; Nov 4 is verify and submit by 18:00 London.
+
+## 2026-10-27 · S13 · Kickoff audit loop + Day 1 close-out
+
+- **Why:** Founder kicked off the project and required an independent score (gate 8.5/10) with a fix loop, Day 1 verified complete, and readiness for the next working day.
+- **What I did:** Three internal subagent audits on disjoint briefs (docs consistency 7.0, privacy/security 5.5, eval evidence 6.0) plus two Meta API reviewers (`muse-spark-1.3` 7.6, `muse-wonder-1.0` 7.8; 2 calls, 8,192 prompt tokens each, ~$0.04). Recorded founder decisions D14-D16 (plan approved, Indie, public `showme` MIT, accounts/cap/story). Fixed confirmed findings across MEMORY, PHASES, ARCHITECTURE, REQUIREMENTS, RISKS, SPIKES, day-2 prompt, `.gitignore`, CLAUDE sync. Added persistent gate `scripts/score_gate.py` -> `docs/SCORE.md` + `.learnings/score-history.json`. `git init`, MIT LICENSE, public GitHub repo, first commit.
+- **Result / evidence:** `docs/SCORE.md` (generated score), `.learnings/daily/2026-10-27.md` (fixed vs rejected/deferred findings with reasons).
+- **Decision:** No fabricated spike logs (RULES section 2); gap disclosed in SPIKES.md. Day 2 starts from the filled-in `docs/prompts/day-2-oct-28.md`. Founder still owes Q4 (Official Rules) + credit expiry (Q6).

@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;background:#f6f7f9;color:#1d2330}
+header{background:#fff;border-bottom:1px solid #e3e6ea;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+main{max-width:900px;margin:32px auto;background:#fff;border-radius:10px;padding:32px;box-shadow:0 1px 3px #0001}
+label{display:block;font-size:13px;color:#5b6475;margin-top:18px}
+input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cfd5dd;border-radius:6px;font-size:15px;margin-top:6px}
+.row{display:flex;gap:16px}.row>div{flex:1}
+button{margin-top:24px;padding:10px 18px;border:0;border-radius:6px;font-size:15px}
+.primary{background:#2457f5;color:#fff}.danger{background:#fff;color:#c2272d;border:1px solid #c2272d}
+p.muted{color:#5b6475;font-size:14px}
+</style></head><body>
+<header><b>StreamFlix</b><span>Signed in as jane.doe@example.com</span></header>
+<main>
+<h2>Billing &amp; subscription</h2>
+<p class="muted">Premium plan · £10.99/month · renews on 14 Nov 2026</p>
+<label>Name on card</label><input value="Jane Doe">
+<label>Card number</label><input value="4111 1111 1111 1111">
+<div class="row"><div><label>Expiry</label><input value="08/29"></div><div><label>CVC</label><input value="123"></div></div>
+<label>Billing phone</label><input value="+44 7700 900123">
+<label>Billing address</label><input value="12 Example Street, London SW1A 1AA">
+<button class="primary">Update payment method</button>
+<button class="danger">Cancel subscription</button>
+<p class="muted">Questions? Call support on (555) 010-4477 or email billing@streamflix.example</p>
+</main></body></html>

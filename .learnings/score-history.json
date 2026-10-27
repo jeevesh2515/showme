@@ -1,0 +1,11 @@
+[
+ {
+  "label": "day1-pre-git",
+  "score": 9.4,
+  "sha": "no-git",
+  "fails": [
+   "Day2 readiness: git repo exists",
+   "Day2 readiness: public remote origin set"
+  ]
+ }
+]

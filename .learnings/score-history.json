@@ -33,5 +33,11 @@
   "score": 11.07,
   "sha": "34a94af",
   "fails": []
+ },
+ {
+  "label": "day1-loop2b",
+  "score": 10.0,
+  "sha": "6bf5294",
+  "fails": []
  }
 ]

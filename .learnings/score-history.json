@@ -39,5 +39,17 @@
   "score": 10.0,
   "sha": "6bf5294",
   "fails": []
+ },
+ {
+  "label": "day1-verify-final",
+  "score": 10.0,
+  "sha": "6b943f7",
+  "fails": []
+ },
+ {
+  "label": "day1-close",
+  "score": 10.0,
+  "sha": "6b943f7",
+  "fails": []
  }
 ]

@@ -174,7 +174,7 @@ Audio ≤ 60 s, `audio/webm|ogg|wav`, returns `{"text": "..."}`. Audio is forwar
 
 ### 5.1 Model call
 
-`muse-spark-1.3`, Chat Completions, `temperature: 0`, `reasoning_effort: "minimal"` (measured: same 10/10 accuracy as default, half the latency), `response_format` JSON schema with `strict: true`, `max_tokens: 1024`. The image is the redacted JPEG/WebP data URL. History is sent as text only, never earlier images (privacy and tokens).
+`muse-spark-1.3`, Chat Completions, `temperature: 0`, `reasoning_effort: "minimal"` (measured: same 10/10 accuracy as default, half the latency), `response_format` JSON schema with `strict: true`, `max_tokens: 1024`. The image is the redacted JPEG/WebP data URL. History is sent as text only, never earlier images (privacy and tokens). Effort ladder (D19): default stays `minimal`; agents may raise Spark to `medium`/`high` or Wonder to `high`/`max` on hard tasks (hard screens, failed minimal retries, checkpoint/audit reviews), logging model + effort + cost per call and announcing count + estimated cost first, within the day ceiling. Contributor models are banned at every effort (D18/P6).
 
 ### 5.2 System prompt (v1; versioned in `showme/core/prompts.py`, changes require an eval run)
 

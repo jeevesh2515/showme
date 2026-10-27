@@ -39,7 +39,7 @@ Docs win over code until a MEMORY.md decision changes them. Update the doc in th
 
 ## Model/API gotchas (measured, SPIKES.md)
 
-- Base `https://api.meta.ai/v1`, bearer `MODEL_API_KEY`. Default `muse-spark-1.3` with `reasoning_effort=minimal` (same 10/10 as default, ~½ latency/cost ~$0.0051/call); `muse-wonder-1.0` is escalation/comparison only (~3× cost). Pin model IDs.
+- Base `https://api.meta.ai/v1`, bearer `MODEL_API_KEY`. Default `muse-spark-1.3` with `reasoning_effort=minimal` (same 10/10 as default, ~½ latency/cost ~$0.0051/call); `muse-wonder-1.0` is escalation/comparison only (~3× cost). Pin model IDs. D19: Spark `medium`/`high` and Wonder `high`/`max` allowed on hard tasks — log model+effort+cost per call, announce estimate first, day ceiling still binds. D18: `*-contributor` banned at every effort, no exceptions.
 - Strict JSON schema: every object needs `additionalProperties: false` and all props required, or call fails. Coords on 0–1000 grid; values can exceed 1000 — clamp in postprocess.
 - Confidence is uncalibrated (0.95–0.98 on every hit) — never gate honesty on it alone; calibration/verifier decided Day 3 (ARCHITECTURE §5.5).
 - SAM 3.1 via `POST /v1/responses` + `meta-sam-parser`; prompt with model **box** (IoU 0.51) not point (0.41). Keep mask payload leading `!`. Agreement gate: IoU ≥ 0.5, SAM box contains model point, SAM area ≤ 25% image; else `{"mode":"box"}`. Timeout 4 s; SAM failure never fails step. Two calls (`/v1/step` then `/v1/refine`) so box shows ~1.3 s sooner.

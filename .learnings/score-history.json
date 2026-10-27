@@ -51,5 +51,11 @@
   "score": 10.0,
   "sha": "6b943f7",
   "fails": []
+ },
+ {
+  "label": "effort-policy",
+  "score": 10.0,
+  "sha": "22348bf",
+  "fails": []
  }
 ]

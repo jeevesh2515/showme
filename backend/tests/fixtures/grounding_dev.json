@@ -1,0 +1,25 @@
+{
+ "response": {
+  "status": "ok",
+  "action": "tap",
+  "instruction": "Tap Done at the top left to close.",
+  "target_label": "Done",
+  "point": {
+   "x": 95,
+   "y": 98
+  },
+  "bbox": {
+   "x_min": 47,
+   "y_min": 80,
+   "x_max": 144,
+   "y_max": 115
+  },
+  "scroll_direction": "none",
+  "type_text": "",
+  "confidence": 0.99,
+  "caution": "",
+  "reason": "Done button at top left closes this App Store preview window."
+ },
+ "sample_id": "v2-mobile-451",
+ "instruction": "close this window"
+}

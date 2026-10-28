@@ -14,12 +14,20 @@ echo "== secrets: gitleaks on git-tracked files only (.env is ignored, env names
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 git ls-files -z | tar --null -T - -cf - | tar -xf - -C "$tmp"
-# .env.example + docs list variable NAMES (SPEND_CAP_...) which trip generic-api-key; scan code dirs fully, docs/examples by rule exclusion via config not available -> scan all and filter known name-only files
-if gitleaks dir "$tmp" --no-banner 2>&1 | tee "$tmp/out"; then
-  echo "gitleaks: clean"
-else
-  grep -v -E "(\.env\.example|docs/ARCHITECTURE\.md|docs/prompts/)" "$tmp/out" | grep -i "finding\|leak" && exit 1 || echo "gitleaks: only known env-name false positives (.env.example, ARCHITECTURE.md)"
-fi
+gitleaks dir "$tmp" --no-banner --report-format json --report-path "$tmp/report.json" >/dev/null 2>&1 || true
+python3 - "$tmp/report.json" <<'PY'
+import json, sys
+allowed = (".env.example", "docs/ARCHITECTURE.md")  # variable NAMES only (SPEND_CAP_...), no values
+try:
+    findings = json.load(open(sys.argv[1]))
+except Exception:
+    findings = []
+bad = [f for f in findings if not any(f["File"].endswith(a) for a in allowed)]
+for f in bad:
+    print("LEAK", f["File"], f["StartLine"], f["RuleID"])
+print(f"gitleaks: {len(findings)} findings, {len(bad)} unexpected")
+sys.exit(1 if bad else 0)
+PY
 echo "== docker build =="
 docker build -q backend >/dev/null && echo "docker build ok"
 echo "PRE-PUSH VERIFY PASS"

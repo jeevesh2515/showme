@@ -70,7 +70,7 @@ From the dataset cards and Hugging Face API (research subagent, sources listed):
 | Benchmark | HF id | Licence | Size | Box format | Notes |
 | --- | --- | --- | --- | --- | --- |
 | ScreenSpot v1 | `bevaya/ScreenSpot` (was `rootsautomation/ScreenSpot`) | Apache-2.0 | 1,272 samples, one `test` split | normalised xyxy | Used for the smoke test. Fields `data_type` (text/icon), `data_source` (ios, android, macos, windows, gitlab, shop, forum, tool) |
-| ScreenSpot-v2 | `OS-Copilot/ScreenSpot-v2` | Apache-2.0 | sample count **UNVERIFIED** (re-annotated v1, expected ~1,272); images in one zip | absolute xywh (inferred from values) | Headline benchmark: fixes v1 label errors |
+| ScreenSpot-v2 | `OS-Copilot/ScreenSpot-v2` | Apache-2.0 | sample count **1,272 verified 2026-10-28** (desktop 334 + mobile 501 + web 437 annotation rows; 730 unique images; loaders unit-tested and boxes drawn + visually checked in eval/debug/); images in one zip | absolute xywh (verified 2026-10-28: drawn boxes land on targets) | Headline benchmark: fixes v1 label errors |
 | ScreenSpot-Pro | `likaixin/ScreenSpot-Pro` | MIT | 1,581 samples, 3.38 GB, per-app annotation JSON | absolute xyxy | Hard, high-res professional apps; fields `group`, `ui_type`, `platform` for stratification |
 
 Sources: [ScreenSpot card](https://huggingface.co/datasets/rootsautomation/ScreenSpot), [v2 card](https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2), [Pro card](https://huggingface.co/datasets/likaixin/ScreenSpot-Pro), [Pro paper](https://arxiv.org/html/2504.07981v1). All three are ungated. Box formats for v2 and Pro are inferred from example values, so the Day 2 loaders include unit tests that draw a few boxes and check them visually.

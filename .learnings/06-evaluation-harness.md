@@ -1,6 +1,6 @@
 # 06 Evaluation harness
 
-Purpose: explain how ShowMe will be measured, why those benchmarks, and how I stop myself from fooling myself. Tags are explained in [README.md](README.md). As of 2026-10-27 the harness is not built and no benchmark has been run. The only measurement is a 10-sample smoke test (n = 10, ScreenSpot v1, which is near-saturated). Every headline target in this file is a goal, not a result.
+Purpose: explain how ShowMe will be measured, why those benchmarks, and how I stop myself from fooling myself. Tags are explained in [README.md](README.md). As of 2026-10-28 the harness is built (`eval/`, imports `showme.core`) and the first prompt-v1 measurement exists: ScreenSpot-v2 dev-100 = 93/100 at the 2560 px cap (Spark minimal). Dev split is tuning-only, not a headline number; held-out v2, Pro and negatives run Day 3. Every headline target in this file is a goal, not a result.
 
 ### Q: What will you measure, and what has been measured so far?
 
@@ -107,7 +107,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 ### Q: Is the eval the same code as production?
 
-**Short answer:** [Decided] Yes by design. The eval imports `showme.core` and uses the production prompt, schema, post-processing and image preprocessing (downscale to 1920 px and JPEG encode).
+**Short answer:** [Decided] Yes by design. The eval imports `showme.core` and uses the production prompt, schema, post-processing and image preprocessing (downscale to 2560 px (D20) and JPEG encode).
 
 **Detail:**
 - EVAL-2 has an import check test. Rule: no eval-only prompt tricks.
@@ -168,7 +168,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 **Detail:**
 - Day 2 runs the dev split with Spark minimal and sanity-checks the numbers against the spike.
-- Day 2 also checks the 1920 px downscale against native and 1280 px on the dev split (A7).
+- Day 2 also checks the downscale against native (A7, measured Day 2) on the dev split (A7).
 - With 100 samples, differences of a few points are within noise. I should not over-read dev results.
 
 **Evidence:** [ARCHITECTURE.md section 13](../docs/ARCHITECTURE.md), [PHASES.md Day 2](../docs/PHASES.md), [MEMORY.md A7](../docs/MEMORY.md)

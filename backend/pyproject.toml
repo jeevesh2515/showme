@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "showme"
+version = "0.1.0"
+description = "ShowMe backend: grounding + SAM refinement via Meta Model API"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2",
+    "pillow>=10",
+    "meta-sam-parser>=0.1",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic-settings>=2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "respx>=0.21",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["showme"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.mypy]
+python_version = "3.11"

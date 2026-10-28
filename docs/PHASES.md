@@ -23,17 +23,17 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 2 · Wed Oct 28 · Backend core + eval harness skeleton
 
-- [ ] Monorepo skeleton per ARCHITECTURE §2; `Makefile` targets `setup dev test lint eval e2e`
-- [ ] `showme/core`: `prompts.py` (v1), `schema.py`, `grounding.py` (httpx, retries, 429), `postprocess.py`, `sam.py` (box prompt, mask → SVG, agreement check), `pricing.py`
-- [ ] Unit tests: API-2, API-3, API-4, API-5 (respx recorded fixtures)
-- [ ] FastAPI: `/v1/step`, `/v1/refine`, `/v1/healthz`; Pydantic models; error codes (API-1, API-7)
-- [ ] Rate limiter + spend cap with an in-memory backend for local dev (API-6). Supabase backend lands Day 5 behind the same interface
-- [ ] Dockerfile; `docker compose up` serves the API (ENG-1)
-- [ ] CI: ruff, mypy, pytest, Docker build, gitleaks (ENG-2 backend half; API-8 OpenAPI drift lands Day 4)
-- [ ] Eval: dataset loaders for ScreenSpot-v2 and -Pro (download, bbox conversion with unit tests), runner with response cache, `predictions.jsonl` writer
-- [ ] Run the v2 **dev split (100)** with Muse Spark minimal; record the number (spike was n=10 on v1, no comparable baseline); stop only below 75% per RISKS R1 early warning
+- [x] Monorepo skeleton per ARCHITECTURE §2; `Makefile` targets `setup dev test lint eval e2e`
+- [x] `showme/core`: `prompts.py` (v1), `schema.py`, `grounding.py` (httpx, retries, 429), `postprocess.py`, `sam.py` (box prompt, mask → SVG, agreement check), `pricing.py`
+- [x] Unit tests: API-2, API-3, API-4, API-5 (respx recorded fixtures)
+- [x] FastAPI: `/v1/step`, `/v1/refine`, `/v1/healthz`; Pydantic models; error codes (API-1, API-7)
+- [x] Rate limiter + spend cap with an in-memory backend for local dev (API-6). Supabase backend lands Day 5 behind the same interface
+- [x] Dockerfile; `docker compose up` serves the API (ENG-1)
+- [x] CI: ruff, mypy, pytest, Docker build, gitleaks (ENG-2 backend half; API-8 OpenAPI drift lands Day 4) - green on `day-2-backend-core-eval`, run 40639260225
+- [x] Eval: dataset loaders for ScreenSpot-v2 and -Pro (download, bbox conversion with unit tests), runner with response cache, `predictions.jsonl` writer
+- [x] Run the v2 **dev split (100)** with Muse Spark minimal; record the number (spike was n=10 on v1, no comparable baseline); stop only below 75% per RISKS R1 early warning
 
-**DoD:** `curl /v1/step` with a real screenshot returns a valid step locally; CI green; dev-split result written by the harness (not by hand).
+**DoD:** `curl /v1/step` with a real screenshot returns a valid step locally; CI green; dev-split result written by the harness (not by hand). **Met 2026-10-28** (93.0% dev-100 at 2560 px, `eval/results/2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max2560/report.md`).
 
 ## Day 3 · Thu Oct 29 · Evaluation day + redaction in the browser
 

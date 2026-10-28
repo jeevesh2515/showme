@@ -19,7 +19,7 @@ Purpose: answer every privacy, security and threat-model question with the exact
 **Short answer:** [Measured] OCR plus regex. tesseract.js finds words and boxes, regex patterns find emails, phones and card numbers (with a Luhn check), and matching regions are covered. In the spike this found 10/10 PII strings with 0 false positives on three synthetic fixtures.
 
 **Detail:**
-- Pipeline: decode into an `ImageBitmap`, OCR in a Web Worker (self-hosted English traineddata), regex patterns, review screen, render solid blocks on a canvas, downscale to at most 1920 px, export JPEG q=0.85.
+- Pipeline: decode into an `ImageBitmap`, OCR in a Web Worker (self-hosted English traineddata), regex patterns, review screen, render solid blocks on a canvas, downscale to at most 2560 px (D20), export JPEG q=0.85.
 - Patterns in the design: email, phone (9 to 15 digits, separators allowed), card (13 to 19 digits plus Luhn), UK postcode, IBAN, and digit runs of 8 or more. Only email, phone and card were tested in the spike. Postcodes, IBANs and long digit runs are MVP additions, tested on Day 3 (FLOW-2).
 - Speed in Node on an Apple M5: 154 to 375 ms per screenshot. Browser timing is UNVERIFIED and expected to be slower. Day 3 measures it on a laptop and a mid-range phone.
 - Regions are hidden with a solid block, not a reversible blur. The docs say "blur" for the user action (tap-to-blur), but the output is a solid block.

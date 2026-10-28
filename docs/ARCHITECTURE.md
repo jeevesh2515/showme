@@ -12,7 +12,7 @@ flowchart LR
   subgraph Browser["Browser (Next.js app, user's device)"]
     U[User: screenshot + goal] --> R["Redaction worker<br/>tesseract.js OCR + regex"]
     R --> RV["Review screen<br/>auto blurs + brush + tap-to-blur"]
-    RV -->|"RedactedImage only<br/>(canvas re-encode, max 1920 px)"| C[Step client]
+    RV -->|"RedactedImage only<br/>(canvas re-encode, max 2560 px)"| C[Step client]
     C --> O["Overlay renderer<br/>box, then SAM outline"]
     O --> U
     H[("Step history<br/>tab memory only")] <--> C
@@ -126,7 +126,7 @@ Request:
 }
 ```
 
-Validation (API-1): goal 1 to 300 chars; history ≤ 20 items; image `image/jpeg|png|webp`, decoded ≤ 3 MB, max side ≤ 2048 px, width/height must match the decoded image; `redaction.pipeline` must be present (the client cannot reach the endpoint without the redaction pipeline having produced the image; see PRIV-1). `escalate: true` uses `muse-wonder-1.0` (stretch S2). Honesty limit (D16): `redaction.pipeline` and guide `consent` are self-attested, so PRIV-1/2/5 are enforced for the official client only; the backend cannot prove an arbitrary API caller redacted. Privacy copy must state this, never claim server-side proof.
+Validation (API-1): goal 1 to 300 chars; history ≤ 20 items; image `image/jpeg|png|webp`, decoded ≤ 3 MB, max side ≤ 2560 px, width/height must match the decoded image; `redaction.pipeline` must be present (the client cannot reach the endpoint without the redaction pipeline having produced the image; see PRIV-1). `escalate: true` uses `muse-wonder-1.0` (stretch S2). Honesty limit (D16): `redaction.pipeline` and guide `consent` are self-attested, so PRIV-1/2/5 are enforced for the official client only; the backend cannot prove an arbitrary API caller redacted. Privacy copy must state this, never claim server-side proof.
 
 Response 200:
 
@@ -154,7 +154,7 @@ Errors: 400 `invalid_image`, 413 `image_too_large`, 422 validation, 429 `rate_li
 
 ### `POST /v1/refine`
 
-Request: `{"image": "data:...", "box": {...}, "point": {...}}`. Response: `{"mode": "outline", "svg_path": "M35.5 0L...", "origin": {"x": 396, "y": 612}, "box": {...}, "timings_ms": {"sam": 1338}, "cost_usd": 0.0025}` or `{"mode": "box", "timings_ms": {"sam": 1338}, "cost_usd": 0.0025}` when the agreement check fails or SAM errors (refinement never blocks the step; SAM is billed per image, usage tokens are 0).
+Request: `{"image": "data:...", "image_meta": {"width": ..., "height": ..., "redaction": {"pipeline": "v1"}}, "box": {...}, "point": {...}}` (`image_meta.redaction.pipeline` required, same PRIV-1 attestation as `/v1/step`). Response: `{"mode": "outline", "svg_path": "M35.5 0L...", "origin": {"x": 396, "y": 612}, "box": {...}, "timings_ms": {"sam": 1338}, "cost_usd": 0.0025}` or `{"mode": "box", "timings_ms": {"sam": 1338}, "cost_usd": 0.0025}` when the agreement check fails or SAM errors (refinement never blocks the step; SAM is billed per image, usage tokens are 0).
 
 ### `POST /v1/guides` (opt-in share)
 
@@ -260,7 +260,7 @@ Measured with the smaller spike schema (`target_visible` + point + bbox + confid
 2. **OCR** in a Web Worker with tesseract.js, English traineddata self-hosted under `/public/tesseract/` (no third-party CDN call). Output: words with boxes, grouped into lines.
 3. **Patterns** (`patterns.ts`): email; phone (9 to 15 digits, separators allowed); card (13 to 19 digits + Luhn); UK postcode; IBAN; long digit runs ≥ 8 (account and reference numbers). Each match maps back to word boxes; box padded 4 px.
 4. **Review screen** (mandatory, cannot be skipped): auto-blurred regions shown; user can tap any OCR text line to blur it, paint with a brush, or undo. Big "Looks private enough, continue" button.
-5. **Render**: draw the bitmap to a canvas, fill each region with a solid block (not a reversible blur), downscale so the long side ≤ 1920 px, export JPEG q=0.85 (WebP if smaller). Canvas export drops EXIF/GPS metadata.
+5. **Render**: draw the bitmap to a canvas, fill each region with a solid block (not a reversible blur), downscale so the long side ≤ 2560 px (D20: 2560 measured equal to native on dev-100, 1920 lost 8 points), export JPEG q=0.85 (WebP if smaller). Canvas export drops EXIF/GPS metadata.
 6. **Brand the output**: `type RedactedImage = { dataUrl: string; meta: RedactionMeta } & { readonly __brand: "RedactedImage" }`. Only `redact()` can create one; `api.step()` and `api.refine()` accept only `RedactedImage` (compile-time guard). An E2E test asserts no request body ever contains bytes of the original fixture (PRIV-1).
 7. Goal text also runs through `patterns.ts` before sending.
 
@@ -323,7 +323,7 @@ Total plan: ~$27 eval + ~$20 development + $60 public-demo cap ≈ $107 of the $
 | Cron | Vercel Cron (daily) | Purge + keepalive | GitHub Actions schedule |
 | CI | GitHub Actions | Free for public repos | n/a |
 
-Change from the default stack, with reason: FastAPI runs as a Vercel function instead of a container host, because free container hosts sleep (cold starts of 30 to 60 s would hit judges) and Vercel keeps one origin. Docker remains for local dev, CI and the fallback. Constraint: Vercel functions cap request bodies at 4.5 MB, which the 1920 px JPEG compression keeps well under (**UNVERIFIED for the current Vercel limits; check on Day 4**).
+Change from the default stack, with reason: FastAPI runs as a Vercel function instead of a container host, because free container hosts sleep (cold starts of 30 to 60 s would hit judges) and Vercel keeps one origin. Docker remains for local dev, CI and the fallback. Constraint: Vercel functions cap request bodies at 4.5 MB, which the 2560 px JPEG compression keeps under (largest dev-100 JPEG measured Day 2; recheck Day 4) (**UNVERIFIED for the current Vercel limits; check on Day 4**).
 
 ## 11. Configuration
 
@@ -353,9 +353,9 @@ SPEND_CAP_TOTAL_USD=60
 ## 13. Eval harness
 
 - `make eval SUITE=<screenspot-v2|screenspot-pro|negatives|all> [N=300] [MODEL=muse-spark-1.3] [EFFORT=minimal] [SAM=on|off] [SPLIT=dev|heldout]`.
-- Eval adapter (production-prompt measurement, not spike confirmation): each benchmark instruction becomes `Goal: <instruction>` with empty history; the Day 2/3 runs are the first measurement of prompt v1. Negatives pass = `status == "not_visible"` exactly; `unsure` is reported separately. SAM ablation must also report gate-pass %, gated IoU and box-fallback rate (the agreement gate itself is unmeasured until Day 3). Headline benchmark images are unredacted at native-or-1920 px; `RESULTS.md` must co-headline the redacted E2E accuracy and footnote this difference.
+- Eval adapter (production-prompt measurement, not spike confirmation): each benchmark instruction becomes `Goal: <instruction>` with empty history; the Day 2/3 runs are the first measurement of prompt v1. Negatives pass = `status == "not_visible"` exactly; `unsure` is reported separately. SAM ablation must also report gate-pass %, gated IoU and box-fallback rate (the agreement gate itself is unmeasured until Day 3). Headline benchmark images are unredacted at native-or-2560 px; `RESULTS.md` must co-headline the redacted E2E accuracy and footnote this difference.
 - Datasets: ScreenSpot-v2 (`OS-Copilot/ScreenSpot-v2`, Apache-2.0, bbox absolute xywh) full; ScreenSpot-Pro (`likaixin/ScreenSpot-Pro`, MIT, bbox absolute xyxy) stratified 300 by `group × ui_type`, seed 0; negatives = 200 instructions paired with a screenshot from a different app (seeded), expected `not_visible`.
-- **Same preprocessing as production**: images go through the same downscale (long side ≤ 1920) and JPEG encode as the client; no redaction (public benchmark images contain no user PII), stated in the report.
+- **Same preprocessing as production**: images go through the same downscale (long side ≤ 2560, D20) and JPEG encode as the client; no redaction (public benchmark images contain no user PII), stated in the report.
 - Metric: click accuracy = predicted point inside ground-truth box; by platform (mobile/web/desktop) and element type (text/icon) for v2; by group and ui_type for Pro. Also: honesty (negatives), confidence AUROC and reliability bins, highlight IoU (model box vs SAM agreement-gated), latency p50/p95, cost per step.
 - Prompt iteration only on a fixed **dev split** (first 100 of a seeded shuffle of v2); headline numbers on the rest + Pro, which are never used for tuning.
 - Output: `eval/results/<YYYY-MM-DD>-<suite>-<config>/` with `predictions.jsonl` (every request, response, score), `summary.json`, `report.md`; `eval/results/RESULTS.md` is regenerated from summaries and linked from the README and `/eval` page.

@@ -104,7 +104,7 @@ Purpose: answer questions about limits, abuse control, unit cost, budget and wha
 **Short answer:** [Known limitation] Vercel Hobby for the web app and the Python function, Supabase free tier, GitHub Actions. All free, and several limits are UNVERIFIED until the Day 4 deploy.
 
 **Detail:**
-- Vercel Python functions: I believe there is a 4.5 MB request body cap, but that is UNVERIFIED for the current limits and must be checked on Day 4. The 1920 px JPEG is about 300 KB per image.
+- Vercel Python functions: I believe there is a 4.5 MB request body cap, but that is UNVERIFIED for the current limits and must be checked on Day 4. The 2560 px JPEG is about 300 KB per image.
 - Function duration limits against my 25 s request timeout: untested.
 - Supabase free tier pauses after 7 days of inactivity; the daily purge cron keeps it active through judging.
 - If the Vercel function fails body or time limits, I deploy the same Docker image to Render or Cloud Run that day.

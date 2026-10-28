@@ -7,7 +7,7 @@ Purpose: answer every "why X and not Y" about the design. Tags are explained in 
 **Short answer:** [Decided] A Next.js app does redaction in the browser. A thin, stateless FastAPI backend calls Muse Spark 1.3 for the step and SAM 3.1 for the outline. Supabase holds data only for opt-in shared guides and rate-limit counters.
 
 **Detail:**
-- Browser: OCR plus regex redaction in a web worker, mandatory review screen, canvas re-encode (max 1920 px), step client, overlay renderer, step history in tab memory only.
+- Browser: OCR plus regex redaction in a web worker, mandatory review screen, canvas re-encode (max 2560 px (D20)), step client, overlay renderer, step history in tab memory only.
 - Backend routes: `/v1/step`, `/v1/refine`, `/v1/guides`, `/v1/healthz`, `/internal/purge`, plus `/v1/transcribe` as stretch.
 - Meta Model API at `api.meta.ai/v1`: `muse-spark-1.3`, `sam-3.1`, optional `muse-wonder-1.0` and Muse Voice Transcribe.
 - Daily Vercel Cron purges expired guides.
@@ -92,7 +92,7 @@ Purpose: answer every "why X and not Y" about the design. Tags are explained in 
 - This is a deliberate change from the default stack (D8).
 - The backend is a second Vercel project reached through Next.js rewrites at `/api/*`.
 - Fallback: the same Docker image on Render free or Google Cloud Run. Docker stays for local dev, CI and the fallback.
-- UNVERIFIED: Vercel functions cap request bodies at 4.5 MB, which the 1920 px JPEG keeps well under, but I have not checked the current Vercel limits or duration limits. That is a Day 4 test (A5, R7). If it fails, I deploy the Docker image elsewhere the same day.
+- UNVERIFIED: Vercel functions cap request bodies at 4.5 MB, which the 2560 px JPEG keeps well under, but I have not checked the current Vercel limits or duration limits. That is a Day 4 test (A5, R7). If it fails, I deploy the Docker image elsewhere the same day.
 
 **Evidence:** [ARCHITECTURE.md section 10](../docs/ARCHITECTURE.md), [MEMORY.md D8 and A5](../docs/MEMORY.md), [RISKS.md R7](../docs/RISKS.md)
 
@@ -120,12 +120,12 @@ Purpose: answer every "why X and not Y" about the design. Tags are explained in 
 
 **Evidence:** [MEMORY.md D7](../docs/MEMORY.md), [ARCHITECTURE.md sections 4 and 5.1](../docs/ARCHITECTURE.md), [SPIKES.md (b)](../docs/SPIKES.md)
 
-### Q: Why downscale to 1920 px?
+### Q: Why downscale to 2560 px (D20)?
 
 **Short answer:** [Decided] Body-size limits, token cost and latency. The same downscale runs in the eval so the benchmark matches production.
 
 **Detail:**
-- Client pipeline: downscale so the long side is at most 1920 px, export JPEG at quality 0.85 (WebP if smaller). Canvas re-encode also strips EXIF and GPS.
+- Client pipeline: downscale so the long side is at most 2560 px (D20), export JPEG at quality 0.85 (WebP if smaller). Canvas re-encode also strips EXIF and GPS.
 - The server accepts max side 2048 px and a decoded size of 3 MB.
 - Untested: the accuracy impact. A7 says to compare native, 1920 and 1280 on the dev split on Day 2. If step p95 is above 8 s, the fallback is 1280 px after checking dev-split accuracy.
 - My spike fixtures include 1170x2532 and 2560x1440 images, so real inputs will often be downscaled.

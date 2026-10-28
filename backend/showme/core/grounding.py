@@ -13,11 +13,25 @@ from showme.core.settings import Settings
 
 
 class ModelError(Exception):
-    """Unparsable/non-conforming model output or upstream failure after retries (API-2)."""
+    """Unparsable/non-conforming model output or upstream failure after retries (API-2).
+
+    `usage` accumulates tokens from EVERY generation attempt, including ones whose
+    output failed parsing - that spend happened and must be accounted (review 2026-10-28).
+    """
+
+    def __init__(self, message: str, usage: dict[str, Any] | None = None) -> None:
+        super().__init__(message)
+        self.usage: dict[str, Any] = usage or {}
 
 
 class ModelTimeout(ModelError):
     """Grounding call exceeded its timeout (ARCH §9)."""
+
+
+def _accumulate(total: dict[str, Any], usage: dict[str, Any] | None) -> None:
+    for k, v in (usage or {}).items():
+        if isinstance(v, (int, float)):
+            total[k] = total.get(k, 0) + v
 
 
 async def _post(client: httpx.AsyncClient, settings: Settings, payload: dict[str, Any]) -> httpx.Response:
@@ -68,22 +82,24 @@ async def ground(
         "max_tokens": 1024,
     }
     t0 = time.perf_counter()
+    total_usage: dict[str, Any] = {}
     async with httpx.AsyncClient() as client:
         # One retry on unparsable output, then ModelError (API-2).
         for _ in range(2):
             try:
                 resp = await _post(client, settings, payload)
             except httpx.TimeoutException as e:
-                raise ModelTimeout(str(e)) from e
+                raise ModelTimeout(str(e), usage=total_usage) from e
             except httpx.HTTPError as e:
-                raise ModelError(str(e)) from e
+                raise ModelError(str(e), usage=total_usage) from e
             if resp.status_code != 200:
-                raise ModelError(f"model API HTTP {resp.status_code}")
+                raise ModelError(f"model API HTTP {resp.status_code}", usage=total_usage)
             try:
                 data = resp.json()
+                _accumulate(total_usage, data.get("usage"))  # before parsing: failed parses still cost
                 content = data["choices"][0]["message"]["content"]
                 parsed = ModelOutput.model_validate(json.loads(content))
-                return parsed, dict(data.get("usage") or {}), int((time.perf_counter() - t0) * 1000)
+                return parsed, total_usage, int((time.perf_counter() - t0) * 1000)
             except (KeyError, IndexError, TypeError, ValueError, ValidationError):
                 continue
-    raise ModelError("unparsable model output after retry")
+    raise ModelError("unparsable model output after retry", usage=total_usage)

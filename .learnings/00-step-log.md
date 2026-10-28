@@ -133,3 +133,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Two read-only free-DeepSeek subagents (security, test coverage). Fixed all confirmed security findings; added the highest-value missing tests (504, schema-invalid retry, Retry-After sleep, daily/total caps, PRIV-7 end-to-end, SAM contains gate, refine log privacy).
 - **Result / evidence:** `make lint test` green (53 + 19); gitleaks on tracked files finds only env-var-name false positives; `.env` untracked. Rejected findings recorded in MEMORY 2026-10-28 entry with reasons.
 - **Decision:** No rule weakened; P3 salted-hash wording now actually implemented (date + `IP_HASH_SALT_SEED`).
+
+## 2026-10-28 · S18 · Post-Day-2 review fixes (4 bugs)
+
+- **Why:** External review of commit 22c8805 found 4 bugs the green suite missed.
+- **What I did:** (1) Disabled uvicorn access log in Dockerfile + Makefile + app logger (PRIV-3) with a real-uvicorn integration test asserting no client IP/query in output. (2) Eval runs got immutable identities (split, n, sample-set hash, config, prompt version, run id) and `write_run` refuses overwrite. (3) Grounding accumulates usage across retry generations and preserves it on `ModelError`; API records spend on 502/504 too, so a spend cap trips after failed generations. (4) Dev/held-out are fixed partitions (100/rest); `--n` only limits inside a partition and invalid limits are rejected.
+- **Result / evidence:** 59 backend + 22 eval tests pass; reviewer numbers reproduced in test (two malformed generations record $0.003350, cap at $0.002 trips next call); smoke rerun writes a new immutable dir at $0 (cache).
+- **Decision:** None; all four fixes implement existing PRIV-3/EVAL-7/EVAL-9/API-6 requirements.

@@ -12,4 +12,4 @@ RUN useradd -r app
 EXPOSE 8000
 
 USER app
-CMD ["uvicorn", "showme.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "showme.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]

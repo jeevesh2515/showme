@@ -105,3 +105,47 @@ def test_draw_debug_writes_limit_images(tmp_path):
         )
     written = draw_debug(samples, tmp_path / "debug", limit=2)
     assert len(written) == 2 and all(path.exists() for path in written)
+
+
+def _fake_samples(count=250):
+    from pathlib import Path as _P
+
+    from showme_eval.datasets import Sample
+
+    return [
+        Sample(
+            id=f"s{i}",
+            instruction="x",
+            image_path=_P("x.png"),
+            bbox_xyxy_px=(0, 0, 1, 1),
+            width=10,
+            height=10,
+            platform="web",
+            element_type="text",
+        )
+        for i in range(count)
+    ]
+
+
+def test_eval_9_partitions_disjoint_for_all_n():
+    from showme_eval.datasets import select_partition
+
+    samples = _fake_samples()
+    held = {s.id for s in select_partition(samples, "heldout")}
+    for n in (1, 10, 50, 100):
+        dev = {s.id for s in select_partition(samples, "dev", n=n)}
+        assert dev and not dev & held
+    assert len({s.id for s in select_partition(samples, "dev")}) == 100
+
+
+def test_eval_9_invalid_n_rejected():
+    import pytest
+    from showme_eval.datasets import select_partition
+
+    samples = _fake_samples()
+    with pytest.raises(ValueError):
+        select_partition(samples, "dev", n=300)
+    with pytest.raises(ValueError):
+        select_partition(samples, "heldout", n=10_000)
+    with pytest.raises(ValueError):
+        select_partition(samples, "dev", n=0)

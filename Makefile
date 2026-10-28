@@ -14,7 +14,7 @@ setup:
 	uv sync --project eval
 
 dev:
-	uv run --project backend uvicorn showme.api.main:app --reload --port 8000
+	uv run --project backend uvicorn showme.api.main:app --reload --port 8000 --no-access-log
 
 test:
 	uv run --project backend pytest backend/tests -q

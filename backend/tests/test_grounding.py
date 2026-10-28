@@ -108,3 +108,22 @@ def test_api_5_retry_after_seconds_is_slept(monkeypatch):
     respx.post(URL).mock(side_effect=[reply("", 429, headers={"Retry-After": "2"}), reply(json.dumps(GOOD))])
     out, _, _ = asyncio.run(ground("data:image/jpeg;base64,x", "goal", [], SETTINGS))
     assert out.status == "ok" and 2.0 in sleeps
+
+
+@respx.mock
+def test_api_2_retry_usage_accumulates_across_generations():
+    # Review 2026-10-28 #3: malformed -> valid must report BOTH generations' usage.
+    r1 = reply("not json", usage={"prompt_tokens": 1000, "completion_tokens": 100})
+    r2 = reply(json.dumps(GOOD), usage={"prompt_tokens": 1000, "completion_tokens": 100})
+    respx.post(URL).mock(side_effect=[r1, r2])
+    _, usage, _ = asyncio.run(ground("data:image/jpeg;base64,x", "goal", [], SETTINGS))
+    assert usage["prompt_tokens"] == 2000 and usage["completion_tokens"] == 200
+
+
+@respx.mock
+def test_api_2_failed_generations_usage_preserved_on_error():
+    r = reply("not json", usage={"prompt_tokens": 1000, "completion_tokens": 100})
+    respx.post(URL).mock(return_value=r)
+    with pytest.raises(ModelError) as excinfo:
+        asyncio.run(ground("data:image/jpeg;base64,x", "goal", [], SETTINGS))
+    assert excinfo.value.usage["prompt_tokens"] == 2000  # two malformed generations

@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import os
 import sys
+import uuid
 from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
-from .datasets import dev_split, heldout_split, load_pro_local, load_v2_local
+from .datasets import load_pro_local, load_v2_local, select_partition
 from .report import update_spend, write_run
 from .runner import run
 
@@ -55,6 +57,41 @@ def _parse(argv: list[str] | None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def sample_set_hash(sample_ids: list[str]) -> str:
+    return hashlib.sha256(",".join(sample_ids).encode()).hexdigest()[:8]
+
+
+def build_run_dir(
+    results_root: Path,
+    *,
+    date_str: str,
+    suite: str,
+    split: str,
+    sample_ids: list[str],
+    model: str,
+    effort: str,
+    sam_on: bool,
+    max_side: int,
+    prompt_version: str,
+    run_id: str,
+) -> Path:
+    """Immutable run identity: split + sample set + config + prompt + run id (review 2026-10-28 #2)."""
+    name = (
+        f"{date_str}-{suite}-{split}-n{len(sample_ids)}-{sample_set_hash(sample_ids)}"
+        f"-{model}-{effort}-sam{'on' if sam_on else 'off'}-max{max_side}-pv{prompt_version}-{run_id}"
+    )
+    return results_root / name
+
+
+def _prompt_version() -> str:
+    try:
+        from showme.core.prompts import PROMPT_VERSION
+
+        return PROMPT_VERSION
+    except ImportError:
+        return "unknown"
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse(argv)
     if args.headline and args.split == "dev":
@@ -66,20 +103,22 @@ def main(argv: list[str] | None = None) -> int:
     data_dir = DATA_ROOT / args.suite
     try:
         if args.suite == "screenspot-v2":
-            samples = load_v2_local(data_dir)
-            samples = (
-                dev_split(samples, seed=0, n=args.n or 100)
-                if args.split == "dev"
-                else heldout_split(samples, seed=0)[: args.n]
+            samples = select_partition(
+                load_v2_local(data_dir), args.split, n=args.n, seed=0
             )
         else:
             samples = load_pro_local(data_dir)
+            if args.n is not None and not 1 <= args.n <= len(samples):
+                raise ValueError(f"--n {args.n} invalid for {len(samples)} samples")
             samples = samples[: args.n]
     except FileNotFoundError as exc:
         print(
             f"dataset not available: {exc}\nSee eval/README.md to fetch it. Nothing was run.",
             file=sys.stderr,
         )
+        return 2
+    except ValueError as exc:
+        print(f"invalid sample selection: {exc}; nothing was run", file=sys.stderr)
         return 2
 
     if not samples:
@@ -94,10 +133,19 @@ def main(argv: list[str] | None = None) -> int:
 
     sam_on = args.sam == "on"
     max_side = args.max_side if args.max_side > 0 else 100_000
-    config = (
-        f"{args.model}-{args.effort}-sam{'on' if sam_on else 'off'}-max{args.max_side}"
+    out_dir = build_run_dir(
+        RESULTS_ROOT,
+        date_str=date.today().isoformat(),
+        suite=args.suite,
+        split=args.split,
+        sample_ids=[s.id for s in samples],
+        model=args.model,
+        effort=args.effort,
+        sam_on=sam_on,
+        max_side=args.max_side,
+        prompt_version=_prompt_version(),
+        run_id=uuid.uuid4().hex[:8],
     )
-    out_dir = RESULTS_ROOT / f"{date.today().isoformat()}-{args.suite}-{config}"
     cache_dir = (
         RESULTS_ROOT / "cache"
     )  # shared: unchanged config reruns cost $0 (ARCH §13)

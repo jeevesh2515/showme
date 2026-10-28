@@ -25,6 +25,11 @@
       "date": "2026-10-28",
       "label": "2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max2560",
       "cost_usd": 0.0
+    },
+    {
+      "date": "2026-10-28",
+      "label": "2026-10-28-screenspot-v2-dev-n10-c99e8b8f-muse-spark-1.3-minimal-samoff-max2560-pvv1-a8155fb4",
+      "cost_usd": 0.0
     }
   ]
 }

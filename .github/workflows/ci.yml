@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks scans the push commit range; shallow clone breaks it
 
       - uses: astral-sh/setup-uv@v5
         with:

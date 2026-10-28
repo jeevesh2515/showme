@@ -81,5 +81,11 @@
   "score": 10.0,
   "sha": "62eb1e6",
   "fails": []
+ },
+ {
+  "label": "day2-final",
+  "score": 10.0,
+  "sha": "71255a5",
+  "fails": []
  }
 ]

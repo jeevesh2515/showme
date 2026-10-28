@@ -1,0 +1,43 @@
+name: ci
+
+permissions:
+  contents: read
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Sync
+        run: |
+          uv sync --project backend
+          uv sync --project eval
+
+      - name: Lint
+        run: |
+          uv run --project backend ruff check backend eval
+          uv run --project backend ruff format --check backend eval
+
+      - name: Type-check
+        run: uv run --project backend mypy --strict backend/showme/core
+
+      - name: Test
+        run: |
+          uv run --project backend pytest backend/tests -q
+          uv run --project eval pytest eval/tests -q
+
+      - name: Docker build
+        run: docker build backend
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

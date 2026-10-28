@@ -1,0 +1,28 @@
+[project]
+name = "showme-eval"
+version = "0.1.0"
+description = "ShowMe eval harness (ScreenSpot-v2 / ScreenSpot-Pro)"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow>=10.0",
+    "showme",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv.sources]
+showme = { path = "../backend", editable = true }
+
+[project.scripts]
+showme-eval = "showme_eval.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["showme_eval"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

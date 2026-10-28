@@ -45,7 +45,7 @@ Purpose: explain how ShowMe finds the next step and draws it, what was measured,
 
 **Detail:**
 - In the spike, clamping was applied before converting to pixels, as the docs warn.
-- Normalised coordinates make the model's answer independent of image size, which matters because the image is downscaled to at most 1920 px.
+- Normalised coordinates make the model's answer independent of image size, which matters because the image is downscaled to at most 2560 px (D20).
 - Post-processing is a pure function with table-driven tests planned, including out-of-range (1001), inverted boxes and a point outside the box.
 
 **Evidence:** [SPIKES.md (a)](../docs/SPIKES.md), [ARCHITECTURE.md section 5.4](../docs/ARCHITECTURE.md), [REQUIREMENTS.md API-3](../docs/REQUIREMENTS.md)

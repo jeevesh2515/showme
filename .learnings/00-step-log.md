@@ -105,3 +105,31 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Three internal subagent audits on disjoint briefs (docs consistency 7.0, privacy/security 5.5, eval evidence 6.0) plus two Meta API reviewers (`muse-spark-1.3` 7.6, `muse-wonder-1.0` 7.8; 2 calls, 8,192 prompt tokens each, ~$0.04). Recorded founder decisions D14-D16 (plan approved, Indie, public `showme` MIT, accounts/cap/story). Fixed confirmed findings across MEMORY, PHASES, ARCHITECTURE, REQUIREMENTS, RISKS, SPIKES, day-2 prompt, `.gitignore`, CLAUDE sync. Added persistent gate `scripts/score_gate.py` -> `docs/SCORE.md` + `.learnings/score-history.json`. `git init`, MIT LICENSE, public GitHub repo, first commit.
 - **Result / evidence:** `docs/SCORE.md` (generated score), `.learnings/daily/2026-10-27.md` (fixed vs rejected/deferred findings with reasons).
 - **Decision:** No fabricated spike logs (RULES section 2); gap disclosed in SPIKES.md. Day 2 starts from the filled-in `docs/prompts/day-2-oct-28.md`. Founder still owes Q4 (Official Rules) + credit expiry (Q6).
+
+## 2026-10-28 · S14 · Backend core + API (Day 2)
+
+- **Why:** Day 2 theme: production core path that both API and eval import (EVAL-2), so benchmark numbers measure the shipped code.
+- **What I did:** Main agent built `showme/core` (prompts v1, strict schema, grounding with 429 backoff/Retry-After + one unparsable retry, postprocess §5.4, SAM refine, pricing, PII). Free-DeepSeek subagents built eval harness (`eval/`), Makefile/Docker/CI, and FastAPI layer on disjoint files; main integrated and reviewed.
+- **Result / evidence:** 53 backend + 19 eval tests pass; `mypy --strict` on core clean; `docker compose up` healthz ok; live `/v1/step` on the synthetic billing fixture returned a valid step and `/v1/refine` a SAM outline. Live debugging found 3 real bugs (mask regex truncating `|` payloads, SAM H/W swap, 422 handler returning 500), each fixed with a regression test; real responses recorded under `backend/tests/fixtures/`.
+- **Decision:** D21 (refine needs the same redaction attestation as step) after the security subagent flagged the missing gate.
+
+## 2026-10-28 · S15 · ScreenSpot-v2 data + dev split
+
+- **Why:** First real measurement of prompt v1; v2 size was UNVERIFIED.
+- **What I did:** Downloaded v2 annotations + 1.33 GB image zip (all 730 unique images verified present), loaders drew GT boxes on desktop/mobile/web/Pro samples and I eyeballed them (boxes land on targets; xywh for v2, xyxy for Pro confirmed).
+- **Result / evidence:** v2 = **1,272 samples**. `make smoke` 10/10. Dev-100 (seed 0): **93/100 at 2560 px** (desktop 94.7%, mobile 95.7%, web 88.2%; text 98.2%, icon 86.4%), p50 2,772 ms, files in `eval/results/2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max2560/`.
+- **Decision:** None yet on default model; held-out Day 3 decides (R1). Dev is not headline (EVAL-9).
+
+## 2026-10-28 · S16 · A7 resolution sweep
+
+- **Why:** A7: does the 1920 px cap hurt accuracy?
+- **What I did:** Same dev-100 at 1920, native, 2560 (cache made the 2560 run cost $0.0605).
+- **Result / evidence:** 1920 = 85.0%, native = 93.0%, 2560 = 93.0%; 9 mobile misses at 1920 become hits at native, 1 reverse. Reports in `eval/results/2026-10-28-*/report.md`.
+- **Decision:** D20 — cap raised to 2560 everywhere (client spec, API validation, eval), ARCH updated same day.
+
+## 2026-10-28 · S17 · Security + test review loop
+
+- **Why:** Day 2 touched logging, settings, storage-adjacent code; 00-common requires security review on such days.
+- **What I did:** Two read-only free-DeepSeek subagents (security, test coverage). Fixed all confirmed security findings; added the highest-value missing tests (504, schema-invalid retry, Retry-After sleep, daily/total caps, PRIV-7 end-to-end, SAM contains gate, refine log privacy).
+- **Result / evidence:** `make lint test` green (53 + 19); gitleaks on tracked files finds only env-var-name false positives; `.env` untracked. Rejected findings recorded in MEMORY 2026-10-28 entry with reasons.
+- **Decision:** No rule weakened; P3 salted-hash wording now actually implemented (date + `IP_HASH_SALT_SEED`).

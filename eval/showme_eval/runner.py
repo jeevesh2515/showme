@@ -134,6 +134,7 @@ async def run(
                     image_url, sample.instruction, [], settings
                 )
             except Exception as exc:  # noqa: BLE001 - one bad sample must not kill the run
+                err_usage = getattr(exc, "usage", None) or {}
                 predictions.append(
                     {
                         "sample_id": sample.id,
@@ -149,7 +150,7 @@ async def run(
                         "gt_bbox": list(sample.bbox_xyxy_px),
                         "hit": False,
                         "latency_ms": 0,
-                        "cost_usd": 0.0,
+                        "cost_usd": _cost(err_usage, settings.model),
                         "model": settings.model,
                         "effort": settings.effort,
                         "prompt_version": prompt_version,

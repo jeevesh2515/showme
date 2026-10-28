@@ -123,6 +123,30 @@ def heldout_split(
     return _shuffled(samples, seed)[n_dev:]
 
 
+DEV_PARTITION_SIZE = 100
+
+
+def select_partition(
+    samples: Sequence[Sample], split: str, n: int | None = None, seed: int = 0
+) -> list[Sample]:
+    """Fixed partitions first, then limit INSIDE the partition (EVAL-9).
+
+    Dev is always the first 100 of the seeded shuffle; held-out is the rest.
+    Raising --n can never pull held-out samples into dev (review 2026-10-28 #4).
+    """
+    shuffled = _shuffled(samples, seed)
+    partition = (
+        shuffled[:DEV_PARTITION_SIZE]
+        if split == "dev"
+        else shuffled[DEV_PARTITION_SIZE:]
+    )
+    if n is None:
+        return partition
+    if n < 1 or n > len(partition):
+        raise ValueError(f"--n {n} invalid for {split} partition of {len(partition)}")
+    return partition[:n]
+
+
 def draw_debug(samples: Sequence[Sample], out_dir: Path, limit: int = 5) -> list[Path]:
     """Draw GT boxes onto copies of the images so the format can be eyeballed."""
     out_dir = Path(out_dir)

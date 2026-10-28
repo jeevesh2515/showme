@@ -31,6 +31,9 @@ from showme.core.pricing import cost_ground
 from showme.core.sam import refine
 
 log = logging.getLogger("showme.api")
+# PRIV-3: uvicorn's access log prints client IP + full path/query. Kill it at app level too,
+# so every launch path (make dev, Docker, direct uvicorn) is metadata-only.
+logging.getLogger("uvicorn.access").disabled = True
 
 _DATA_URL = re.compile(r"^data:image/(?:jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$")
 MAX_IMAGE_BYTES = 3 * 1024 * 1024
@@ -158,19 +161,26 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             }
             for item in req.history
         ]
+
+        def record_usage(usage: dict) -> float:
+            pt, ct = int(usage.get("prompt_tokens", 0)), int(usage.get("completion_tokens", 0))
+            cost = cost_ground(core_settings.model, pt, ct)
+            if cost > 0:
+                request.app.state.spend.record(cost)
+            _record_meta(request, core_settings.model, pt + ct, cost)
+            return cost
+
         try:
             raw, usage, latency_ms = await ground(req.image, mask_pii(req.goal), history, core_settings)
-        except ModelTimeout:
+        except ModelTimeout as e:
+            record_usage(e.usage)  # generations before the timeout still cost money
             raise ApiError(504, "model_timeout", "The model took too long. Please try again.") from None
-        except ModelError:
+        except ModelError as e:
+            record_usage(e.usage)
             raise ApiError(502, "model_error", "The model could not read this screen. Please try again.") from None
 
         result = postprocess(raw, width, height, core_settings.tau)
-        prompt_tokens = int(usage.get("prompt_tokens", 0))
-        completion_tokens = int(usage.get("completion_tokens", 0))
-        cost_usd = cost_ground(core_settings.model, prompt_tokens, completion_tokens)
-        request.app.state.spend.record(cost_usd)
-        _record_meta(request, core_settings.model, prompt_tokens + completion_tokens, cost_usd)
+        cost_usd = record_usage(usage)
         return StepResponse(
             **result.model_dump(),
             step_id="st_" + secrets.token_hex(6),

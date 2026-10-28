@@ -263,3 +263,85 @@ def test_priv_3_ip_stored_as_salted_hash_not_raw() -> None:
     api.post("/v1/step", json=step_payload())
     keys = list(api.app.state.rate._hits)  # type: ignore[attr-defined]
     assert keys and all("testclient" not in k and len(k.split(":")[-1]) == 64 for k in keys)
+
+
+def test_priv_3_launch_paths_disable_uvicorn_access_log() -> None:
+    import logging
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[2]
+    assert "--no-access-log" in (root / "backend/Dockerfile").read_text()
+    assert "--no-access-log" in (root / "Makefile").read_text()
+    assert logging.getLogger("uvicorn.access").disabled
+
+
+def test_priv_3_real_uvicorn_logs_no_client_ip_or_query() -> None:
+    # Integration: boot the real server exactly as deployed, hit it with a sensitive query,
+    # then read everything it printed. Access-log lines would contain both.
+    import pathlib
+    import socket
+    import subprocess
+    import sys
+    import time
+    import urllib.request
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    proc = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "showme.api.main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+            "--no-access-log",
+        ],
+        cwd=pathlib.Path(__file__).resolve().parents[1],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env={"PATH": "/usr/bin:/bin:/usr/local/bin", "MODEL_API_KEY": "test"},
+    )
+    try:
+        deadline = time.time() + 20
+        while True:
+            try:
+                with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/v1/healthz?token=SENSITIVE_QUERY_VALUE", timeout=2
+                ) as r:
+                    assert r.status == 200
+                break
+            except Exception:
+                if time.time() > deadline:
+                    raise
+                time.sleep(0.25)
+    finally:
+        proc.terminate()
+        out, _ = proc.communicate(timeout=10)
+    assert "SENSITIVE_QUERY_VALUE" not in out
+    assert "/v1/healthz?" not in out
+
+
+@respx.mock
+def test_api_6_failed_generations_still_record_spend() -> None:
+    # Review 2026-10-28 #3: two malformed generations cost 2 x 0.001675; counter must show it,
+    # and a daily cap between one and two generations' cost must trip on the next call.
+    respx.post(STEP_URL).mock(return_value=meta_reply(content="not json"))
+    api = client(spend_cap_daily_usd=0.002, spend_cap_total_usd=60.0)
+    resp = api.post("/v1/step", json=step_payload())
+    assert resp.status_code == 502
+    assert api.app.state.spend._day_total == pytest.approx(0.003350)  # type: ignore[attr-defined]
+    resp2 = api.post("/v1/step", json=step_payload())
+    assert resp2.status_code == 503 and resp2.json()["error"]["code"] == "spend_cap_reached"
+
+
+@respx.mock
+def test_api_2_retry_then_success_costs_both_generations() -> None:
+    respx.post(STEP_URL).mock(side_effect=[meta_reply(content="not json"), meta_reply()])
+    body = client().post("/v1/step", json=step_payload()).json()
+    assert body["cost_usd"] == round(2 * (1000 * 1.25 + 100 * 4.25) / 1_000_000, 6)

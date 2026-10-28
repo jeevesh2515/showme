@@ -71,6 +71,10 @@ def write_run(
     out_dir: Path, predictions: Sequence[dict[str, Any]], meta: dict[str, Any]
 ) -> dict:
     out_dir = Path(out_dir)
+    if (out_dir / "predictions.jsonl").exists():
+        raise FileExistsError(
+            f"run artefacts are immutable, refusing to overwrite: {out_dir}"
+        )
     out_dir.mkdir(parents=True, exist_ok=True)
     result = {
         **meta,

@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from showme_eval.report import update_spend, write_run
 
 META = {
@@ -58,3 +59,45 @@ def test_eval_7_report_links_predictions_file(tmp_path):
         for line in (tmp_path / "predictions.jsonl").read_text().splitlines()
     ]
     assert rows and "response" in rows[0]
+
+
+def test_eval_7_sequential_runs_preserve_earlier_artefacts(tmp_path):
+    # Review 2026-10-28 #2: dev -> smoke -> heldout must not overwrite each other.
+    import hashlib
+
+    from showme_eval.cli import build_run_dir
+    from showme_eval.report import write_run
+
+    dirs = []
+    for split, n, run_id in (
+        ("dev", 100, "aaaa1111"),
+        ("dev", 10, "bbbb2222"),
+        ("heldout", 100, "cccc3333"),
+    ):
+        d = build_run_dir(
+            tmp_path,
+            date_str="2026-10-28",
+            suite="screenspot-v2",
+            split=split,
+            sample_ids=[f"s{i}" for i in range(n)],
+            model="muse-spark-1.3",
+            effort="minimal",
+            sam_on=False,
+            max_side=2560,
+            prompt_version="v1",
+            run_id=run_id,
+        )
+        write_run(d, [dict(PREDICTIONS[0], response={"status": "ok"})], META)
+        dirs.append(d)
+    assert len({str(d) for d in dirs}) == 3
+    before = {
+        d.name: hashlib.sha256((d / "predictions.jsonl").read_bytes()).hexdigest()
+        for d in dirs
+    }
+    with pytest.raises(FileExistsError):
+        write_run(dirs[0], PREDICTIONS, META)
+    after = {
+        d.name: hashlib.sha256((d / "predictions.jsonl").read_bytes()).hexdigest()
+        for d in dirs
+    }
+    assert before == after

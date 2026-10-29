@@ -1,10 +1,10 @@
 # 06 Evaluation harness
 
-Purpose: explain how ShowMe will be measured, why those benchmarks, and how I stop myself from fooling myself. Tags are explained in [README.md](README.md). As of 2026-10-28 the harness is built (`eval/`, imports `showme.core`) and the first prompt-v1 measurement exists: ScreenSpot-v2 dev-100 = 93/100 at the 2560 px cap (Spark minimal). Dev split is tuning-only, not a headline number; held-out v2, Pro and negatives run Day 3. Every headline target in this file is a goal, not a result.
+Purpose: explain how ShowMe will be measured, why those benchmarks, and how I stop myself from fooling myself. Tags are explained in [README.md](README.md). As of 2026-10-29 (Day 3) all headline benchmarks have run: ScreenSpot-v2 held-out 90.7% (1063/1172), ScreenSpot-Pro stratified 300 Spark 63.7% / Wonder 66.7%, negatives strict honesty 60.5%, SAM ablation and calibration measured. Every number below links to a generated file under `eval/results/` (`RESULTS.md` index). Dev split remains tuning-only.
 
 ### Q: What will you measure, and what has been measured so far?
 
-**Short answer:** [Planned] Click accuracy on ScreenSpot-v2 (full) and ScreenSpot-Pro (stratified 300), honesty on a 200-sample negatives suite, confidence calibration, highlight quality, latency and cost, plus a 20-task end-to-end suite. So far I have only the Day 1 smoke test: 10/10 on 10 ScreenSpot v1 samples and 5/5 absent-target probes.
+**Short answer:** [Measured] Click accuracy: v2 held-out 90.7% (mobile 91.9%, web 91.1%, desktop 88.6%; text 91.8%, icon 89.2%), Pro 300 Spark 63.7% (icon 40.0% is the weak spot), Wonder 66.7%. Honesty: 60.5% strict. Calibration AUROC 0.622. SAM gate pass 87.8%. E2E 20-task suite still planned Day 5-6.
 
 **Detail:**
 - Targets (goals): v2 at least 85%, Pro at least 40%, negatives at least 90%, E2E at least 70%, p50 at most 3.5 s and p95 at most 7 s, cost at most $0.01 per step.
@@ -60,7 +60,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 ### Q: What is the negatives suite and what does it show?
 
-**Short answer:** [Planned] 200 instructions, each paired with a screenshot from a different app (seeded), where the expected answer is `not_visible`. It measures whether ShowMe says "not here" instead of guessing. Target: at least 90%.
+**Short answer:** [Measured] 60.5% strict `not_visible` (121/200), 13 more `unsure`, 61 false `ok` (30.5%) - below the 90% goal and reported as the main honesty gap. Synthetic probes: prompt-injection 10/10 not followed, harmful goals 10/10 refused, PRIV-10 reveal-hidden probes 2/2 refused (`eval/results/2026-10-29-negatives-*/report.md`).
 
 **Detail:**
 - Spike precursor: 5/5 honest answers on five hand-picked absent targets, for example "cancel my Netflix subscription" on an iOS home screen. That used the spike's `target_visible` flag and a confidence below 0.3 rule.
@@ -71,7 +71,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 ### Q: How will you measure calibration?
 
-**Short answer:** [Planned] On Day 3, compute accuracy versus confidence bins (reliability bins) and the AUROC of confidence for hit versus miss on ScreenSpot-v2 and Pro. If AUROC is below 0.65, enable the verifier pass.
+**Short answer:** [Measured] AUROC 0.622 on held-out v2 (below 0.65). The verifier pass was built and measured: +0.6 pts on dev, +0.8 pts held-out - under the 5-point bar, so per RISKS R2 it stays off and confidence comes out of the UI (MEMORY D23). The model also returned confidence values above 1.0; post-processing now clamps them.
 
 **Detail:**
 - Why it matters: in the spike every hit had confidence 0.95 to 0.98, so confidence carries no signal yet (A2 "refuted so far").
@@ -87,6 +87,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 **Detail:**
 - The report states explicitly that click accuracy is unchanged by SAM (EVAL-4).
 - Spike evidence: refinement did not help clicks (raw 10/30, refined 11/30), and on 16 targets the model box scored a mean IoU of 0.57 against 0.51 for SAM box prompts and 0.41 for point prompts.
+- Day 3 ablation [Measured]: gate pass 87.8% (86/98), mean IoU model 0.556 vs SAM-gated 0.514, SAM better on 20/86. A Day 3 bug (SAM `lossless` payloads rejected) initially made gate pass 0/97; fixed test-first (D25). Human ratings on Day 6 decide whether the policy narrows (D24).
 - ScreenSpot ground-truth boxes are often loose, so IoU is a weak proxy for "is the highlight right". The E2E suite adds human-rated highlight quality (good, partial, wrong) per step in a CSV.
 - If the cut list requires, the human CSV goes first, but the IoU ablation stays.
 
@@ -175,7 +176,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 ### Q: What is the redaction eval?
 
-**Short answer:** [Planned] A fixture corpus of at least 30 strings including dark mode and 3x density, with a recall target of at least 95% and false positives reported, run by vitest. The spike result was 10/10 with 0 false positives on three synthetic fixtures.
+**Short answer:** [Measured] Shared corpus of 50 vectors (40 positive incl. dark-mode and 3x-density text cases, 10 negative) passes in both vitest and pytest: text-level recall 100% (40/40), 0 false positives. This is regex-on-text recall, not OCR-on-pixels recall; OCR timing in real Chrome was 106-214 ms on three fixtures, phone timing still pending.
 
 **Detail:**
 - FLOW-2 and PRIV-7 are the requirements. PRIV-9 checks EXIF stripping. PRIV-1 is a network assertion rather than a benchmark.

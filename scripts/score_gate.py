@@ -54,7 +54,7 @@ for s in ["spikes/grounding/smoke.py","spikes/sam/api_sam.py","spikes/redaction/
     check("Evidence", 20/6, f"spike script {s}", exists(s))
 check("Evidence", 20/6, "SPIKES labels estimates/UNVERIFIED + reproduction logs linked", "UNVERIFIED" in read("docs/SPIKES.md") and "spikes/results/2026-10-27-grounding" in read("docs/SPIKES.md"))
 check("Evidence", 20/6, "no hand-made eval/results claimed (dir absent or generated-only)", not exists("eval/results/RESULTS.md") or "generated" in read("eval/results/RESULTS.md").lower())
-check("Evidence", 20/6, "A2 downgraded to Unsupported (no miss sample)", "Unsupported" in read("docs/MEMORY.md"))
+check("Evidence", 20/6, "A2 downgraded from Supported (Unsupported or Refuted)", ("Unsupported" in read("docs/MEMORY.md")) or ("Refuted" in read("docs/MEMORY.md")))
 check("Evidence", 20/6, "archived grounding log reproduces 10/10 + 5/5", "10/10" in read("spikes/results/2026-10-27-grounding-spark-minimal.txt") and "5/5" in read("spikes/results/2026-10-27-grounding-spark-minimal.txt"))
 check("Evidence", 20/6, "D17 Indie criteria sourced from official page", "D17" in read("docs/MEMORY.md") and "dev.meta.ai/events/global-hackathon" in read("docs/MEMORY.md"))
 

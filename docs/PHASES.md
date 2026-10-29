@@ -37,13 +37,13 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 3 · Thu Oct 29 · Evaluation day + redaction in the browser
 
-- [ ] Full ScreenSpot-v2 held-out run (Spark minimal) → accuracy by platform × element type
-- [ ] ScreenSpot-Pro stratified 300: Spark minimal and Wonder minimal
-- [ ] Negatives suite (200) + 10 prompt-injection + 10 harmful-goal probes → honesty and refusal rates
-- [ ] Calibration: AUROC + reliability bins; decide τ and whether the verifier pass is on (ARCHITECTURE §5.5); record in MEMORY.md
-- [ ] Highlight ablation on v2 sample: model box vs SAM agreement-gated (EVAL-4)
-- [ ] `RESULTS.md` v1 generated; **decision checkpoint** (see RISKS.md kill criteria): effort level, Wonder escalation, verifier
-- [ ] Next.js app skeleton; redaction worker (tesseract.js self-hosted), `patterns.ts`, `redact()` with `RedactedImage` brand; vitest corpus (FLOW-2, PRIV-7, PRIV-9)
+- [x] Full ScreenSpot-v2 held-out run (Spark minimal) → accuracy by platform × element type
+- [x] ScreenSpot-Pro stratified 300: Spark minimal and Wonder minimal
+- [x] Negatives suite (200) + 10 prompt-injection + 10 harmful-goal probes → honesty and refusal rates
+- [x] Calibration: AUROC + reliability bins; decide τ and whether the verifier pass is on (ARCHITECTURE §5.5); record in MEMORY.md
+- [x] Highlight ablation on v2 sample: model box vs SAM agreement-gated (EVAL-4)
+- [x] `RESULTS.md` v1 generated; **decision checkpoint** (see RISKS.md kill criteria): effort level, Wonder escalation, verifier
+- [x] Next.js app skeleton; redaction worker (tesseract.js self-hosted), `patterns.ts`, `redact()` with `RedactedImage` brand; vitest corpus (FLOW-2, PRIV-7, PRIV-9)
 - [ ] Measure OCR time in a real browser on a laptop and a mid-range phone (dev-only bench page)
 
 **DoD:** `RESULTS.md` exists with real numbers and links to raw JSONL; checkpoint decisions recorded; redaction unit tests green.

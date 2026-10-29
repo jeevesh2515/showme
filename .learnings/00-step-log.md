@@ -140,3 +140,38 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** (1) Disabled uvicorn access log in Dockerfile + Makefile + app logger (PRIV-3) with a real-uvicorn integration test asserting no client IP/query in output. (2) Eval runs got immutable identities (split, n, sample-set hash, config, prompt version, run id) and `write_run` refuses overwrite. (3) Grounding accumulates usage across retry generations and preserves it on `ModelError`; API records spend on 502/504 too, so a spend cap trips after failed generations. (4) Dev/held-out are fixed partitions (100/rest); `--n` only limits inside a partition and invalid limits are rejected.
 - **Result / evidence:** 59 backend + 22 eval tests pass; reviewer numbers reproduced in test (two malformed generations record $0.003350, cap at $0.002 trips next call); smoke rerun writes a new immutable dir at $0 (cache).
 - **Decision:** None; all four fixes implement existing PRIV-3/EVAL-7/EVAL-9/API-6 requirements.
+
+## 2026-10-29 · S19 · Day 3 harness completion
+
+- **Why:** Day 3 needs held-out, Pro, negatives, SAM ablation and calibration numbers from the production path (EVAL-3..7); the Day 2 harness had label-only SAM, no negatives, no calibration.
+- **What I did:** Test-first: stratified Pro sampler (group x ui_type, seed 0), seeded cross-app negatives builder, synthetic injection/harmful/PRIV-10 fixtures rendered with headless Chrome, AUROC/reliability/tau metrics, RESULTS.md generator, bounded concurrency, SAM ablation with its own response cache, atomic spend/cache writes. Downloaded full Pro annotations (1,581 rows) and only the 300 sampled images.
+- **Result / evidence:** 28 eval tests pass; runs in `eval/results/2026-10-29-*` with `predictions.jsonl` per run.
+- **Decision:** None; implements ARCH section 13.
+
+## 2026-10-29 · S20 · Benchmark + checkpoint
+
+- **Why:** R1/R2/R5 kill criteria are decided at the Day 3 checkpoint with pre-registered responses.
+- **What I did:** Ran v2 held-out (1,172), Pro 300 Spark + Wonder, negatives 222, SAM ablation 100, calibration, verifier on dev + held-out cached predictions. Founder-facing spend announced before each run.
+- **Result / evidence:** v2 90.7%, Pro 63.7%/66.7%, honesty 60.5%, AUROC 0.622, verifier lift +0.6/+0.8 pts, SAM gate 87.8% IoU 0.514 vs 0.556. `eval/results/RESULTS.md`.
+- **Decision:** D22 Spark minimal default, no Wonder escalation; D23 verifier off + confidence out of UI; D24 SAM policy kept pending Day 6 human ratings.
+
+## 2026-10-29 · S21 · SAM lossless bug
+
+- **Why:** First ablation showed gate pass 0/97, which would have falsely killed the SAM story (R5).
+- **What I did:** Reproduced live, inspected a real response: payload starts `~` (lossless encoding) not `!` (one_bit); `sam.py` hardcoded one_bit and swallowed the decode error into box mode. Recorded the real response as a fixture, failing test, then marker-based encoding.
+- **Result / evidence:** Gate pass 0% -> 87.8%; 7 SAM tests pass. Same pattern earlier: verifier `max_tokens=64` returned null content (reasoning tokens), fixed to 1024 with a payload regression test.
+- **Decision:** D25; ARCH section 6 updated same day.
+
+## 2026-10-29 · S22 · Web skeleton + browser redaction
+
+- **Why:** Day 4 core loop needs the app shell and PRIV-1 redaction library ready (FLOW-2, PRIV-7, PRIV-9).
+- **What I did:** Two free-DeepSeek subagents on disjoint files (skeleton; redaction), main-agent integration: added `tesseract.js` dep, root pnpm workspace, Makefile web targets, dev OCR bench page. Self-hosted Atkinson font + tesseract assets with provenance hashes.
+- **Result / evidence:** `pnpm --filter web build/lint/typecheck` green; 71 web tests (68 redaction incl. shared-vector parity with pytest, EXIF strip, symbol-brand construct); OCR bench in real Chrome: 106-214 ms per fixture.
+- **Decision:** Phone timing stays a founder task (A4 half-measured).
+
+## 2026-10-29 · S23 · Review loop
+
+- **Why:** 00-common requires code + security review on redaction/logging days; gate is 8.5/10.
+- **What I did:** Two read-only DeepSeek reviews. Security 8.5/10; code review 6.5/10. Fixed confirmed findings (forgeable brand, silent OCR failure, EXIF fail-open, spend/cache atomicity, pooled negatives headline, PRIV-10 probes, Meta-host pin); rejected three with reasons in MEMORY.
+- **Result / evidence:** `make lint test` green (120 backend + 28 eval + 71 web); regenerated SAM/negatives/calibration artefacts after fixes.
+- **Decision:** No privacy rule weakened; verifier stays unwired while D23 keeps it off.

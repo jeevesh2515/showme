@@ -93,5 +93,19 @@
   "score": 10.0,
   "sha": "22c8805",
   "fails": []
+ },
+ {
+  "label": "day-3",
+  "score": 9.7,
+  "sha": "2582af6",
+  "fails": [
+   "Evidence: A2 downgraded to Unsupported (no miss sample)"
+  ]
+ },
+ {
+  "label": "day-3",
+  "score": 10.0,
+  "sha": "2582af6",
+  "fails": []
  }
 ]

@@ -28,6 +28,7 @@ class Sample:
     platform: str
     element_type: str  # v2 data_type / Pro ui_type
     group: str = ""  # Pro group / v2 data_source
+    expected_status: str = ""  # negatives only: model must return this status (EVAL-6)
 
 
 def xywh_to_xyxy(bbox: Sequence[float]) -> Box:
@@ -145,6 +146,76 @@ def select_partition(
     if n < 1 or n > len(partition):
         raise ValueError(f"--n {n} invalid for {split} partition of {len(partition)}")
     return partition[:n]
+
+
+def stratified_sample(samples: Sequence[Sample], n: int, seed: int = 0) -> list[Sample]:
+    """Proportional sample by (group x element_type), deterministic (EVAL-3)."""
+    if not 1 <= n <= len(samples):
+        raise ValueError(f"n {n} invalid for {len(samples)} samples")
+    rng = random.Random(seed)
+    strata: dict[tuple[str, str], list[Sample]] = {}
+    for s in samples:
+        strata.setdefault((s.group, s.element_type), []).append(s)
+    # proportional allocation, largest remainder, at least 1 per non-empty stratum when n allows
+    quotas: dict[tuple[str, str], float] = {
+        k: n * len(v) / len(samples) for k, v in strata.items()
+    }
+    alloc = {
+        k: max(1, int(q)) if n >= len(strata) else int(q) for k, q in quotas.items()
+    }
+    for k in sorted(quotas, key=lambda k: quotas[k] - int(quotas[k]), reverse=True):
+        if sum(alloc.values()) >= n:
+            break
+        if alloc[k] < len(strata[k]):
+            alloc[k] += 1
+    while sum(alloc.values()) > n:  # trim largest over-allocated stratum
+        k = max(alloc, key=lambda k: alloc[k] - quotas[k])
+        alloc[k] -= 1
+    out: list[Sample] = []
+    for k in sorted(strata):
+        pool = list(strata[k])
+        rng.shuffle(pool)
+        out.extend(pool[: alloc[k]])
+    rng.shuffle(out)
+    return out[:n]
+
+
+def build_negatives(samples: Sequence[Sample], n: int, seed: int = 0) -> list[Sample]:
+    """Pair each instruction with a screenshot from a different app/group (EVAL-6)."""
+    rng = random.Random(seed)
+    pool = list(samples)
+    rng.shuffle(pool)
+    out: list[Sample] = []
+    for i, source in enumerate(pool):
+        if len(out) >= n:
+            break
+        # deterministic partner: next sample in shuffled pool with a different image+group
+        partner = next(
+            (
+                pool[(i + j) % len(pool)]
+                for j in range(1, len(pool))
+                if pool[(i + j) % len(pool)].image_path != source.image_path
+                and pool[(i + j) % len(pool)].group != source.group
+            ),
+            None,
+        )
+        if partner is None:
+            continue
+        out.append(
+            Sample(
+                id=f"neg-{len(out)}",
+                instruction=source.instruction,
+                image_path=partner.image_path,
+                bbox_xyxy_px=(0.0, 0.0, 0.0, 0.0),
+                width=partner.width,
+                height=partner.height,
+                platform=partner.platform,
+                element_type=partner.element_type,
+                group=partner.group,
+                expected_status="not_visible",
+            )
+        )
+    return out
 
 
 def draw_debug(samples: Sequence[Sample], out_dir: Path, limit: int = 5) -> list[Path]:

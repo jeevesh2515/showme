@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-29",
+  "split": "heldout-cached",
+  "n_ok": 1148,
+  "verifier_checked": 1148,
+  "precision_before": 0.9250871080139372,
+  "precision_after": 0.9333958724202627,
+  "kept": 1066,
+  "est_cost_usd": 2.296
+}

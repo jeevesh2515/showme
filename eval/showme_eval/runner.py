@@ -97,11 +97,13 @@ async def run(
     headline: bool = False,
     cache_dir: Path | None = None,
     max_side: int = MAX_SIDE,
+    concurrency: int = 8,
 ) -> list[dict[str, Any]]:
     if split == "dev" and headline:
         raise ValueError("EVAL-9: a dev-split run cannot be headline")
 
-    # shortcut: SAM refinement is not applied yet, so sam_on only selects a cache key; EVAL-4 lands with the SAM ablation.
+    import asyncio
+
     from showme.core import prompts
     from showme.core.grounding import ground
     from showme.core.postprocess import postprocess
@@ -109,103 +111,172 @@ async def run(
     prompt_version = getattr(prompts, "PROMPT_VERSION", "unknown")
     tau = getattr(settings, "tau", TAU)
     cache = Cache(cache_dir) if cache_dir else None
-    predictions: list[dict[str, Any]] = []
+    semaphore = asyncio.Semaphore(max(1, concurrency))
 
-    for sample in samples:
+    async def one(sample: Sample) -> dict[str, Any]:
+        async with semaphore:
+            return await _one(
+                sample,
+                settings,
+                sam_on,
+                tau,
+                cache,
+                prompt_version,
+                ground,
+                postprocess,
+                max_side,
+            )
+
+    return list(await asyncio.gather(*(one(s) for s in samples)))
+
+
+async def _one(
+    sample, settings, sam_on, tau, cache, prompt_version, ground, postprocess, max_side
+):
+    try:
         image_url, width, height = preprocess(sample.image_path, max_side=max_side)
         image_sha = hashlib.sha256(image_url.encode()).hexdigest()
+        # Grounding answer cannot depend on SAM, so its cache key ignores sam_on (RULES section 5: $0 rerun).
         key = cache_key(
             settings.model,
             settings.effort,
             prompt_version,
             image_sha,
             sample.instruction,
-            sam_on,
+            False,
         )
         cached = cache.get(key) if cache else None
-        from_cache = bool(cached)
-        if cached:
-            response = _rebuild_model_output(cached["response"])
-            usage = cached.get("usage")
-            latency_ms = cached["latency_ms"]
-        else:
-            try:
-                response, usage, latency_ms = await ground(
-                    image_url, sample.instruction, [], settings
-                )
-            except Exception as exc:  # noqa: BLE001 - one bad sample must not kill the run
-                err_usage = getattr(exc, "usage", None) or {}
-                predictions.append(
-                    {
-                        "sample_id": sample.id,
-                        "instruction": sample.instruction,
-                        "platform": sample.platform,
-                        "element_type": sample.element_type,
-                        "group": sample.group,
-                        "status": "error",
-                        "error": type(exc).__name__,
-                        "confidence": None,
-                        "point": None,
-                        "box": None,
-                        "gt_bbox": list(sample.bbox_xyxy_px),
-                        "hit": False,
-                        "latency_ms": 0,
-                        "cost_usd": _cost(err_usage, settings.model),
-                        "model": settings.model,
-                        "effort": settings.effort,
-                        "prompt_version": prompt_version,
-                        "image_sha256": image_sha,
-                        "response": None,
-                    }
-                )
-                continue
-            response_json = _jsonable(response)
-            usage = _jsonable(usage)
-            if cache:
-                cache.put(
-                    key,
-                    {
-                        "response": response_json,
-                        "usage": usage,
-                        "latency_ms": latency_ms,
-                    },
-                )
-
-        result = postprocess(response, width, height, tau)
-        target = _get(result, "target")
-        point = _point_xy(target)
-        # GT is in original px; prediction is in preprocessed px. Scale GT to compare.
-        sx = width / sample.width if sample.width else 1.0
-        sy = height / sample.height if sample.height else 1.0
-        gt_scaled = (
-            sample.bbox_xyxy_px[0] * sx,
-            sample.bbox_xyxy_px[1] * sy,
-            sample.bbox_xyxy_px[2] * sx,
-            sample.bbox_xyxy_px[3] * sy,
+    except Exception as exc:  # noqa: BLE001 - one bad image/cache file must not kill the run
+        return {
+            "sample_id": sample.id,
+            "instruction": sample.instruction,
+            "platform": sample.platform,
+            "element_type": sample.element_type,
+            "group": sample.group,
+            "expected_status": sample.expected_status,
+            "gt_bbox": list(sample.bbox_xyxy_px),
+            "model": settings.model,
+            "effort": settings.effort,
+            "prompt_version": prompt_version,
+            "status": "error",
+            "error": type(exc).__name__,
+            "confidence": None,
+            "point": None,
+            "box": None,
+            "hit": False,
+            "latency_ms": 0,
+            "cost_usd": 0.0,
+            "response": None,
+        }
+    from_cache = bool(cached)
+    base = {
+        "sample_id": sample.id,
+        "instruction": sample.instruction,
+        "platform": sample.platform,
+        "element_type": sample.element_type,
+        "group": sample.group,
+        "expected_status": sample.expected_status,
+        "gt_bbox": list(sample.bbox_xyxy_px),
+        "model": settings.model,
+        "effort": settings.effort,
+        "prompt_version": prompt_version,
+        "image_sha256": image_sha,
+        "image_width": width,
+        "image_height": height,
+    }
+    if cached:
+        response, usage, latency_ms = (
+            _rebuild_model_output(cached["response"]),
+            cached.get("usage"),
+            cached["latency_ms"],
         )
-        hit = point is not None and point_in_box(point, gt_scaled)
-
-        predictions.append(
-            {
-                "sample_id": sample.id,
-                "instruction": sample.instruction,
-                "platform": sample.platform,
-                "element_type": sample.element_type,
-                "group": sample.group,
-                "status": _get(result, "status"),
-                "confidence": _get(result, "confidence"),
-                "point": list(point) if point else None,
-                "box": _box_xyxy(target),
-                "gt_bbox": list(sample.bbox_xyxy_px),
-                "hit": hit,
-                "latency_ms": latency_ms,
-                "cost_usd": 0.0 if from_cache else _cost(usage, settings.model),
-                "cached": from_cache,
-                "model": settings.model,
-                "effort": settings.effort,
-                "prompt_version": prompt_version,
-                "image_sha256": image_sha,
-                "response": _jsonable(response),
+    else:
+        try:
+            response, usage, latency_ms = await ground(
+                image_url, sample.instruction, [], settings
+            )
+        except Exception as exc:  # noqa: BLE001 - one bad sample must not kill the run
+            return {
+                **base,
+                "status": "error",
+                "error": type(exc).__name__,
+                "confidence": None,
+                "point": None,
+                "box": None,
+                "hit": False,
+                "latency_ms": 0,
+                "cost_usd": _cost(getattr(exc, "usage", None) or {}, settings.model),
+                "response": None,
             }
-        )
-    return predictions
+        if cache:
+            cache.put(
+                key,
+                {
+                    "response": _jsonable(response),
+                    "usage": _jsonable(usage),
+                    "latency_ms": latency_ms,
+                },
+            )
+    result = postprocess(response, width, height, tau)
+    target = _get(result, "target")
+    point, box = _point_xy(target), _box_xyxy(target)
+    sx = width / sample.width if sample.width else 1.0
+    sy = height / sample.height if sample.height else 1.0
+    gt_scaled = tuple(
+        v * (sx if i % 2 == 0 else sy) for i, v in enumerate(sample.bbox_xyxy_px)
+    )
+    status = _get(result, "status")
+    hit = (
+        (status == sample.expected_status)
+        if sample.expected_status
+        else (point is not None and point_in_box(point, gt_scaled))
+    )
+    cost = 0.0 if from_cache else _cost(usage, settings.model)
+    extra: dict[str, Any] = {}
+    if sam_on and box and point:
+        from showme.core.sam import refine
+        from showme.core.schema import BoxPx, PointPx
+
+        from .metrics import iou
+
+        sam_key = hashlib.sha256(f"sam:{image_sha}:{box}:{point}".encode()).hexdigest()
+        sam_cached = cache.get(sam_key) if cache else None
+        if sam_cached:
+            sam_box, sam_mode, sam_cost = (
+                sam_cached.get("sam_box"),
+                sam_cached.get("mode"),
+                0.0,
+            )
+        else:
+            ref = await refine(
+                image_url,
+                BoxPx(x1=int(box[0]), y1=int(box[1]), x2=int(box[2]), y2=int(box[3])),
+                PointPx(x=int(point[0]), y=int(point[1])),
+                settings,
+            )
+            sam_mode = _get(ref, "mode")
+            sam_box = _box_xyxy(ref) if sam_mode == "outline" else None
+            sam_cost = float(_get(ref, "cost_usd") or 0.0)
+            if cache:
+                cache.put(sam_key, {"mode": sam_mode, "sam_box": sam_box})
+        extra = {
+            "sam_mode": sam_mode,
+            "gate_pass": sam_box is not None,
+            "iou_model": iou(box, gt_scaled),
+            "iou_sam": iou(sam_box, gt_scaled) if sam_box else None,
+        }
+        cost += sam_cost
+    return {
+        **base,
+        **extra,
+        "status": status,
+        "raw_status": _get(response, "status"),
+        "confidence": _get(result, "confidence"),
+        "point": list(point) if point else None,
+        "box": box,
+        "hit": hit,
+        "latency_ms": latency_ms,
+        "cost_usd": cost,
+        "cached": from_cache,
+        "response": _jsonable(response),
+    }

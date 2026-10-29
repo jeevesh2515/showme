@@ -1,0 +1,108 @@
+{
+  "suite": "screenspot-pro",
+  "model": "muse-wonder-1.0",
+  "effort": "minimal",
+  "sam_on": false,
+  "max_side": 2560,
+  "split": "heldout",
+  "is_headline": false,
+  "n": 300,
+  "hits": 200,
+  "accuracy": 0.6666666666666666,
+  "by_platform": {
+    "linux": {
+      "n": 14,
+      "hits": 11,
+      "accuracy": 0.7857142857142857
+    },
+    "macos": {
+      "n": 123,
+      "hits": 92,
+      "accuracy": 0.7479674796747967
+    },
+    "windows": {
+      "n": 163,
+      "hits": 97,
+      "accuracy": 0.5950920245398773
+    }
+  },
+  "by_element_type": {
+    "icon": {
+      "n": 115,
+      "hits": 48,
+      "accuracy": 0.41739130434782606
+    },
+    "text": {
+      "n": 185,
+      "hits": 152,
+      "accuracy": 0.8216216216216217
+    }
+  },
+  "by_group": {
+    "CAD": {
+      "n": 49,
+      "hits": 27,
+      "accuracy": 0.5510204081632653
+    },
+    "Creative": {
+      "n": 65,
+      "hits": 44,
+      "accuracy": 0.676923076923077
+    },
+    "Dev": {
+      "n": 57,
+      "hits": 35,
+      "accuracy": 0.6140350877192983
+    },
+    "OS": {
+      "n": 37,
+      "hits": 26,
+      "accuracy": 0.7027027027027027
+    },
+    "Office": {
+      "n": 44,
+      "hits": 39,
+      "accuracy": 0.8863636363636364
+    },
+    "Scientific": {
+      "n": 48,
+      "hits": 29,
+      "accuracy": 0.6041666666666666
+    }
+  },
+  "by_status": {
+    "done": {
+      "n": 6,
+      "hits": 0,
+      "accuracy": 0.0
+    },
+    "error": {
+      "n": 3,
+      "hits": 0,
+      "accuracy": 0.0
+    },
+    "ok": {
+      "n": 272,
+      "hits": 199,
+      "accuracy": 0.7316176470588235
+    },
+    "unsure": {
+      "n": 19,
+      "hits": 1,
+      "accuracy": 0.05263157894736842
+    }
+  },
+  "by_expected_status": {
+    "": {
+      "n": 300,
+      "hits": 200,
+      "accuracy": 0.6666666666666666
+    }
+  },
+  "latency_p50_ms": 4796.0,
+  "latency_p95_ms": 8672.850000000002,
+  "total_cost_usd": 6.5308,
+  "prompt_version": "v1",
+  "date": "2026-10-29",
+  "git_sha": "2582af6"
+}

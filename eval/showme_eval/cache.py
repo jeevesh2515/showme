@@ -31,8 +31,13 @@ class Cache:
         path = self.directory / f"{key}.json"
         if not path.exists():
             return None
-        return json.loads(path.read_text())
+        try:
+            return json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            return None  # torn write from a killed run: treat as a miss, never kill the run
 
     def put(self, key: str, value: Any) -> None:
         self.directory.mkdir(parents=True, exist_ok=True)
-        (self.directory / f"{key}.json").write_text(json.dumps(value))
+        tmp = self.directory / f"{key}.json.tmp"
+        tmp.write_text(json.dumps(value))
+        tmp.replace(self.directory / f"{key}.json")  # atomic: no torn cache files

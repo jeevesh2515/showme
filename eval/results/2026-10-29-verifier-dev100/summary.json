@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-29",
+  "split": "dev",
+  "n_ok": 97,
+  "verifier_checked": 97,
+  "precision_before": 0.9587628865979382,
+  "precision_after": 0.9647058823529412,
+  "kept": 85
+}

@@ -1,5 +1,5 @@
 {
-  "total_usd": 1.0688,
+  "total_usd": 22.136,
   "runs": [
     {
       "date": "2026-10-28",
@@ -30,6 +30,56 @@
       "date": "2026-10-28",
       "label": "2026-10-28-screenspot-v2-dev-n10-c99e8b8f-muse-spark-1.3-minimal-samoff-max2560-pvv1-a8155fb4",
       "cost_usd": 0.0
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv1-26831bd6",
+      "cost_usd": 7.0427
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-pro-heldout-n300-e08c4fce-muse-spark-1.3-minimal-samoff-max2560-pvv1-31fc78be",
+      "cost_usd": 2.2577
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-pro-heldout-n300-e08c4fce-muse-wonder-1.0-minimal-samoff-max2560-pvv1-a69a5cf9",
+      "cost_usd": 6.5308
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-negatives-heldout-n220-60b41e9f-muse-spark-1.3-minimal-samoff-max2560-pvv1-0a524652",
+      "cost_usd": 1.4059
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-9dd53b24",
+      "cost_usd": 0.8463
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-d02c27ad",
+      "cost_usd": 0.2425
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-verifier-heldout-cached (estimate)",
+      "cost_usd": 2.296
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-verifier-dev100 (estimate, 97 calls x $0.002)",
+      "cost_usd": 0.194
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-80346d48",
+      "cost_usd": 0.245
+    },
+    {
+      "date": "2026-10-29",
+      "label": "2026-10-29-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv1-d9f845cc",
+      "cost_usd": 0.0063
     }
   ]
 }

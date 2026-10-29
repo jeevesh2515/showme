@@ -12,8 +12,15 @@ from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
-from .datasets import load_pro_local, load_v2_local, select_partition
-from .report import update_spend, write_run
+from .datasets import (
+    build_negatives,
+    load_pro_local,
+    load_v2_local,
+    select_partition,
+    stratified_sample,
+)
+from .negatives import ensure_fixtures
+from .report import update_spend, write_results_md, write_run
 from .runner import run
 
 EVAL_ROOT = Path(__file__).resolve().parents[1]
@@ -40,7 +47,9 @@ def _settings(model: str, effort: str) -> object:
 def _parse(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="showme-eval")
     parser.add_argument(
-        "--suite", choices=["screenspot-v2", "screenspot-pro"], required=True
+        "--suite",
+        choices=["screenspot-v2", "screenspot-pro", "negatives"],
+        required=True,
     )
     parser.add_argument("--split", choices=["dev", "heldout"], default="heldout")
     parser.add_argument("--n", type=int, default=None)
@@ -54,6 +63,7 @@ def _parse(argv: list[str] | None) -> argparse.Namespace:
         default=2560,
         help="preprocess long-side cap; 0 = native (A7)",
     )
+    parser.add_argument("--concurrency", type=int, default=8)
     return parser.parse_args(argv)
 
 
@@ -106,11 +116,16 @@ def main(argv: list[str] | None = None) -> int:
             samples = select_partition(
                 load_v2_local(data_dir), args.split, n=args.n, seed=0
             )
+        elif args.suite == "negatives":
+            v2 = load_v2_local(DATA_ROOT / "screenspot-v2")
+            samples = build_negatives(v2, 200, seed=0) + ensure_fixtures(
+                DATA_ROOT / "negatives"
+            )
+            if args.n is not None:
+                samples = samples[: args.n]
         else:
-            samples = load_pro_local(data_dir)
-            if args.n is not None and not 1 <= args.n <= len(samples):
-                raise ValueError(f"--n {args.n} invalid for {len(samples)} samples")
-            samples = samples[: args.n]
+            all_pro = load_pro_local(data_dir)
+            samples = stratified_sample(all_pro, args.n or 300, seed=0)
     except FileNotFoundError as exc:
         print(
             f"dataset not available: {exc}\nSee eval/README.md to fetch it. Nothing was run.",
@@ -162,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
             headline=args.headline,
             cache_dir=cache_dir,
             max_side=max_side,
+            concurrency=args.concurrency,
         )
     )
     meta = {
@@ -169,12 +185,13 @@ def main(argv: list[str] | None = None) -> int:
         "model": args.model,
         "effort": args.effort,
         "sam_on": sam_on,
-        "max_side": args.max_side,
-        "split": args.split,
+        "max_side": args.max_side if args.max_side > 0 else 100000,
+        "split": args.split if args.suite == "screenspot-v2" else "heldout",
         "is_headline": args.headline and args.split != "dev",
     }
     result = write_run(out_dir, predictions, meta)
     update_spend(RESULTS_ROOT, result["total_cost_usd"], label=out_dir.name)
+    write_results_md(RESULTS_ROOT)
     print(
         f"{result['hits']}/{result['n']} = {result['accuracy']:.1%} · ${result['total_cost_usd']:.4f}"
     )

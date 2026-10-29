@@ -125,5 +125,17 @@
   "score": 10.0,
   "sha": "e8da1a0",
   "fails": []
+ },
+ {
+  "label": "day1",
+  "score": 10.0,
+  "sha": "ad0325c",
+  "fails": []
+ },
+ {
+  "label": "pre-push",
+  "score": 10.0,
+  "sha": "ad0325c",
+  "fails": []
  }
 ]

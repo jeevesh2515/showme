@@ -88,6 +88,10 @@ def _enforce_spend_cap(request: Request) -> None:
         raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
 
+RESERVE_STEP_USD = 0.001675  # conservative single-generation cost (1000 in, 100 out Spark minimal)
+RESERVE_REFINE_USD = 0.0025  # SAM cost per image
+
+
 def _record_meta(request: Request, model: str, tokens: int, cost_usd: float) -> None:
     request.state.log_meta = {"model": model, "tokens": tokens, "cost_usd": round(cost_usd, 6)}
 
@@ -145,72 +149,84 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     @app.post("/v1/step", response_model=StepResponse)
     async def step(req: StepRequest, request: Request) -> StepResponse:
         _enforce_rate_limit(request)
-        _enforce_spend_cap(request)
-        width, height = _image_size(req.image)
-        if req.image_meta.redaction is None or not req.image_meta.redaction.pipeline:
-            raise ApiError(400, "invalid_image", "Image must come from the redaction pipeline.")
-        if (req.image_meta.width, req.image_meta.height) != (width, height):
-            raise ApiError(400, "invalid_image", "Image size does not match image_meta.")
+        if not request.app.state.spend.reserve(RESERVE_STEP_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
+            raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
-        core_settings = cfg.to_core_settings(escalate=req.escalate)
-        history = [
-            {
-                **item.model_dump(),
-                "instruction": mask_pii(item.instruction),
-                "target_label": mask_pii(item.target_label),
-            }
-            for item in req.history
-        ]
-
-        def record_usage(usage: dict) -> float:
-            pt, ct = int(usage.get("prompt_tokens", 0)), int(usage.get("completion_tokens", 0))
-            cost = cost_ground(core_settings.model, pt, ct)
-            if cost > 0:
-                request.app.state.spend.record(cost)
-            _record_meta(request, core_settings.model, pt + ct, cost)
-            return cost
-
+        reserved = RESERVE_STEP_USD
+        actual_cost = 0.0
         try:
-            raw, usage, latency_ms = await ground(req.image, mask_pii(req.goal), history, core_settings)
-        except ModelTimeout as e:
-            record_usage(e.usage)  # generations before the timeout still cost money
-            raise ApiError(504, "model_timeout", "The model took too long. Please try again.") from None
-        except ModelError as e:
-            record_usage(e.usage)
-            raise ApiError(502, "model_error", "The model could not read this screen. Please try again.") from None
+            width, height = _image_size(req.image)
+            if req.image_meta.redaction is None or not req.image_meta.redaction.pipeline:
+                raise ApiError(400, "invalid_image", "Image must come from the redaction pipeline.")
+            if (req.image_meta.width, req.image_meta.height) != (width, height):
+                raise ApiError(400, "invalid_image", "Image size does not match image_meta.")
 
-        result = postprocess(raw, width, height, core_settings.tau)
-        cost_usd = record_usage(usage)
-        return StepResponse(
-            **result.model_dump(),
-            step_id="st_" + secrets.token_hex(6),
-            model=core_settings.model,
-            timings_ms={"ground": latency_ms},
-            cost_usd=round(cost_usd, 6),
-        )
+            core_settings = cfg.to_core_settings(escalate=req.escalate)
+            history = [
+                {
+                    **item.model_dump(),
+                    "instruction": mask_pii(item.instruction),
+                    "target_label": mask_pii(item.target_label),
+                }
+                for item in req.history
+            ]
+
+            def record_usage(usage: dict) -> float:
+                pt, ct = int(usage.get("prompt_tokens", 0)), int(usage.get("completion_tokens", 0))
+                cost = cost_ground(core_settings.model, pt, ct)
+                _record_meta(request, core_settings.model, pt + ct, cost)
+                return cost
+
+            try:
+                raw, usage, latency_ms = await ground(req.image, mask_pii(req.goal), history, core_settings)
+            except ModelTimeout as e:
+                actual_cost = record_usage(e.usage)  # generations before the timeout still cost money
+                raise ApiError(504, "model_timeout", "The model took too long. Please try again.") from None
+            except ModelError as e:
+                actual_cost = record_usage(e.usage)
+                raise ApiError(502, "model_error", "The model could not read this screen. Please try again.") from None
+
+            result = postprocess(raw, width, height, core_settings.tau)
+            actual_cost = record_usage(usage)
+            return StepResponse(
+                **result.model_dump(),
+                step_id="st_" + secrets.token_hex(6),
+                model=core_settings.model,
+                timings_ms={"ground": latency_ms},
+                cost_usd=round(actual_cost, 6),
+            )
+        finally:
+            request.app.state.spend.reconcile(reserved, actual_cost)
 
     @app.post("/v1/refine", response_model=RefineResponse)
     async def refine_step(req: RefineRequest, request: Request) -> RefineResponse:
         _enforce_rate_limit(request)
-        _enforce_spend_cap(request)
-        width, height = _image_size(req.image)
-        if req.image_meta.redaction is None or not req.image_meta.redaction.pipeline:
-            raise ApiError(400, "invalid_image", "Image must come from the redaction pipeline.")
-        if (req.image_meta.width, req.image_meta.height) != (width, height):
-            raise ApiError(400, "invalid_image", "Image size does not match image_meta.")
+        if not request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
+            raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
-        core_settings = cfg.to_core_settings()
-        refinement = await refine(req.image, req.box, req.point, core_settings)
-        request.app.state.spend.record(refinement.cost_usd)
-        _record_meta(request, core_settings.sam_model, 0, refinement.cost_usd)
-        return RefineResponse(
-            mode=refinement.mode,
-            svg_path=refinement.svg_path,
-            origin=refinement.origin,
-            box=refinement.box,
-            timings_ms={"sam": refinement.latency_ms},
-            cost_usd=round(refinement.cost_usd, 6),
-        )
+        reserved = RESERVE_REFINE_USD
+        actual_cost = 0.0
+        try:
+            width, height = _image_size(req.image)
+            if req.image_meta.redaction is None or not req.image_meta.redaction.pipeline:
+                raise ApiError(400, "invalid_image", "Image must come from the redaction pipeline.")
+            if (req.image_meta.width, req.image_meta.height) != (width, height):
+                raise ApiError(400, "invalid_image", "Image size does not match image_meta.")
+
+            core_settings = cfg.to_core_settings()
+            refinement = await refine(req.image, req.box, req.point, core_settings)
+            actual_cost = float(refinement.cost_usd)
+            _record_meta(request, core_settings.sam_model, 0, actual_cost)
+            return RefineResponse(
+                mode=refinement.mode,
+                svg_path=refinement.svg_path,
+                origin=refinement.origin,
+                box=refinement.box,
+                timings_ms={"sam": refinement.latency_ms},
+                cost_usd=round(actual_cost, 6),
+            )
+        finally:
+            request.app.state.spend.reconcile(reserved, actual_cost)
 
     return app
 

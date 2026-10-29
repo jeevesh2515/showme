@@ -149,3 +149,94 @@ def test_eval_9_invalid_n_rejected():
         select_partition(samples, "heldout", n=10_000)
     with pytest.raises(ValueError):
         select_partition(samples, "dev", n=0)
+
+
+def test_eval_6_build_negatives_rejects_partner_with_same_control():
+    from pathlib import Path as _P
+
+    from showme_eval.datasets import Sample, build_negatives
+
+    s1 = Sample(
+        id="s1",
+        instruction="turn on bold lettering",
+        image_path=_P("app1.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="switch",
+        group="app1",
+    )
+    s2 = Sample(
+        id="s2",
+        instruction="bold text toggle",
+        image_path=_P("app2.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="switch",
+        group="app2",
+    )
+    s3 = Sample(
+        id="s3",
+        instruction="refresh feed",
+        image_path=_P("app3.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="button",
+        group="app3",
+    )
+    negs = build_negatives([s1, s2, s3], n=1, seed=0)
+    assert len(negs) == 1
+    for neg in negs:
+        if "bold" in neg.instruction:
+            assert neg.image_path.name == "app3.png"
+
+
+def test_eval_6_build_negatives_rejects_audited_invalid_pair():
+    from pathlib import Path as _P
+
+    from showme_eval.datasets import Sample, build_negatives
+
+    s1 = Sample(
+        id="s1",
+        instruction="bold lettering",
+        image_path=_P("orig.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="text",
+        group="group1",
+    )
+    s2 = Sample(
+        id="s2",
+        instruction="completely unrelated action",
+        image_path=_P("mobile_1152be83-7090-45b9-9465-e5acc02d867d.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="text",
+        group="group2",
+    )
+    s3 = Sample(
+        id="s3",
+        instruction="another action",
+        image_path=_P("safe_screen.png"),
+        bbox_xyxy_px=(10, 10, 50, 50),
+        width=100,
+        height=100,
+        platform="mobile",
+        element_type="text",
+        group="group3",
+    )
+    negs = build_negatives([s1, s2, s3], n=1, seed=0)
+    for neg in negs:
+        if neg.instruction == "bold lettering":
+            assert (
+                neg.image_path.name != "mobile_1152be83-7090-45b9-9465-e5acc02d867d.png"
+            )

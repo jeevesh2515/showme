@@ -75,8 +75,7 @@ def reliability_bins(
             {
                 "bin": f"{i / n_bins:.1f}-{(i + 1) / n_bins:.1f}",
                 "n": len(rows),
-                "mean_confidence": sum(float(r["confidence"]) for r in rows)
-                / len(rows),
+                "mean_confidence": sum(_conf(r) for r in rows) / len(rows),
                 "accuracy": sum(1 for r in rows if r.get("hit")) / len(rows),
             }
         )

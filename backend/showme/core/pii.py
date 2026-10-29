@@ -49,18 +49,32 @@ def _matches(text: str) -> list[tuple[int, int]]:
     return spans
 
 
+def _merge_spans(spans: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Merge overlapping and adjacent interval matches (review 2026-10-29 #1)."""
+    if not spans:
+        return []
+    sorted_spans = sorted(spans)
+    merged = [sorted_spans[0]]
+    for start, end in sorted_spans[1:]:
+        prev_start, prev_end = merged[-1]
+        if start <= prev_end:
+            merged[-1] = (prev_start, max(prev_end, end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
 def contains_pii(text: str) -> bool:
     return bool(_matches(text))
 
 
 def mask_pii(text: str) -> str:
-    spans = sorted(_matches(text))
+    spans = _matches(text)
     if not spans:
         return text
+    merged = _merge_spans(spans)
     out, pos = [], 0
-    for start, end in spans:
-        if start < pos:
-            continue
+    for start, end in merged:
         out.append(text[pos:start])
         out.append("[hidden]")
         pos = end

@@ -64,5 +64,9 @@ describe("patterns", () => {
   it("priv-7: collapses overlapping matches into one placeholder (same as pii.py)", () => {
     expect(maskPii("IBAN GB82 WEST 1234 5698 7654 32")).toBe("IBAN [hidden]");
     expect(maskPii("tel +1 415-555-0198 / IBAN DE89 3704 0044 0532 0130 00")).toBe("tel [hidden] / IBAN [hidden]");
+    // Review 2026-10-29 #1: card with digit run must not expose suffixes
+    expect(maskPii("41111111-1111-1111")).toBe("[hidden]");
+    expect(maskPii("41111111-1111-1111")).not.toContain("1111");
+    expect(maskPii("user 12345678@example.com end")).toBe("user [hidden] end");
   });
 });

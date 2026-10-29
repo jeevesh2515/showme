@@ -53,14 +53,34 @@ export function findPii(text: string): PiiSpan[] {
   return spans.sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
-/** Replace every match with "[hidden]"; overlaps are collapsed the way pii.py collapses them. */
+/** Merge overlapping and adjacent interval matches (review 2026-10-29 #1). */
+export function mergeSpans(spans: readonly { start: number; end: number }[]): { start: number; end: number }[] {
+  if (spans.length === 0) return [];
+  const sorted = [...spans].sort((a, b) => a.start - b.start || a.end - b.end);
+  const first = sorted[0];
+  if (!first) return [];
+  const merged: { start: number; end: number }[] = [{ start: first.start, end: first.end }];
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = merged[merged.length - 1];
+    const curr = sorted[i];
+    if (!prev || !curr) continue;
+    if (curr.start <= prev.end) {
+      prev.end = Math.max(prev.end, curr.end);
+    } else {
+      merged.push({ start: curr.start, end: curr.end });
+    }
+  }
+  return merged;
+}
+
+/** Replace every match with "[hidden]"; overlaps are merged the way pii.py merges them. */
 export function maskPii(text: string): string {
   const spans = findPii(text);
   if (spans.length === 0) return text;
+  const merged = mergeSpans(spans);
   const out: string[] = [];
   let pos = 0;
-  for (const { start, end } of spans) {
-    if (start < pos) continue;
+  for (const { start, end } of merged) {
     out.push(text.slice(pos, start), "[hidden]");
     pos = end;
   }

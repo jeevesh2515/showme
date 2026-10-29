@@ -72,6 +72,18 @@ def test_eval_6_reliability_bins_and_tau():
     assert choose_tau([{"confidence": 0.9, "hit": False, "raw_status": "ok"}]) is None
 
 
+def test_eval_6_reliability_bins_clamps_out_of_range_confidence():
+    # Review 2026-10-29 #4: confidence >1.0 or <0.0 must be normalized in mean_confidence
+    preds = [
+        {"confidence": 95.0, "hit": True, "raw_status": "ok"},
+        {"confidence": -0.5, "hit": False, "raw_status": "ok"},
+        {"confidence": 1.2, "hit": True, "raw_status": "ok"},
+    ]
+    bins = reliability_bins(preds, n_bins=10)
+    for b in bins:
+        assert 0.0 <= b["mean_confidence"] <= 1.0
+
+
 def test_eval_4_iou():
     assert iou((0, 0, 10, 10), (0, 0, 10, 10)) == 1.0
     assert iou((0, 0, 10, 10), (20, 20, 30, 30)) == 0.0

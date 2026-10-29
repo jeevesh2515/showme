@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import io
 import json
@@ -345,3 +346,32 @@ def test_api_2_retry_then_success_costs_both_generations() -> None:
     respx.post(STEP_URL).mock(side_effect=[meta_reply(content="not json"), meta_reply()])
     body = client().post("/v1/step", json=step_payload()).json()
     assert body["cost_usd"] == round(2 * (1000 * 1.25 + 100 * 4.25) / 1_000_000, 6)
+
+
+@pytest.mark.anyio
+@respx.mock
+async def test_api_6_concurrent_requests_cannot_bypass_daily_spend_cap() -> None:
+    # Review 2026-10-29 #2: 8 concurrent requests against a $0.002 daily cap.
+    respx.post(STEP_URL).mock(return_value=meta_reply())
+    app = create_app(ApiSettings(spend_cap_daily_usd=0.002, spend_cap_total_usd=60.0))
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        responses = await asyncio.gather(*(ac.post("/v1/step", json=step_payload()) for _ in range(8)))
+    statuses = [r.status_code for r in responses]
+    assert statuses.count(200) == 1
+    assert statuses.count(503) == 7
+    assert app.state.spend._day_total <= 0.002
+    assert app.state.spend._reserved_day == 0.0
+
+
+@pytest.mark.anyio
+@respx.mock
+async def test_api_6_concurrent_requests_cannot_bypass_total_spend_cap() -> None:
+    respx.post(STEP_URL).mock(return_value=meta_reply())
+    app = create_app(ApiSettings(spend_cap_daily_usd=10.0, spend_cap_total_usd=0.002))
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        responses = await asyncio.gather(*(ac.post("/v1/step", json=step_payload()) for _ in range(8)))
+    statuses = [r.status_code for r in responses]
+    assert statuses.count(200) == 1
+    assert statuses.count(503) == 7
+    assert app.state.spend._total <= 0.002
+    assert app.state.spend._reserved_total == 0.0

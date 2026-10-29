@@ -37,3 +37,10 @@ def test_priv_7_mask_uses_hidden_placeholder() -> None:
     assert mask_pii("Email jane.doe@example.com about card 4111 1111 1111 1111") == "Email [hidden] about card [hidden]"
     assert mask_pii("call +44 7700 900123") == "call [hidden]"
     assert mask_pii("nothing private here") == "nothing private here"
+
+
+def test_priv_7_overlapping_matches_merged_completely() -> None:
+    # Review 2026-10-29 #1: card with digit run must not expose suffixes
+    assert mask_pii("41111111-1111-1111") == "[hidden]"
+    assert "1111" not in mask_pii("41111111-1111-1111")
+    assert mask_pii("user 12345678@example.com end") == "user [hidden] end"

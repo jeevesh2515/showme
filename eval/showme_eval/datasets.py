@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -180,22 +181,115 @@ def stratified_sample(samples: Sequence[Sample], n: int, seed: int = 0) -> list[
     return out[:n]
 
 
+# Audited known invalid negative pairs (review 2026-10-29 #3): screens that actually contain the requested target control.
+AUDITED_INVALID_NEGATIVE_PAIRS: set[tuple[str, str]] = {
+    ("bold lettering", "mobile_1152be83-7090-45b9-9465-e5acc02d867d.png"),
+    ("select a use-case", "mobile_drmphj.jpg"),
+    ("search setttings", "web_626e849e-afe2-47c7-8e67-da7331497c25.png"),
+    ("close the alart window", "web_60700bbc-8e31-46b0-9ef0-826647262c68.png"),
+    ("tap the search bar", "mobile_c988d05c-1c6d-4b0d-aacb-eafb866320fb.png"),
+    ("switch to talk column", "mobile_3a1f306e-784a-411a-98cb-f11a2157a5c7.png"),
+    ("close this window", "pc_e73c6749-043f-4a24-8e56-6c829f78255d.png"),
+    ("go to next page", "mobile_165687dd-c6c2-4f44-a84d-3e9a2af95ffe.png"),
+    ("view the details of the item", "mobile_165687dd-c6c2-4f44-a84d-3e9a2af95ffe.png"),
+    ('click the "settings and more" button', "mobile_anffus.png"),
+    ("add guests", "mobile_d7f5d515-e2c4-453e-9b5b-d97e3ecd5307.png"),
+    ("search", "pc_75eae2f4-193e-4365-a5f1-b9b5340d02ff.png"),
+    ("see more information", "web_77e68e05-bbe4-4f54-96fa-79f714c17505.png"),
+    ("go to the second page", "mobile_f0b711c8-ab3c-4af5-b43b-452a718637ae.png"),
+    ("check settings", "mobile_a8181231-d30c-4051-9ff2-16808694adbf.png"),
+    ("search in this note", "pc_141ec1f5-ccf8-42f0-8b0b-8aba284ce81a.png"),
+    ("search games", "web_11acd5dc-63ab-415f-823d-10cd68acef01.png"),
+    ("insert an image", "mobile_20aa1fbd-f09f-4923-9fb4-15998cda6fe3.png"),
+    ("open the menu", "web_20979acb-d8af-4fa2-becf-ed38f73f5fcb.png"),
+    ("disable automatic app updates", "pc_015a0262-924c-4ced-9f4d-23d07f94a657.png"),
+    ("search in the website", "mobile_d3865883-8214-4bff-9834-13987580abe8.png"),
+}
+
+
+INSTRUCTION_STOP_WORDS: set[str] = {
+    "the",
+    "and",
+    "for",
+    "with",
+    "from",
+    "this",
+    "that",
+    "these",
+    "those",
+    "click",
+    "tap",
+    "select",
+    "open",
+    "close",
+    "press",
+    "button",
+    "icon",
+    "image",
+    "item",
+    "page",
+    "screen",
+    "view",
+    "thing",
+    "show",
+    "hide",
+}
+
+
+def is_valid_negative_pair(
+    source: Sample,
+    partner: Sample,
+    image_keywords: dict[str, set[str]] | None = None,
+) -> bool:
+    """Verify target absence (review 2026-10-29 #3): partner must actually lack the requested control."""
+    if partner.image_path == source.image_path or partner.group == source.group:
+        return False
+    inst_lower = source.instruction.strip().lower()
+    img_name = partner.image_path.name
+    if (inst_lower, img_name) in AUDITED_INVALID_NEGATIVE_PAIRS:
+        return False
+    if image_keywords is not None:
+        src_words = {
+            w
+            for w in re.findall(r"\b[a-zA-Z]{3,}\b", inst_lower)
+            if w not in INSTRUCTION_STOP_WORDS
+        }
+        partner_words = image_keywords.get(img_name, set())
+        if src_words and (src_words & partner_words):
+            return False
+    return True
+
+
 def build_negatives(samples: Sequence[Sample], n: int, seed: int = 0) -> list[Sample]:
-    """Pair each instruction with a screenshot from a different app/group (EVAL-6)."""
+    """Pair each instruction with a screenshot from a different app/group (EVAL-6).
+
+    Ensures target absence (review 2026-10-29 #3): candidate partner must not contain
+    the requested control.
+    """
     rng = random.Random(seed)
     pool = list(samples)
     rng.shuffle(pool)
+
+    # Index annotations per image to prevent pairing when different apps contain the same requested control
+    img_words: dict[str, set[str]] = {}
+    for s in samples:
+        words = {
+            w
+            for w in re.findall(r"\b[a-zA-Z]{3,}\b", s.instruction.lower())
+            if w not in INSTRUCTION_STOP_WORDS
+        }
+        img_words.setdefault(s.image_path.name, set()).update(words)
+
     out: list[Sample] = []
     for i, source in enumerate(pool):
         if len(out) >= n:
             break
-        # deterministic partner: next sample in shuffled pool with a different image+group
+        # deterministic partner: next sample in shuffled pool with verified absent target
         partner = next(
             (
                 pool[(i + j) % len(pool)]
                 for j in range(1, len(pool))
-                if pool[(i + j) % len(pool)].image_path != source.image_path
-                and pool[(i + j) % len(pool)].group != source.group
+                if is_valid_negative_pair(source, pool[(i + j) % len(pool)], img_words)
             ),
             None,
         )

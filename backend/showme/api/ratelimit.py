@@ -35,15 +35,40 @@ class InMemorySpendCap:
         self._day = date.today()
         self._day_total = 0.0
         self._total = 0.0
+        self._reserved_day = 0.0
+        self._reserved_total = 0.0
 
     def _rollover(self) -> None:
         today = date.today()
         if today != self._day:
-            self._day, self._day_total = today, 0.0
+            self._day = today
+            self._day_total = 0.0
+            self._reserved_day = 0.0
 
     def check(self, daily_cap_usd: float, total_cap_usd: float) -> bool:
         self._rollover()
-        return self._day_total < daily_cap_usd and self._total < total_cap_usd
+        return (self._day_total + self._reserved_day) < daily_cap_usd and (
+            self._total + self._reserved_total
+        ) < total_cap_usd
+
+    def reserve(self, amount_usd: float, daily_cap_usd: float, total_cap_usd: float) -> bool:
+        """Atomically reserve a conservative budget for an in-flight request (review 2026-10-29 #2)."""
+        self._rollover()
+        if (self._day_total + self._reserved_day + amount_usd) > daily_cap_usd or (
+            self._total + self._reserved_total + amount_usd
+        ) > total_cap_usd:
+            return False
+        self._reserved_day += amount_usd
+        self._reserved_total += amount_usd
+        return True
+
+    def reconcile(self, reserved_usd: float, actual_cost_usd: float) -> None:
+        """Release reservation and record actual cost incurred."""
+        self._rollover()
+        self._reserved_day = max(0.0, self._reserved_day - reserved_usd)
+        self._reserved_total = max(0.0, self._reserved_total - reserved_usd)
+        self._day_total += actual_cost_usd
+        self._total += actual_cost_usd
 
     def record(self, cost_usd: float) -> None:
         self._rollover()

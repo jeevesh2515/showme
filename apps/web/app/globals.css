@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* docs/DESIGN.md §2 — the single source for colours. */
+  --ink: #16264a;
+  --paper: #ffffff;
+  --mist: #e9eef6;
+  --highlighter: #ffd43b;
+  --caution: #b3261e;
+  --done: #1d6b45;
+  --scrim: rgba(22, 38, 74, 0.55);
+
+  color-scheme: light;
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-ink;
+    font-family: var(--font-atkinson), system-ui, sans-serif;
+  }
+
+  /* DESIGN.md §5: 3 px highlighter + 2 px ink, never colour alone. */
+  :focus-visible {
+    outline: 3px solid var(--highlighter);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 2px var(--ink);
+    border-radius: 2px;
+  }
+}
+
+/* Type scale in rem so the 100/125/150 % text-size control (A11Y-1) only
+   touches the root font size later. Sizes: DESIGN.md §2. */
+@layer components {
+  .type-display {
+    font-size: 2.5rem;
+    line-height: 2.75rem;
+    font-weight: 800;
+  }
+  .type-title {
+    font-size: 2rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+  }
+  .type-instruction {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+  }
+  .type-body {
+    font-size: 1.25rem;
+    line-height: 1.875rem;
+    font-weight: 400;
+    max-width: 60ch;
+  }
+  .type-small {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+    font-weight: 400;
+  }
+
+  @media (min-width: 640px) {
+    .type-display {
+      font-size: 3.5rem;
+      line-height: 3.75rem;
+    }
+    .type-instruction {
+      font-size: 1.75rem;
+      line-height: 2.25rem;
+    }
+  }
+}

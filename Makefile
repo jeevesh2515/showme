@@ -12,6 +12,7 @@ MAXSIDE ?= 2560
 setup:
 	uv sync --project backend
 	uv sync --project eval
+	pnpm install
 
 dev:
 	uv run --project backend uvicorn showme.api.main:app --reload --port 8000 --no-access-log
@@ -19,11 +20,14 @@ dev:
 test:
 	uv run --project backend pytest backend/tests -q
 	uv run --project eval pytest eval/tests -q
+	pnpm --filter web test
 
 lint:
 	uv run --project backend ruff check backend eval
 	uv run --project backend ruff format --check backend eval
 	uv run --project backend mypy --strict backend/showme/core
+	pnpm --filter web lint
+	pnpm --filter web typecheck
 
 smoke:
 	uv run --project eval python -m showme_eval --suite screenspot-v2 --split dev --n 10

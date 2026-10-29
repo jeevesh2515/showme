@@ -62,6 +62,23 @@ def test_api_4_recorded_sam_response_decodes_to_outline():
     assert r.origin is not None and r.box is not None
 
 
+@respx.mock
+def test_api_4_payload_starting_with_tilde_decodes_to_outline():
+    # Real sam-3.1 response recorded 2026-10-29: mask payload starts with "~", not "!".
+    # Regression: MASK_RE required a leading "!" so every such response fell back to box (0/97 gate pass).
+    import json
+    from pathlib import Path
+
+    fixture = json.loads((Path(__file__).parent / "fixtures/sam_tilde_payload.json").read_text())
+    respx.post(URL).mock(return_value=httpx.Response(200, json={"output_text": fixture["output_text"]}))
+    b, p = fixture["box"], fixture["point"]
+    box = BoxPx(x1=int(b[0]), y1=int(b[1]), x2=int(b[2]), y2=int(b[3]))
+    r = asyncio.run(
+        refine(img_url(fixture["width"], fixture["height"]), box, PointPx(x=int(p[0]), y=int(p[1])), SETTINGS)
+    )
+    assert r.mode == "outline" and r.svg_path and r.svg_path.startswith("M")
+
+
 def test_api_4_sam_timeout_setting_is_4s():
     assert Settings().sam_timeout_s == 4.0
 

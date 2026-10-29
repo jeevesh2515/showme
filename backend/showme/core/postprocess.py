@@ -17,6 +17,7 @@ def _clamp(v: int) -> int:
 def postprocess(raw: ModelOutput, width: int, height: int, tau: float) -> StepResult:
     """ARCH §5.4 steps 0-7. Pure function."""
     instruction = _clean(raw.instruction)
+    confidence = min(max(raw.confidence, 0.0), 1.0)  # model returned >1.0 on Day 3 held-out
     type_text = "" if contains_pii(raw.type_text) else raw.type_text
     if raw.status not in ("ok", "unsure"):
         return StepResult(
@@ -27,7 +28,7 @@ def postprocess(raw: ModelOutput, width: int, height: int, tau: float) -> StepRe
             scroll_direction=raw.scroll_direction,
             type_text=type_text,
             caution=raw.caution,
-            confidence=raw.confidence,
+            confidence=confidence,
             goal_complete=raw.status == "done",
         )
 
@@ -54,7 +55,7 @@ def postprocess(raw: ModelOutput, width: int, height: int, tau: float) -> StepRe
         scroll_direction=raw.scroll_direction,
         type_text=type_text,
         caution=raw.caution,
-        confidence=raw.confidence,
+        confidence=confidence,
         goal_complete=False,
         point_fixed=point_fixed,
     )

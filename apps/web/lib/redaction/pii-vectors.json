@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "note": "Shared PII test vectors. Read by apps/web/lib/redaction/patterns.test.ts and backend/tests/test_pii_shared_vectors.py so the two implementations cannot drift. All data is synthetic. render/density mark the screenshot condition the string was taken from (dark-mode UI, 3x device pixel ratio).",
+  "vectors": [
+    { "id": "email-plain", "text": "jane.doe@example.com", "kind": "email", "shouldMatch": true },
+    { "id": "email-plus-tag", "text": "m.okafor+shop@outlook.co.uk", "kind": "email", "shouldMatch": true, "render": "dark" },
+    { "id": "email-numeric", "text": "grandpa.ken1948@gmail.com", "kind": "email", "shouldMatch": true },
+    { "id": "email-subdomain", "text": "first.last@sub.domain.co.uk", "kind": "email", "shouldMatch": true },
+    { "id": "email-uppercase", "text": "MIXED.Case@Example.COM", "kind": "email", "shouldMatch": true },
+    { "id": "email-short", "text": "x@y.io", "kind": "email", "shouldMatch": true },
+    { "id": "email-dark-mode-line", "text": "Signed in as jane.doe@example.com", "kind": "email", "shouldMatch": true, "render": "dark" },
+    { "id": "email-3x-density", "text": "grandpa.ken1948@gmail.com", "kind": "email", "shouldMatch": true, "density": 3 },
+
+    { "id": "phone-uk-intl", "text": "+44 7700 900123", "kind": "phone", "shouldMatch": true },
+    { "id": "phone-us-parens", "text": "(555) 010-4477", "kind": "phone", "shouldMatch": true },
+    { "id": "phone-us-intl", "text": "+1 415-555-0198", "kind": "phone", "shouldMatch": true, "render": "dark" },
+    { "id": "phone-uk-mobile", "text": "07700 900456", "kind": "phone", "shouldMatch": true },
+    { "id": "phone-tel-prefix", "text": "tel: +44 20 7946 0958", "kind": "phone", "shouldMatch": true },
+    { "id": "phone-dark-mode-line", "text": "Recovery phone +1 415-555-0198 Edit", "kind": "phone", "shouldMatch": true, "render": "dark" },
+    { "id": "phone-3x-density", "text": "+44 7700 900123", "kind": "phone", "shouldMatch": true, "density": 3 },
+
+    { "id": "card-visa-spaced", "text": "4111 1111 1111 1111", "kind": "card", "shouldMatch": true },
+    { "id": "card-mastercard-spaced", "text": "5555 5555 5555 4444", "kind": "card", "shouldMatch": true, "render": "dark" },
+    { "id": "card-visa-compact", "text": "4242424242424242", "kind": "card", "shouldMatch": true },
+    { "id": "card-amex", "text": "3782 822463 10005", "kind": "card", "shouldMatch": true },
+    { "id": "card-hyphenated", "text": "4012-8888-8888-1881", "kind": "card", "shouldMatch": true },
+    { "id": "card-dark-mode-line", "text": "Visa ending 5100 · Mastercard 5555 5555 5555 4444", "kind": "card", "shouldMatch": true, "render": "dark" },
+    { "id": "card-3x-density", "text": "4111 1111 1111 1111", "kind": "card", "shouldMatch": true, "density": 3 },
+
+    { "id": "postcode-sw1a", "text": "SW1A 1AA", "kind": "postcode", "shouldMatch": true },
+    { "id": "postcode-m1", "text": "M1 1AE", "kind": "postcode", "shouldMatch": true },
+    { "id": "postcode-b33", "text": "B33 8TH", "kind": "postcode", "shouldMatch": true },
+    { "id": "postcode-lowercase", "text": "sw1a 1aa", "kind": "postcode", "shouldMatch": true },
+    { "id": "postcode-in-address", "text": "12 Example Street, London SW1A 1AA", "kind": "postcode", "shouldMatch": true },
+    { "id": "postcode-dark-mode-line", "text": "Billing address: 12 Example Street, London SW1A 1AA", "kind": "postcode", "shouldMatch": true, "render": "dark" },
+    { "id": "postcode-3x-density", "text": "SW1A 1AA", "kind": "postcode", "shouldMatch": true, "density": 3 },
+
+    { "id": "iban-gb", "text": "GB82 WEST 1234 5698 7654 32", "kind": "iban", "shouldMatch": true },
+    { "id": "iban-de", "text": "DE89 3704 0044 0532 0130 00", "kind": "iban", "shouldMatch": true },
+    { "id": "iban-fr", "text": "FR14 2004 1010 0505 0001 3M02 90", "kind": "iban", "shouldMatch": true },
+    { "id": "iban-nl", "text": "NL91 ABNA 0417 1643 00", "kind": "iban", "shouldMatch": true },
+    { "id": "iban-compact", "text": "GB33BUKB20201555555555", "kind": "iban", "shouldMatch": true },
+
+    { "id": "digits-reference-8", "text": "ref 12345678", "kind": "digits", "shouldMatch": true },
+    { "id": "digits-account-8", "text": "Account 00471125", "kind": "digits", "shouldMatch": true },
+    { "id": "digits-order-10", "text": "Order #9876543210", "kind": "digits", "shouldMatch": true },
+    { "id": "digits-long-15", "text": "123456789012345", "kind": "digits", "shouldMatch": true },
+    { "id": "digits-dark-mode-line", "text": "Customer ID 44711902", "kind": "digits", "shouldMatch": true, "render": "dark" },
+    { "id": "digits-3x-density", "text": "ref 12345678", "kind": "digits", "shouldMatch": true, "density": 3 },
+
+    { "id": "neg-short-number", "text": "Order 1234567 shipped", "kind": "none", "shouldMatch": false },
+    { "id": "neg-version", "text": "Version 1.2.3", "kind": "none", "shouldMatch": false },
+    { "id": "neg-time-and-date", "text": "Meeting at 10:30 on 14 Nov 2026", "kind": "none", "shouldMatch": false },
+    { "id": "neg-luhn-fail", "text": "4242 4242 4242 4241", "kind": "none", "shouldMatch": false },
+    { "id": "neg-price", "text": "Price £10.99/month", "kind": "none", "shouldMatch": false },
+    { "id": "neg-sku", "text": "SKU ABC-123", "kind": "none", "shouldMatch": false },
+    { "id": "neg-plain-copy", "text": "Choose a plan that fits you", "kind": "none", "shouldMatch": false },
+    { "id": "neg-2fa-code", "text": "2FA code: 123456", "kind": "none", "shouldMatch": false },
+    { "id": "neg-iso-date", "text": "2026-10-29", "kind": "none", "shouldMatch": false },
+    { "id": "neg-ratio", "text": "Contrast 4.5:1 in dark mode", "kind": "none", "shouldMatch": false }
+  ]
+}

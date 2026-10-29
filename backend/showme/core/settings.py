@@ -17,6 +17,7 @@ class Settings:
     sam_model: str = "sam-3.1"
     effort: str = "minimal"
     tau: float = 0.5  # ARCH §5.5: weak gate until Day 3 calibration
+    verifier_enabled: bool = False  # ARCH §5.5: Day 3 calibration decides
     ground_timeout_s: float = 15.0
     sam_timeout_s: float = 4.0
     backoff_base_s: float = 0.5
@@ -25,3 +26,7 @@ class Settings:
         validate_model_id(self.model)
         validate_model_id(self.escalation_model)
         validate_model_id(self.sam_model)
+        from urllib.parse import urlparse
+
+        if urlparse(self.base_url).hostname != "api.meta.ai":
+            raise ValueError(f"base_url must be the Meta API host, got: {self.base_url}")

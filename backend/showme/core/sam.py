@@ -13,8 +13,8 @@ from showme.core.settings import Settings
 
 BOX_RE = re.compile(r"<\|box;x1=(\d+);y1=(\d+);x2=(\d+);y2=(\d+);w=\d+;h=\d+(?:;c=[\d.]+)?\|>")
 MASK_RE = re.compile(
-    r"<\|mask;x=\d+;y=\d+(?:;c=[\d.]+)?;data=(\d+),(\d+),(!.+?)\|>", re.DOTALL
-)  # payload may contain "|", ends at "|>"
+    r"<\|mask;x=\d+;y=\d+(?:;c=[\d.]+)?;data=(\d+),(\d+),(.+)\|>", re.DOTALL
+)  # greedy to the final "|>": payload may contain "|" and starts with a marker char ("!"/"~"), kept verbatim
 
 
 def _image_size(image_data_url: str) -> tuple[int, int]:
@@ -92,9 +92,14 @@ async def refine(image_data_url: str, box: BoxPx, point: PointPx, settings: Sett
         area_ok = (sam_box.x2 - sam_box.x1) * (sam_box.y2 - sam_box.y1) <= 0.25 * width * height
         if _iou(sam_box, box) < 0.5 or not contains or not area_ok:
             return _box_result(latency_ms)
-        # Payload keeps its leading "!" one_bit marker (SPIKES c); data= is H,W so width is group 2.
+        # Payload keeps its leading marker char as returned; data= is H,W so width is group 2.
+        # Marker char selects encoding: "!" = one_bit, "~" = lossless (meta_sam_parser _segmentation.py).
+        mask_payload = mm.group(3)
         mask = SegmentationMask(
-            encoding="one_bit", payload=mm.group(3), width=int(mm.group(2)), height=int(mm.group(1))
+            encoding="lossless" if mask_payload.startswith("~") else "one_bit",
+            payload=mask_payload,
+            width=int(mm.group(2)),
+            height=int(mm.group(1)),
         )
         svg_path = decode_mask_to_svg_path(mask)
         return Refinement(

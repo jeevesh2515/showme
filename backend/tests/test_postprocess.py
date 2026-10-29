@@ -73,6 +73,12 @@ def test_api_3_unsure_keeps_target():
     assert r.status == "unsure" and r.target is not None
 
 
+def test_api_3_confidence_clamped_to_unit_interval():
+    # Day 3 held-out: model returned confidence up to ~1.05 (calibration mean 1.045 in top bin).
+    assert postprocess(raw(confidence=1.05), 1000, 1000, 0.5).confidence == 1.0
+    assert postprocess(raw(confidence=-0.2), 1000, 1000, 0.5).confidence == 0.0
+
+
 def test_api_3_point_outside_normal_box_moves_to_centre():
     r = postprocess(raw(point=Point(x=10, y=10)), 1000, 1000, 0.5)
     assert r.point_fixed and (r.target.point.x, r.target.point.y) == (500, 500)

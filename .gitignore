@@ -25,4 +25,5 @@ __pycache__/
 node_modules/
 .next/
 .DS_Store
+.vscode/
 eval/results/.spend.lock

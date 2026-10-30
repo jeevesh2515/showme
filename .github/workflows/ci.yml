@@ -46,6 +46,10 @@ jobs:
       - name: Docker build
         run: docker build backend
 
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   web:
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +69,3 @@ jobs:
           (pnpm --filter web exec next start -p 3000 &)
           sleep 5
           pnpm --filter web test:e2e
-
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

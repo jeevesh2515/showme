@@ -15,3 +15,18 @@ def cost_ground(model: str, prompt_tokens: int, completion_tokens: int) -> float
 
 def cost_sam(images: int = 1) -> float:
     return SAM_COST_PER_IMAGE * images
+
+
+# Admission bounds for spend reservations (API-6): a /v1/step call may run
+# MAX_GENERATIONS generations (one unparsable retry), each capped at
+# MAX_COMPLETION_TOKENS out; prompt is bounded by the 2560px image cap plus
+# schema-bounded goal/history text. 8192 covers the largest prompt measured
+# in eval (max single-call cost $0.031 on Wonder, eval/results/*/predictions.jsonl).
+MAX_PROMPT_TOKENS = 8192
+MAX_COMPLETION_TOKENS = 1024
+MAX_GENERATIONS = 2
+
+
+def max_step_cost(model: str) -> float:
+    """Worst-case cost of one /v1/step request; reservations must cover this, not a typical call."""
+    return MAX_GENERATIONS * cost_ground(model, MAX_PROMPT_TOKENS, MAX_COMPLETION_TOKENS)

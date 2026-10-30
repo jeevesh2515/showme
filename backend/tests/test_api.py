@@ -333,7 +333,7 @@ def test_api_6_failed_generations_still_record_spend() -> None:
     # Review 2026-10-28 #3: two malformed generations cost 2 x 0.001675; counter must show it,
     # and a daily cap between one and two generations' cost must trip on the next call.
     respx.post(STEP_URL).mock(return_value=meta_reply(content="not json"))
-    api = client(spend_cap_daily_usd=0.002, spend_cap_total_usd=60.0)
+    api = client(spend_cap_daily_usd=0.03, spend_cap_total_usd=60.0)
     resp = api.post("/v1/step", json=step_payload())
     assert resp.status_code == 502
     assert api.app.state.spend._day_total == pytest.approx(0.003350)  # type: ignore[attr-defined]
@@ -353,13 +353,13 @@ def test_api_2_retry_then_success_costs_both_generations() -> None:
 async def test_api_6_concurrent_requests_cannot_bypass_daily_spend_cap() -> None:
     # Review 2026-10-29 #2: 8 concurrent requests against a $0.002 daily cap.
     respx.post(STEP_URL).mock(return_value=meta_reply())
-    app = create_app(ApiSettings(spend_cap_daily_usd=0.002, spend_cap_total_usd=60.0))
+    app = create_app(ApiSettings(spend_cap_daily_usd=0.03, spend_cap_total_usd=60.0))
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
         responses = await asyncio.gather(*(ac.post("/v1/step", json=step_payload()) for _ in range(8)))
     statuses = [r.status_code for r in responses]
     assert statuses.count(200) == 1
     assert statuses.count(503) == 7
-    assert app.state.spend._day_total <= 0.002
+    assert app.state.spend._day_total <= 0.03
     assert app.state.spend._reserved_day == 0.0
 
 
@@ -367,11 +367,41 @@ async def test_api_6_concurrent_requests_cannot_bypass_daily_spend_cap() -> None
 @respx.mock
 async def test_api_6_concurrent_requests_cannot_bypass_total_spend_cap() -> None:
     respx.post(STEP_URL).mock(return_value=meta_reply())
-    app = create_app(ApiSettings(spend_cap_daily_usd=10.0, spend_cap_total_usd=0.002))
+    app = create_app(ApiSettings(spend_cap_daily_usd=10.0, spend_cap_total_usd=0.03))
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
         responses = await asyncio.gather(*(ac.post("/v1/step", json=step_payload()) for _ in range(8)))
     statuses = [r.status_code for r in responses]
     assert statuses.count(200) == 1
     assert statuses.count(503) == 7
-    assert app.state.spend._total <= 0.002
+    assert app.state.spend._total <= 0.03
     assert app.state.spend._reserved_total == 0.0
+
+
+def _big_reply() -> httpx.Response:
+    body = {
+        "choices": [{"message": {"content": json.dumps(GOOD)}}],
+        "usage": {"prompt_tokens": 10000, "completion_tokens": 100},
+    }
+    return httpx.Response(200, json=body)
+
+
+@respx.mock
+def test_api_6_reservation_blocks_when_max_cost_exceeds_cap() -> None:
+    # Review 2026-10-30 #3: cap $0.002 must reject before the model call, not record $0.012925 after a 200.
+    route = respx.post(STEP_URL).mock(return_value=_big_reply())
+    api = client(spend_cap_daily_usd=0.002, spend_cap_total_usd=60.0)
+    resp = api.post("/v1/step", json=step_payload())
+    assert resp.status_code == 503 and resp.json()["error"]["code"] == "spend_cap_reached"
+    assert route.call_count == 0
+    assert api.app.state.spend._day_total == 0.0  # type: ignore[attr-defined]
+
+
+@respx.mock
+def test_api_6_large_usage_within_reserved_bounds_records_actual() -> None:
+    respx.post(STEP_URL).mock(return_value=_big_reply())
+    api = client(spend_cap_daily_usd=5.0, spend_cap_total_usd=60.0)
+    resp = api.post("/v1/step", json=step_payload())
+    assert resp.status_code == 200
+    assert resp.json()["cost_usd"] == round((10000 * 1.25 + 100 * 4.25) / 1_000_000, 6)
+    assert api.app.state.spend._day_total == pytest.approx(0.012925)  # type: ignore[attr-defined]
+    assert api.app.state.spend._reserved_day == 0.0  # type: ignore[attr-defined]

@@ -28,7 +28,7 @@ from showme.api.settings import ApiSettings
 from showme.core.grounding import ModelError, ModelTimeout, ground
 from showme.core.pii import mask_pii
 from showme.core.postprocess import postprocess
-from showme.core.pricing import cost_ground
+from showme.core.pricing import cost_ground, max_step_cost
 from showme.core.sam import refine
 
 log = logging.getLogger("showme.api")
@@ -100,8 +100,7 @@ def _enforce_spend_cap(request: Request) -> None:
         raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
 
-RESERVE_STEP_USD = 0.001675  # conservative single-generation cost (1000 in, 100 out Spark minimal)
-RESERVE_REFINE_USD = 0.0025  # SAM cost per image
+RESERVE_REFINE_USD = 0.0025  # SAM cost per image (single call, fixed price)
 
 
 def _record_meta(request: Request, model: str, tokens: int, cost_usd: float) -> None:
@@ -170,10 +169,12 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     @app.post("/v1/step", response_model=StepResponse)
     async def step(req: StepRequest, request: Request) -> StepResponse:
         _enforce_rate_limit(request)
-        if not request.app.state.spend.reserve(RESERVE_STEP_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
+        # Reserve the worst-case cost (max generations x bounded tokens) so the cap holds before spend, not after.
+        reserve_usd = max_step_cost(cfg.to_core_settings(escalate=req.escalate).model)
+        if not request.app.state.spend.reserve(reserve_usd, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
             raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
-        reserved = RESERVE_STEP_USD
+        reserved = reserve_usd
         actual_cost = 0.0
         try:
             width, height = _image_size(req.image)

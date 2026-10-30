@@ -27,6 +27,8 @@ export type MockOptions = {
   /** Delay before the step response, so the "Looking" state is observable. */
   delayMs?: number;
   refine?: RefineResponse;
+  /** One fixture per expected POST /api/v1/refine, in order. Takes precedence over `refine`. */
+  refines?: RefineResponse[];
   refineDelayMs?: number;
 };
 
@@ -51,6 +53,7 @@ export async function mockApi(page: Page, options: MockOptions = {}): Promise<Mo
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(next) });
   });
 
+  const refineQueue = [...(options.refines ?? [])];
   await page.route("**/api/v1/refine*", async (route) => {
     const body = route.request().postData() ?? "";
     api.allBodies.push({ url: route.request().url(), body });
@@ -59,7 +62,7 @@ export async function mockApi(page: Page, options: MockOptions = {}): Promise<Mo
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(options.refine ?? refineBox()),
+      body: JSON.stringify(refineQueue.shift() ?? options.refine ?? refineBox()),
     });
   });
 

@@ -182,3 +182,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Generated TS client from OpenAPI (API-8, stdlib generator + CI drift); built /app flow (start/review/looking/step, overlay SVG with badge/magnifier/SAM crossfade, all states, read-aloud, text-only history); Playwright FLOW-1..13 + PRIV-1/2/4 (23 tests); deployed Vercel web + Python API (lhr1) with rewrites, env by name only, headers verified; 5 manual runs on live site.
 - **Result / evidence:** Playwright 23/23; `make lint test` green (130 backend + 31 eval + 77 web); live step ok ($0.003669) + refine outline (1297 ms) on synthetic billing fixture; manual outcomes in `eval/manual/2026-10-30/outcomes.md` (1 right, 2 honest cookie-blocker steps, 1 honest blocked, 1 plausible). Reviews: 8.6 / 8.5 subagents, security 7.0 + code 7.5 → fix loop → re-review 8.3 → gate one-liners fixed → all suites green.
 - **Decision:** D27 (CSP wasm/inline), D28 (Vercel-verified rate key, in-memory caps residual to Day 5), D29 (15 s OCR fallback).
+
+## 2026-10-30 · S25 · Oct 30 review follow-up (352208d + Day 4)
+
+- **Why:** External review raised 4 items: CSP/OCR, rapid-upload race, spend reservation, late SAM.
+- **What I did:** Verified 1/2/4 already fixed (D27 wasm CSP + ocrFailed copy; genRef generation guard on bitmap/OCR/step/refine) and added Playwright regressions with real text fixtures under production build (`review-race.spec.ts`: real OCR auto-hides email, rapid A→B uploads show only B lines, delayed refine for step A never lands on step B). Fixed 3 in backend: reservation now worst-case `max_step_cost` and history fields bounded; updated 3 cap tests to reservation scale.
+- **Result / evidence:** Backend 132 pass; Playwright 26/26; `make lint test` green; backend redeployed, healthz 200.
+- **Decision:** D30. Note: OCR can split `bob @example.org` across words so email regex misses — review screen remains backstop (recorded, not fixed; corpus behaviour unchanged).

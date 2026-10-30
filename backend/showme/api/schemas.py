@@ -5,10 +5,10 @@ from showme.core.schema import Action, BoxPx, PointPx, ScrollDirection, Status, 
 
 class HistoryItem(BaseModel):
     n: int
-    instruction: str
-    action: str
-    target_label: str
-    result: str
+    instruction: str = Field(max_length=200)
+    action: str = Field(max_length=20)
+    target_label: str = Field(max_length=100)
+    result: str = Field(max_length=20)
 
 
 class RedactionMeta(BaseModel):

@@ -175,3 +175,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Two read-only DeepSeek reviews. Security 8.5/10; code review 6.5/10. Fixed confirmed findings (forgeable brand, silent OCR failure, EXIF fail-open, spend/cache atomicity, pooled negatives headline, PRIV-10 probes, Meta-host pin); rejected three with reasons in MEMORY.
 - **Result / evidence:** `make lint test` green (120 backend + 28 eval + 71 web); regenerated SAM/negatives/calibration artefacts after fixes.
 - **Decision:** No privacy rule weakened; verifier stays unwired while D23 keeps it off.
+
+## 2026-10-30 · S24 · Core loop end to end + first deploy (Day 4)
+
+- **Why:** Day 4 DoD: public URL live (WEB-3) with redaction → step → outline on a real screenshot, PRIV-1 green in CI.
+- **What I did:** Generated TS client from OpenAPI (API-8, stdlib generator + CI drift); built /app flow (start/review/looking/step, overlay SVG with badge/magnifier/SAM crossfade, all states, read-aloud, text-only history); Playwright FLOW-1..13 + PRIV-1/2/4 (23 tests); deployed Vercel web + Python API (lhr1) with rewrites, env by name only, headers verified; 5 manual runs on live site.
+- **Result / evidence:** Playwright 23/23; `make lint test` green (130 backend + 31 eval + 77 web); live step ok ($0.003669) + refine outline (1297 ms) on synthetic billing fixture; manual outcomes in `eval/manual/2026-10-30/outcomes.md` (1 right, 2 honest cookie-blocker steps, 1 honest blocked, 1 plausible). Reviews: 8.6 / 8.5 subagents, security 7.0 + code 7.5 → fix loop → re-review 8.3 → gate one-liners fixed → all suites green.
+- **Decision:** D27 (CSP wasm/inline), D28 (Vercel-verified rate key, in-memory caps residual to Day 5), D29 (15 s OCR fallback).

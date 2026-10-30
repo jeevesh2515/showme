@@ -1,0 +1,11 @@
+1-bbc-cookies: step="Tap the blue Reject additional cookies button at the bottom." caution=false
+2-govuk-passport: step="Tap the Reject additional cookies button at the top." caution=false
+3-nhs-gp: step="Tap the green Reject analytics cookies button at the top." caution=false
+4-royalmail-track: FAILED TimeoutError: locator.waitFor: Timeout 60000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('step-instruction') to be visible[22m
+
+5-apple-cancel: FAILED TimeoutError: locator.waitFor: Timeout 60000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('step-instruction') to be visible[22m
+

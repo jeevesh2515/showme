@@ -50,15 +50,16 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 4 · Fri Oct 30 · Core loop end to end + first deploy
 
-- [ ] Upload / paste / drag + goal input (FLOW-1)
-- [ ] Review screen: auto blurs, tap-to-blur line, brush, undo, zoom (FLOW-3, PRIV-2)
-- [ ] Step call, overlay box with numbered badge, instruction card (FLOW-4), refine swap to outline (FLOW-5)
-- [ ] States: unsure, not_visible, done, refuse, caution (FLOW-6 to FLOW-10)
-- [ ] Next-screenshot loop with text-only history; "That didn't work" (FLOW-11, FLOW-12)
-- [ ] Generated TS client from OpenAPI; drift check in CI (API-8)
-- [ ] Deploy: Vercel web + Vercel Python API, env vars set, rewrites `/api/*`; verify body-size limit with a 1920 px JPEG
-- [ ] PRIV-1 Playwright test (request bodies never contain the original image)
-- [ ] 5 manual real-use-case runs on the live site → `eval/manual/2026-10-30/`; founder runs one real task of their own on their phone
+- [x] Upload / paste / drag + goal input (FLOW-1)
+- [x] Review screen: auto blurs, tap-to-blur line, brush, undo, zoom (FLOW-3, PRIV-2)
+- [x] Step call, overlay box with numbered badge, instruction card (FLOW-4), refine swap to outline (FLOW-5)
+- [x] States: unsure, not_visible, done, refuse, caution (FLOW-6 to FLOW-10)
+- [x] Next-screenshot loop with text-only history; "That didn't work" (FLOW-11, FLOW-12)
+- [x] Generated TS client from OpenAPI; drift check in CI (API-8)
+- [x] Deploy: Vercel web + Vercel Python API, env vars set, rewrites `/api/*`; verify body-size limit with a 1920 px JPEG
+- [x] PRIV-1 Playwright test (request bodies never contain the original image)
+- [x] 5 manual real-use-case runs on the live site → `eval/manual/2026-10-30/`
+- [ ] Founder runs one real task of their own on their phone (pending founder)
 
 **DoD:** **public URL live** (WEB-3); a real screenshot goes through redaction → step → outline on the deployed site; PRIV-1 test green in CI.
 

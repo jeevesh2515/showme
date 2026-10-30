@@ -3,6 +3,7 @@ import binascii
 import io
 import json
 import logging
+import os
 import re
 import secrets
 import time
@@ -66,11 +67,22 @@ def _image_size(image: str) -> tuple[int, int]:
     return width, height
 
 
+def client_ip(request: Request) -> str:
+    """Vercel-verified client IP only when running on Vercel. Raw X-Forwarded-For is never trusted (ARCH §8)."""
+    if os.environ.get("VERCEL"):
+        real = request.headers.get("x-real-ip")
+        if real:
+            return real.strip()
+        vercel = request.headers.get("x-vercel-forwarded-for", "").split(",")[0].strip()
+        if vercel:
+            return vercel
+    return request.client.host if request.client else "unknown"
+
+
 def _enforce_rate_limit(request: Request) -> None:
     cfg: ApiSettings = request.app.state.settings
     limiter: InMemoryRateLimiter = request.app.state.rate
-    # shortcut: request.client is the proxy IP behind Vercel, use its verified header on Day 4.
-    key = hash_key(request.client.host if request.client else "unknown", cfg.ip_hash_salt_seed)
+    key = hash_key(client_ip(request), cfg.ip_hash_salt_seed)
     for window_s, limit in ((3600, cfg.rate_per_hour), (86400, cfg.rate_per_day)):
         bucket = f"{window_s}:{key}"
         if not limiter.check(bucket, limit, window_s):
@@ -98,7 +110,14 @@ def _record_meta(request: Request, model: str, tokens: int, cost_usd: float) -> 
 
 def create_app(settings: ApiSettings | None = None) -> FastAPI:
     cfg = settings or ApiSettings()
-    app = FastAPI(title="ShowMe API", version="0.1.0")
+    prod = os.environ.get("VERCEL_ENV") == "production"
+    app = FastAPI(
+        title="ShowMe API",
+        version="0.1.0",
+        docs_url=None if prod else "/docs",
+        redoc_url=None,
+        openapi_url=None if prod else "/openapi.json",
+    )
     app.state.settings = cfg
     app.state.rate = InMemoryRateLimiter()
     app.state.spend = InMemorySpendCap()
@@ -140,6 +159,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             )
         )
         response.headers["X-Request-ID"] = request_id
+        if route.startswith("/v1/"):
+            response.headers["Cache-Control"] = "no-store"
         return response
 
     @app.get("/v1/healthz", response_model=HealthResponse)

@@ -27,3 +27,7 @@ node_modules/
 .DS_Store
 .vscode/
 eval/results/.spend.lock
+
+# Manual-run source captures of public pages: keep outcomes + redacted trail only
+eval/manual/**/trail/*-source.png
+eval/manual/**/trail/*-error.png

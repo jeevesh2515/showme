@@ -1,4 +1,6 @@
-from pydantic import field_validator
+import os
+
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from showme.core.settings import Settings as CoreSettings
@@ -20,6 +22,12 @@ class ApiSettings(BaseSettings):
     ip_hash_salt_seed: str = ""
     rate_per_hour: int = 30
     rate_per_day: int = 150
+
+    @model_validator(mode="after")
+    def _prod_needs_salt(self) -> "ApiSettings":
+        if os.environ.get("VERCEL_ENV") == "production" and not self.ip_hash_salt_seed:
+            raise ValueError("IP_HASH_SALT_SEED must be set in production")
+        return self
 
     @field_validator("grounding_model", "escalation_model")
     @classmethod

@@ -24,6 +24,12 @@ jobs:
           uv sync --project backend
           uv sync --project eval
 
+      # API-8: the typed web client is generated from the backend OpenAPI; drift fails CI.
+      - name: API client drift
+        run: |
+          python3 scripts/gen_api_client.py
+          git diff --exit-code apps/web/lib/api/
+
       - name: Lint
         run: |
           uv run --project backend ruff check backend eval
@@ -39,6 +45,25 @@ jobs:
 
       - name: Docker build
         run: docker build backend
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web lint
+      - run: pnpm --filter web typecheck
+      - run: pnpm --filter web test
+      - run: pnpm --filter web build
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Playwright (PRIV-1, PRIV-4, FLOW-1..13; API route-mocked, no live spend)
+        run: |
+          (pnpm --filter web exec next start -p 3000 &)
+          sleep 5
+          pnpm --filter web test:e2e
 
       - uses: gitleaks/gitleaks-action@v2
         env:

@@ -146,7 +146,9 @@ def test_priv_5_purge_keeps_row_when_image_delete_fails() -> None:
 def test_priv_5_delete_image_uses_bulk_storage_route() -> None:
     async def run() -> None:
         with respx.mock(base_url=SUPABASE) as mock:
-            route = mock.delete("/storage/v1/object/guides").mock(return_value=httpx.Response(200, json=[{"name": "1.jpg"}]))
+            route = mock.delete("/storage/v1/object/guides").mock(
+                return_value=httpx.Response(200, json=[{"name": "1.jpg"}])
+            )
             store = SupabaseGuideStore(SUPABASE, "service-role-key")
             await store.delete_image("guide-1/1.jpg")
             assert route.called

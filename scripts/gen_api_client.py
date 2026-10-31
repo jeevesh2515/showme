@@ -117,7 +117,7 @@ def emit_types(spec: dict) -> str:
 
 def emit_paths(spec: dict) -> str:
     paths = spec["paths"]
-    for route in ("/v1/step", "/v1/refine"):
+    for route in ("/v1/step", "/v1/refine", "/v1/guides", "/v1/guides/{token}"):
         if route not in paths:
             sys.exit(f"OpenAPI is missing {route}: backend contract changed, update the client wrapper")
     return (
@@ -125,6 +125,7 @@ def emit_paths(spec: dict) -> str:
         "export const API_PATHS = {\n"
         '  step: "/api/v1/step",\n'
         '  refine: "/api/v1/refine",\n'
+        '  guides: "/api/v1/guides",\n'
         "} as const;"
     )
 
@@ -230,6 +231,49 @@ export async function refine(
 ): Promise<RefineResponse> {
   const payload: RefineRequest = { ...imagePayload(image), box, point };
   return post<RefineResponse>(API_PATHS.refine, payload, opts.signal);
+}
+
+export type GuideStepInput = {
+  n: number;
+  instruction: string;
+  image: RedactedImage;
+  target: Target | null;
+  svgPath: string | null;
+  svgOrigin: PointPx | null;
+};
+
+/** PRIV-5: only redacted trail images (from redact()) can be shared, and only with consent. */
+export async function createGuide(
+  goal: string,
+  steps: GuideStepInput[],
+  consent: boolean,
+  opts: RequestOptions = {},
+): Promise<CreateGuideResponse> {
+  const payload: CreateGuideRequest = {
+    goal,
+    consent,
+    steps: steps.map((s) => ({
+      n: s.n,
+      instruction: s.instruction,
+      image: s.image.dataUrl,
+      target: s.target,
+      svg_path: s.svgPath,
+      svg_origin: s.svgOrigin,
+      width: s.image.meta.width,
+      height: s.image.meta.height,
+    })),
+  };
+  return post<CreateGuideResponse>(API_PATHS.guides, payload, opts.signal);
+}
+
+export async function deleteGuide(token: string, deleteKey: string, opts: RequestOptions = {}): Promise<void> {
+  const response = await fetch(`${API_PATHS.guides}/${encodeURIComponent(token)}`, {
+    method: "DELETE",
+    headers: { "X-Delete-Key": deleteKey },
+    signal: opts.signal,
+  });
+  const body: unknown = await response.json().catch(() => null);
+  if (response.status !== 200) throw toApiError(response.status, body);
 }
 """
 

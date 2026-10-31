@@ -15,7 +15,16 @@ def test_api_7_v1_responses_are_no_store() -> None:
 def test_priv_8_prod_docs_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("VERCEL_ENV", "production")
     monkeypatch.setenv("IP_HASH_SALT_SEED", "salt")
-    app = create_app(ApiSettings(model_api_key="x", ip_hash_salt_seed="salt"))
+    app = create_app(
+        ApiSettings(
+            model_api_key="x",
+            ip_hash_salt_seed="salt",
+            supabase_url="https://proj.supabase.co",
+            supabase_service_role_key="k",
+            cron_secret="c",
+            public_base_url="https://example.com",
+        )
+    )
     assert app.docs_url is None and app.openapi_url is None
 
 

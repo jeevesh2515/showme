@@ -10,6 +10,46 @@ export interface BoxPx {
   y2: number;
 }
 
+export interface CreateGuideRequest {
+  goal: string;
+  steps: GuideStepIn[];
+  consent: boolean;
+}
+
+export interface CreateGuideResponse {
+  url: string;
+  delete_key: string;
+  expires_at: string;
+}
+
+export interface GetGuideResponse {
+  goal: string;
+  steps: GuideStepOut[];
+  expires_at: string;
+}
+
+export interface GuideStepIn {
+  n: number;
+  instruction: string;
+  image: string;
+  target?: Target | null;
+  svg_path?: string | null;
+  svg_origin?: PointPx | null;
+  width: number;
+  height: number;
+}
+
+export interface GuideStepOut {
+  n: number;
+  instruction: string;
+  image_url: string;
+  target?: Target | null;
+  svg_path?: string | null;
+  svg_origin?: PointPx | null;
+  width: number;
+  height: number;
+}
+
 export interface HTTPValidationError {
   detail?: ValidationError[];
 }
@@ -102,6 +142,7 @@ export interface ValidationError {
 export const API_PATHS = {
   step: "/api/v1/step",
   refine: "/api/v1/refine",
+  guides: "/api/v1/guides",
 } as const;
 
 /** Typed error body per ARCH §4: {error: {code, message, retry_after_s?}}. */
@@ -204,4 +245,47 @@ export async function refine(
 ): Promise<RefineResponse> {
   const payload: RefineRequest = { ...imagePayload(image), box, point };
   return post<RefineResponse>(API_PATHS.refine, payload, opts.signal);
+}
+
+export type GuideStepInput = {
+  n: number;
+  instruction: string;
+  image: RedactedImage;
+  target: Target | null;
+  svgPath: string | null;
+  svgOrigin: PointPx | null;
+};
+
+/** PRIV-5: only redacted trail images (from redact()) can be shared, and only with consent. */
+export async function createGuide(
+  goal: string,
+  steps: GuideStepInput[],
+  consent: boolean,
+  opts: RequestOptions = {},
+): Promise<CreateGuideResponse> {
+  const payload: CreateGuideRequest = {
+    goal,
+    consent,
+    steps: steps.map((s) => ({
+      n: s.n,
+      instruction: s.instruction,
+      image: s.image.dataUrl,
+      target: s.target,
+      svg_path: s.svgPath,
+      svg_origin: s.svgOrigin,
+      width: s.image.meta.width,
+      height: s.image.meta.height,
+    })),
+  };
+  return post<CreateGuideResponse>(API_PATHS.guides, payload, opts.signal);
+}
+
+export async function deleteGuide(token: string, deleteKey: string, opts: RequestOptions = {}): Promise<void> {
+  const response = await fetch(`${API_PATHS.guides}/${encodeURIComponent(token)}`, {
+    method: "DELETE",
+    headers: { "X-Delete-Key": deleteKey },
+    signal: opts.signal,
+  });
+  const body: unknown = await response.json().catch(() => null);
+  if (response.status !== 200) throw toApiError(response.status, body);
 }

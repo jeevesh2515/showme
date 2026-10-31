@@ -1,5 +1,7 @@
 import base64
 import binascii
+import contextlib
+import inspect
 import io
 import json
 import logging
@@ -8,6 +10,7 @@ import re
 import secrets
 import time
 import uuid
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -15,7 +18,28 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
 
-from showme.api.ratelimit import InMemoryRateLimiter, InMemorySpendCap, hash_key
+from showme.api.guides import (
+    CreateGuideRequest,
+    CreateGuideResponse,
+    GetGuideResponse,
+    GuideRecord,
+    GuideStepOut,
+    InMemoryGuideStore,
+    SupabaseGuideStore,
+    hash_secret,
+    new_delete_key,
+    new_token,
+    purge_expired,
+)
+from showme.api.ratelimit import (
+    InMemoryCounterStore,
+    InMemoryRateLimiter,
+    InMemorySpendCap,
+    SupabaseCounterStore,
+    SupabaseRateLimiter,
+    SupabaseSpendCap,
+    hash_key,
+)
 from showme.api.schemas import (
     ApiError,
     HealthResponse,
@@ -68,36 +92,36 @@ def _image_size(image: str) -> tuple[int, int]:
 
 
 def client_ip(request: Request) -> str:
-    """Vercel-verified client IP only when running on Vercel. Raw X-Forwarded-For is never trusted (ARCH §8)."""
+    """Only Vercel's own forwarded-for header is trusted, and only on Vercel (ARCH §8). Client-sent
+    x-real-ip / x-forwarded-for are never trusted (2026-10-31 security review S1)."""
     if os.environ.get("VERCEL"):
-        real = request.headers.get("x-real-ip")
-        if real:
-            return real.strip()
         vercel = request.headers.get("x-vercel-forwarded-for", "").split(",")[0].strip()
         if vercel:
             return vercel
     return request.client.host if request.client else "unknown"
 
 
-def _enforce_rate_limit(request: Request) -> None:
+async def _maybe_await(value: Any) -> Any:
+    """In-memory limiters are sync, Supabase-backed ones async; routes await either."""
+    if inspect.isawaitable(value):
+        return await value
+    return value
+
+
+async def _enforce_rate_limit(request: Request) -> None:
     cfg: ApiSettings = request.app.state.settings
-    limiter: InMemoryRateLimiter = request.app.state.rate
+    limiter = request.app.state.rate
     key = hash_key(client_ip(request), cfg.ip_hash_salt_seed)
     for window_s, limit in ((3600, cfg.rate_per_hour), (86400, cfg.rate_per_day)):
-        bucket = f"{window_s}:{key}"
-        if not limiter.check(bucket, limit, window_s):
+        # Fixed window id so the Supabase counter bucket resets with the window, not last-hit + window.
+        bucket = f"{window_s}:{int(time.time() // window_s)}:{key}"
+        if not await _maybe_await(limiter.check(bucket, limit, window_s)):
             raise ApiError(
                 429,
                 "rate_limited",
                 "Too many requests. Please wait a moment and try again.",
                 retry_after_s=limiter.retry_after_s(bucket, window_s),
             )
-
-
-def _enforce_spend_cap(request: Request) -> None:
-    cfg: ApiSettings = request.app.state.settings
-    if not request.app.state.spend.check(cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
-        raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
 
 RESERVE_REFINE_USD = 0.0025  # SAM cost per image (single call, fixed price)
@@ -118,8 +142,18 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         openapi_url=None if prod else "/openapi.json",
     )
     app.state.settings = cfg
-    app.state.rate = InMemoryRateLimiter()
-    app.state.spend = InMemorySpendCap()
+    # API-6/PRIV-5: Supabase-backed stores when configured (ARCH §8/§9), in-memory otherwise.
+    if cfg.supabase_url and cfg.supabase_service_role_key:
+        counters = SupabaseCounterStore(cfg.supabase_url, cfg.supabase_service_role_key)
+        app.state.rate = SupabaseRateLimiter(counters)
+        app.state.spend = SupabaseSpendCap(counters)
+        app.state.guide_store = SupabaseGuideStore(cfg.supabase_url, cfg.supabase_service_role_key)
+    else:
+        counters = InMemoryCounterStore()
+        app.state.rate = InMemoryRateLimiter()
+        app.state.spend = InMemorySpendCap()
+        app.state.guide_store = InMemoryGuideStore()
+    app.state.counters = counters
 
     @app.exception_handler(ApiError)
     async def _api_error_handler(request: Request, exc: ApiError) -> JSONResponse:
@@ -143,6 +177,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         started = time.perf_counter()
         response = await call_next(request)
         route = getattr(request.scope.get("route"), "path", request.url.path)
+        if route.startswith("/v1/guides/"):
+            route = "/v1/guides/{token}"  # PRIV-3: a live share token must never reach logs via unmatched paths
         meta: dict[str, Any] = request.state.log_meta
         log.info(
             json.dumps(
@@ -168,10 +204,12 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
 
     @app.post("/v1/step", response_model=StepResponse)
     async def step(req: StepRequest, request: Request) -> StepResponse:
-        _enforce_rate_limit(request)
+        await _enforce_rate_limit(request)
         # Reserve the worst-case cost (max generations x bounded tokens) so the cap holds before spend, not after.
         reserve_usd = max_step_cost(cfg.to_core_settings(escalate=req.escalate).model)
-        if not request.app.state.spend.reserve(reserve_usd, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
+        if not await _maybe_await(
+            request.app.state.spend.reserve(reserve_usd, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
+        ):
             raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
         reserved = reserve_usd
@@ -218,12 +256,14 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 cost_usd=round(actual_cost, 6),
             )
         finally:
-            request.app.state.spend.reconcile(reserved, actual_cost)
+            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost))
 
     @app.post("/v1/refine", response_model=RefineResponse)
     async def refine_step(req: RefineRequest, request: Request) -> RefineResponse:
-        _enforce_rate_limit(request)
-        if not request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd):
+        await _enforce_rate_limit(request)
+        if not await _maybe_await(
+            request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
+        ):
             raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
         reserved = RESERVE_REFINE_USD
@@ -248,7 +288,128 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 cost_usd=round(actual_cost, 6),
             )
         finally:
-            request.app.state.spend.reconcile(reserved, actual_cost)
+            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost))
+
+    @app.post("/v1/guides", response_model=CreateGuideResponse)
+    async def create_guide(req: CreateGuideRequest, request: Request) -> CreateGuideResponse:
+        # PRIV-5: sharing is opt-in only; consent is self-attested by the official client (D16).
+        if not req.consent:
+            raise ApiError(
+                400, "consent_required", "Sharing needs your consent. Tick the consent box to create a link."
+            )
+        # API-6: charge the 5/day guide quota before any image decode work (2026-10-31 review H5).
+        now = datetime.now(UTC)
+        key = hash_key(client_ip(request), cfg.ip_hash_salt_seed)
+        count, _ = await request.app.state.counters.incr(
+            f"guide:{key}:{now.date().isoformat()}", count=1, expires_at=now + timedelta(hours=48)
+        )
+        if count > cfg.rate_guides_per_day:
+            raise ApiError(429, "rate_limited", "You have shared a lot today. Try again tomorrow.")
+        decoded: list[tuple[bytes, str]] = []
+        for step_in in req.steps:
+            width, height = _image_size(step_in.image)
+            if (step_in.width, step_in.height) != (width, height):
+                raise ApiError(400, "invalid_image", "Image size does not match the step size.")
+            mime = step_in.image[5:].split(";", 1)[0]
+            decoded.append((base64.b64decode(step_in.image.split(",", 1)[1]), mime))
+        token, delete_key = new_token(), new_delete_key()
+        guide_id = str(uuid.uuid4())  # guides.id is a Postgres uuid
+        expires_at = now + timedelta(days=cfg.guide_ttl_days)
+        stored_steps: list[dict[str, Any]] = []
+        uploaded: list[str] = []
+        try:
+            for step_in, (data, mime) in zip(req.steps, decoded, strict=True):
+                ext = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}.get(mime, "jpg")
+                path = f"{guide_id}/{step_in.n}.{ext}"
+                await request.app.state.guide_store.put_image(path, data, mime)
+                uploaded.append(path)
+                stored_steps.append(
+                    {
+                        "n": step_in.n,
+                        "instruction": mask_pii(step_in.instruction),
+                        "target": step_in.target.model_dump() if step_in.target else None,
+                        "svg_path": step_in.svg_path,
+                        "svg_origin": step_in.svg_origin.model_dump() if step_in.svg_origin else None,
+                        "width": step_in.width,
+                        "height": step_in.height,
+                        "image_path": path,
+                    }
+                )
+            await request.app.state.guide_store.put(
+                GuideRecord(
+                    id=guide_id,
+                    token_hash=hash_secret(token),
+                    delete_key_hash=hash_secret(delete_key),
+                    goal=mask_pii(req.goal),
+                    steps=stored_steps,
+                    created_at=now,
+                    expires_at=expires_at,
+                )
+            )
+        except Exception:
+            # No row will reference these objects; delete them so a failed create leaves no orphans (review H4).
+            for path in uploaded:
+                with contextlib.suppress(Exception):
+                    await request.app.state.guide_store.delete_image(path)
+            raise
+        base = (cfg.public_base_url or str(request.base_url)).rstrip("/")
+        return CreateGuideResponse(url=f"{base}/g/{token}", delete_key=delete_key, expires_at=expires_at.isoformat())
+
+    @app.get("/v1/guides/{token}", response_model=GetGuideResponse)
+    async def get_guide(token: str, request: Request) -> GetGuideResponse:
+        # No per-IP limit here: the caller is the /g page's server fetch (one shared egress IP for all
+        # viewers), and the 128-bit token already defeats guessing (2026-10-31 review F1).
+        now = datetime.now(UTC)
+        record = await request.app.state.guide_store.get(hash_secret(token))
+        # PRIV-5: unknown and expired are indistinguishable, so tokens cannot be probed.
+        if record is None or record.expires_at <= now:
+            raise ApiError(404, "guide_not_found", "This guide has gone.")
+        steps = [
+            GuideStepOut(
+                n=int(s["n"]),
+                instruction=str(s["instruction"]),
+                image_url=await request.app.state.guide_store.signed_url(str(s["image_path"]), record.expires_at, now),
+                target=s["target"],
+                svg_path=s["svg_path"],
+                svg_origin=s["svg_origin"],
+                width=int(s["width"]),
+                height=int(s["height"]),
+            )
+            for s in record.steps
+        ]
+        return GetGuideResponse(goal=record.goal, steps=steps, expires_at=record.expires_at.isoformat())
+
+    @app.delete("/v1/guides/{token}")
+    async def delete_guide(token: str, request: Request) -> dict[str, bool]:
+        # No limiter: 128-bit token + 192-bit delete key make brute force hopeless, and a limiter
+        # only lets link holders lock the creator out of deleting (2026-10-31 review N1).
+        record = await request.app.state.guide_store.get(hash_secret(token))
+        if record is None:
+            raise ApiError(404, "guide_not_found", "This guide has gone.")
+        provided = request.headers.get("x-delete-key", "")
+        if not secrets.compare_digest(hash_secret(provided), record.delete_key_hash):
+            raise ApiError(403, "invalid_delete_key", "That delete key does not match this guide.")
+        # Images first, then the row: a storage failure leaves the guide intact and retryable (review F4).
+        for s in record.steps:
+            await request.app.state.guide_store.delete_image(str(s["image_path"]))
+        await request.app.state.guide_store.delete(record.token_hash)
+        return {"deleted": True}
+
+    @app.get("/internal/purge")
+    @app.post("/internal/purge")
+    async def purge(request: Request) -> dict[str, int]:
+        # API-9: Vercel Cron invokes with GET + Authorization: Bearer <CRON_SECRET>; manual calls use X-Cron-Secret.
+        provided = (
+            request.headers.get("x-cron-secret")
+            or request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+        )
+        # Bytes compare: compare_digest on str raises TypeError for non-ASCII headers (review L2).
+        if not cfg.cron_secret or not secrets.compare_digest(provided.encode(), cfg.cron_secret.encode()):
+            raise ApiError(401, "unauthorized", "Missing or wrong cron secret.")
+        now = datetime.now(UTC)
+        purged = await purge_expired(request.app.state.guide_store, now)
+        counters_purged = int(await request.app.state.counters.purge_expired(now))
+        return {"purged_guides": purged, "purged_counters": counters_purged}
 
     return app
 

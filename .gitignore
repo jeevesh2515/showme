@@ -26,6 +26,8 @@ node_modules/
 .next/
 .DS_Store
 .vscode/
+.agents/
+skills-lock.json
 eval/results/.spend.lock
 
 # Manual-run source captures of public pages: keep outcomes + redacted trail only

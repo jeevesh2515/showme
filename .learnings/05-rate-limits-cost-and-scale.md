@@ -35,6 +35,7 @@ Purpose: answer questions about limits, abuse control, unit cost, budget and wha
 - Input limits: goal 1 to 300 characters, history up to 20 items, image decoded up to 3 MB and max side 2048 px, guide up to 15 steps.
 - UI copy: "You have used ShowMe a lot this hour. Try again at 3:40 pm."
 - In-memory backend for local dev on Day 2, Supabase backend behind the same interface on Day 5.
+- Day 5 (2026-10-31) [Built; live pending founder Supabase]: Supabase counters via `increment_counter` RPC (async client, fixed hourly/daily window buckets, UTC salted IP hash D32); production fails closed if Supabase env is missing. Two measured corrections: `/v1/refine` no longer consumes step quota (counting it halved the 30/hour in the first E2E run), and guide GET has no IP limit (server-side `/g` fetch shares one egress IP). Open check F2: after deploy, probe whether the web rewrite preserves the viewer IP for rate-limit keys (30 free invalid refine calls via rewrite + 1 direct; see MEMORY 2026-10-31).
 
 **Evidence:** [ARCHITECTURE.md sections 4 and 9](../docs/ARCHITECTURE.md), [REQUIREMENTS.md API-6](../docs/REQUIREMENTS.md), [PHASES.md Days 2 and 5](../docs/PHASES.md), [DESIGN.md section 4.7](../docs/DESIGN.md)
 

@@ -69,8 +69,8 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 - [ ] `/v1/guides` create/get/delete, `/g/[token]` page, second review + consent (PRIV-5)
 - [ ] Vercel Cron → `/internal/purge`; expiry test
 - [ ] Production rate limits + spend cap on Supabase (API-6)
-- [ ] Accessibility pass: A11Y-1 to A11Y-7; read-aloud (FLOW-13)
-- [ ] E2E: `tasks.yaml` with 20 public tasks; Playwright driver; run the first 10
+- [x] Accessibility pass: A11Y-1 to A11Y-7; read-aloud (FLOW-13)
+- [x] E2E: `tasks.yaml` with 20 public tasks; Playwright driver; run the first 10
 
 **DoD:** share link works end to end and expires in a test with a shortened TTL; axe clean on all screens; first E2E numbers written by the harness.
 

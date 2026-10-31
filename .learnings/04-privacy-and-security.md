@@ -110,7 +110,7 @@ Purpose: answer every privacy, security and threat-model question with the exact
 
 ### Q: How do shared guides stay private?
 
-**Short answer:** [Decided] Opt-in with a consent checkbox and a second review of every image. An unguessable link with a 128-bit token, only its SHA-256 stored, images in a private bucket served by 10-minute signed URLs, 7-day expiry, and a delete link.
+**Short answer:** [Measured locally 2026-10-31; live Supabase pending founder project] Opt-in with a consent checkbox and a second review of every image. An unguessable link with a 128-bit token, only its SHA-256 stored, images in a private bucket served by 10-minute signed URLs, 7-day expiry, and a delete link.
 
 **Detail:**
 - Token: 22-character base62 (about 128 bits) from `secrets.token_urlsafe`. The database stores only the hash, so a database leak does not reveal live links. The delete key is also stored hashed.
@@ -118,16 +118,17 @@ Purpose: answer every privacy, security and threat-model question with the exact
 - GET returns 404 for unknown or expired tokens with no distinction, so tokens cannot be probed.
 - Guide pages send `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`.
 - Caveat: anyone with the link can see the pictures for 7 days. The consent text says so.
+- Day 5 (2026-10-31): built and verified on the local stack (create → get → wrong-key 403 → delete → 404; Playwright second-review + consent gate). GET is deliberately not IP-rate-limited: the `/g` page fetches server-side, so one egress IP serves every viewer (review F1). Vercel Cron invokes purge with GET, so the route accepts GET and POST. Live Supabase verification (signed URL shape, bulk delete, RPC privileges) waits on the founder creating the EU project.
 
 **Evidence:** [ARCHITECTURE.md section 8](../docs/ARCHITECTURE.md), [REQUIREMENTS.md PRIV-5](../docs/REQUIREMENTS.md), [DESIGN.md section 4.5](../docs/DESIGN.md)
 
 ### Q: How is the 7-day expiry enforced?
 
-**Short answer:** [Decided] Twice. Every read rejects a guide whose `expires_at` is in the past, and a daily Vercel Cron calls `/internal/purge` to delete expired rows and their storage objects.
+**Short answer:** [Measured locally 2026-10-31] Twice. Every read rejects a guide whose `expires_at` is in the past, and a daily Vercel Cron calls `/internal/purge` to delete expired rows and their storage objects.
 
 **Detail:**
-- The purge also deletes old `usage_counters` rows. `/internal/purge` requires an `X-Cron-Secret` header.
-- To be tested with a shortened TTL in Playwright on Day 5, plus a pytest for expiry on read, the purge job and the delete key.
+- The purge also deletes old `usage_counters` rows. `/internal/purge` requires the cron secret (`Authorization: Bearer` from Vercel Cron, or `X-Cron-Secret` manually); a wrong secret deletes nothing (API-9 tests, incl. the GET form Vercel actually sends).
+- Tested Day 5: pytest expiry-on-read with a negative TTL, purge removes storage objects and keeps the row when an image delete fails (retry next run), delete key, quota charged before image decode.
 - The daily cron doubles as a keepalive for the Supabase free tier, which pauses after 7 days of inactivity.
 
 **Evidence:** [ARCHITECTURE.md section 8](../docs/ARCHITECTURE.md), [PHASES.md Day 5](../docs/PHASES.md), [REQUIREMENTS.md PRIV-5](../docs/REQUIREMENTS.md)

@@ -209,5 +209,19 @@
   "score": 10.0,
   "sha": "f396b39",
   "fails": []
+ },
+ {
+  "label": "day6",
+  "score": 9.64,
+  "sha": "3981279",
+  "fails": [
+   "Consistency: README honest stub (>200 chars, says not run)"
+  ]
+ },
+ {
+  "label": "day6",
+  "score": 10.0,
+  "sha": "3981279",
+  "fails": []
  }
 ]

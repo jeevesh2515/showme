@@ -36,7 +36,13 @@ class ApiSettings(BaseSettings):
             # Fail closed (2026-10-31 review L5/L6): no silent in-memory fallback or Host-built share URLs in prod.
             missing = [
                 name
-                for name in ("ip_hash_salt_seed", "supabase_url", "supabase_service_role_key", "cron_secret", "public_base_url")
+                for name in (
+                    "ip_hash_salt_seed",
+                    "supabase_url",
+                    "supabase_service_role_key",
+                    "cron_secret",
+                    "public_base_url",
+                )
                 if not getattr(self, name)
             ]
             if missing:

@@ -7,7 +7,7 @@ EFFORT ?= minimal
 SAM ?= off
 MAXSIDE ?= 2560
 
-.PHONY: setup dev test lint smoke eval e2e
+.PHONY: setup dev test lint smoke eval e2e sim
 
 setup:
 	uv sync --project backend
@@ -39,3 +39,6 @@ e2e:
 	node eval/e2e/run.mjs --limit $(E2E_LIMIT)
 
 E2E_LIMIT ?= 10
+
+sim:
+	pnpm --filter web exec playwright open --device="iPhone 16" http://localhost:3000

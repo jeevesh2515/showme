@@ -71,3 +71,19 @@
     }
   }
 }
+
+/* A11Y-6: high contrast swaps mist for paper and darkens the scrim (DESIGN.md §2). */
+[data-contrast="high"] {
+  --mist: #ffffff;
+  --scrim: rgba(0, 0, 0, 0.65);
+}
+
+/* A11Y-5: reduced motion turns every animation and transition instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import A11yControls from "../components/A11yControls";
 import "./globals.css";
 
 // Self-hosted (PRIV-8): the woff2 ships in this repo, so browsers never call
@@ -26,7 +27,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en-GB" className={atkinson.variable}>
-      <body>{children}</body>
+      <body>
+        <A11yControls />
+        {children}
+      </body>
     </html>
   );
 }

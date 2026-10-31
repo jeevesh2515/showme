@@ -175,6 +175,19 @@ def test_api_6_rate_limit_429() -> None:
 
 
 @respx.mock
+def test_api_6_refine_does_not_consume_step_quota() -> None:
+    # One user step is /v1/step + /v1/refine; counting both halved the hourly step quota
+    # (measured in eval/results/2026-10-31-e2e: 429 after ~15 steps).
+    respx.post(STEP_URL).mock(return_value=meta_reply())
+    respx.post(SAM_URL).mock(return_value=httpx.Response(500, json={}))
+    api = client(rate_per_hour=1, rate_per_day=100)
+    assert api.post("/v1/step", json=step_payload()).status_code == 200
+    assert api.post("/v1/refine", json=refine_payload()).status_code == 200
+    assert api.post("/v1/refine", json=refine_payload()).status_code == 200
+    assert api.post("/v1/step", json=step_payload()).status_code == 429
+
+
+@respx.mock
 def test_api_6_spend_cap_503_before_model_call() -> None:
     route = respx.post(STEP_URL).mock(return_value=meta_reply())
     resp = client(spend_cap_daily_usd=0).post("/v1/step", json=step_payload())

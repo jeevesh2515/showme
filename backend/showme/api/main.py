@@ -260,7 +260,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
 
     @app.post("/v1/refine", response_model=RefineResponse)
     async def refine_step(req: RefineRequest, request: Request) -> RefineResponse:
-        await _enforce_rate_limit(request)
+        # API-6 counts steps, not refinements: one user step = /v1/step + /v1/refine would otherwise
+        # halve the 30/hour quota (measured in the 2026-10-31 E2E run). SAM cost stays gated by the spend reserve.
         if not await _maybe_await(
             request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
         ):

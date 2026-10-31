@@ -3,14 +3,15 @@
 // FLOW-1..13 + PRIV-2/4: start -> mandatory review -> step -> loop. History + goal live in tab memory only.
 import { useCallback, useEffect, useRef, useState } from "react";
 import Overlay from "../../components/Overlay";
-import { refine, step as apiStep, ApiClientError, type HistoryItem, type RefineResponse, type StepResponse } from "../../lib/api/client";
+import { createGuide, deleteGuide, refine, step as apiStep, ApiClientError, type HistoryItem, type PointPx, type RefineResponse, type StepResponse, type Target } from "../../lib/api/client";
 import { appendHistory, progressText } from "../../lib/flow";
 import { redact, type RedactedImage } from "../../lib/redaction/redact";
 import { piiRegions, type OcrLine } from "../../lib/redaction/regions";
 import type { Region } from "../../lib/redaction/types";
 import { maskPii } from "../../lib/redaction/patterns";
 
-type Phase = "start" | "review" | "looking" | "step";
+type Phase = "start" | "review" | "looking" | "step" | "share";
+type TrailStep = { n: number; instruction: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
 const ERROR_COPY: Record<string, string> = {
   rate_limited: "You have used ShowMe a lot this hour. Try again later.",
   spend_cap_reached: "ShowMe is resting until tomorrow so it stays free. Your screenshot was not sent.",
@@ -30,6 +31,13 @@ export default function AppPage() {
   const [brush, setBrush] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [trail, setTrail] = useState<TrailStep[]>([]);
+  const [checked, setChecked] = useState<boolean[]>([]);
+  const [consent, setConsent] = useState(false);
+  const [created, setCreated] = useState<{ url: string; delete_key: string; expires_at: string } | null>(null);
+  const [shareError, setShareError] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [guideDeleted, setGuideDeleted] = useState(false);
   const [current, setCurrent] = useState<StepResponse | null>(null);
   const [refinement, setRefinement] = useState<RefineResponse | null>(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -86,8 +94,10 @@ export default function AppPage() {
       const result = await apiStep(redacted, maskPii(goal.trim()).slice(0, 300), history);
       if (gen !== genRef.current) return;
       setCurrent(result); setRefinement(null); setPhase("step");
+      // PRIV-5: trail of redacted step images, tab memory only, for the opt-in share second review.
+      setTrail((t) => [...t, { n: t.length + 1, instruction: result.instruction, image: redacted, target: result.target, svgPath: null, svgOrigin: null }]);
       if (result.target) {
-        try { const r = await refine(redacted, result.target.box, result.target.point); if (gen === genRef.current) setRefinement(r); } catch { setRefinement(null); }
+        try { const r = await refine(redacted, result.target.box, result.target.point); if (gen === genRef.current) { setRefinement(r); const svg = r.svg_path; if (svg) setTrail((t) => t.map((s, i) => (i === t.length - 1 ? { ...s, svgPath: svg, svgOrigin: r.origin ?? null } : s))); } } catch { setRefinement(null); }
       }
     } catch (err) {
       if (gen !== genRef.current) return;
@@ -101,9 +111,47 @@ export default function AppPage() {
     setCurrent(null); setRefinement(null); setPhase("start");
   }
 
+  async function createLink() {
+    setShareError("");
+    try {
+      const res = await createGuide(maskPii(goal.trim()).slice(0, 300), trail, consent);
+      setCreated(res);
+    } catch (err) {
+      setShareError(err instanceof ApiClientError ? (ERROR_COPY[err.code] ?? "That did not work on our side. Your pictures were not shared. Try again.") : "That did not work on our side. Your pictures were not shared. Try again.");
+    }
+  }
+
+  async function deleteLink() {
+    if (!created) return;
+    const token = created.url.split("/").pop() ?? "";
+    try { await deleteGuide(token, created.delete_key); setGuideDeleted(true); } catch { setShareError("That did not work on our side. Try deleting again."); }
+  }
+
+  function resetAll() {
+    setHistory([]); setTrail([]); setCurrent(null); setRefinement(null); setCreated(null); setConsent(false); setChecked([]); setGuideDeleted(false); setGoal(""); setPhase("start");
+  }
+
   function readAloud() {
     if (current && "speechSynthesis" in window) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(current.instruction)); }
   }
+
+  // DESIGN §5: N next, R read aloud, Esc cancel. Ignored while typing or with modifiers held.
+  const shortcutRef = useRef<(e: KeyboardEvent) => void>(() => undefined);
+  shortcutRef.current = (e) => {
+    const t = e.target as HTMLElement | null;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    if (e.key === "Escape" && phase === "looking") { genRef.current++; setPhase("review"); return; }
+    if (phase !== "step" || !current) return;
+    if (e.key === "Escape") setPhase("start");
+    else if (e.key === "r" || e.key === "R") readAloud();
+    else if ((e.key === "n" || e.key === "N") && (current.status === "ok" || current.status === "unsure" || current.status === "not_visible")) nextWith("done");
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => shortcutRef.current(e);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const stepNumber = history.length + 1;
   return (
@@ -115,13 +163,12 @@ export default function AppPage() {
         <section>
           <label className="type-body mt-8 block" htmlFor="goal">What do you want to do?</label>
           <input data-testid="goal-input" id="goal" value={goal} onChange={(e) => setGoal(e.target.value)} maxLength={300} placeholder="cancel my subscription" className="type-body mt-2 w-full rounded-control border-2 border-ink p-4" />
-          <div data-testid="drop-zone" tabIndex={0} role="button" aria-label="Add a screenshot"
-            onKeyDown={(e) => { if (e.key === "Enter") document.querySelector<HTMLInputElement>("[data-testid=file-input]")?.click(); }}
+          <label data-testid="drop-zone"
             onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) void loadImage(f); }}
-            className="type-body mt-6 rounded-panel bg-mist p-10 text-center">
+            className="type-body mt-6 block rounded-panel bg-mist p-10 text-center">
             Add a screenshot, or paste it here
             <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="mt-4 block w-full" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
-          </div>
+          </label>
           <details className="mt-6">
             <summary data-testid="screenshot-help" className="type-body cursor-pointer underline">How do I take a screenshot?</summary>
             <p className="type-small mt-2">iPhone: side button + volume up. Android: power + volume down. Windows: Windows key + Shift + S. Mac: Command + Shift + 4.</p>
@@ -178,7 +225,7 @@ export default function AppPage() {
             {current.status === "not_visible" ? (
               <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={imageUrl} alt="Your screenshot" className="w-full" /><p className="type-body mt-3">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-2">Scroll {current.scroll_direction}</p>}</div>
             ) : current.status === "done" ? (
-              <div data-testid="done-screen"><p className="type-instruction text-done">You did it: {goal}</p><button data-testid="share-btn" onClick={() => { void navigator.clipboard?.writeText(`${goal}: ${history.map((h) => `${h.n}. ${h.instruction}`).join(" ")}`); }} className="type-body mt-4 min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper">Copy a text summary to share</button><p className="type-small mt-2">Link sharing with pictures arrives with the share flow.</p></div>
+              <div data-testid="done-screen"><p className="type-instruction text-done">You did it: {goal}</p><button data-testid="share-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className="type-body mt-4 min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper">Share these steps</button><button data-testid="start-new-btn" onClick={resetAll} className="type-body ml-3 mt-4 min-h-12 rounded-control bg-mist px-6 py-3">Start something new</button></div>
             ) : current.status === "refuse" ? (
               <div data-testid="refuse-panel"><p className="type-body">{current.instruction}</p></div>
             ) : bitmapRef.current && (
@@ -197,8 +244,47 @@ export default function AppPage() {
               <button data-testid="failed-btn" onClick={() => nextWith("failed")} className="type-body mt-3 min-h-12 w-full rounded-control bg-mist px-6 py-3">That didn&apos;t work</button>
               <label className="type-small mt-3 block">Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="block w-full" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
             </>)}
-            <button data-testid="start-over" onClick={() => { setHistory([]); setCurrent(null); setGoal(""); setPhase("start"); }} className="type-small mt-4 underline">Start over</button>
+            <p data-testid="shortcut-help" className="type-small mt-3">Keyboard: N next step, R read aloud, Esc cancel</p>
+            <button data-testid="start-over" onClick={resetAll} className="type-small mt-4 min-h-12 underline">Start over</button>
           </div>
+        </section>
+      )}
+
+      {phase === "share" && (
+        <section>
+          <h2 className="type-title mt-6">Share these steps</h2>
+          <p className="type-body mt-2">Check each picture before sharing. These are the checked pictures from your steps, with private details hidden.</p>
+          {trail.map((t, i) => (
+            <div key={t.n} className="mt-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img data-testid={`share-image-${i}`} src={t.image.dataUrl} alt={`Step ${t.n}. ${t.instruction}`} className="w-full rounded-panel" />
+              <p className="type-body mt-2">Step {t.n}. {t.instruction}</p>
+              <label className="type-body mt-2 flex min-h-12 items-center gap-3">
+                <input data-testid={`share-check-${i}`} type="checkbox" checked={checked[i] ?? false} onChange={(e) => setChecked((c) => c.map((v, j) => (j === i ? e.target.checked : v)))} className="h-6 w-6" />
+                I checked this picture
+              </label>
+            </div>
+          ))}
+          <label className="type-body mt-6 flex min-h-12 items-start gap-3">
+            <input data-testid="share-consent" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-6 w-6" />
+            I understand anyone with the link can see these pictures for 7 days
+          </label>
+          {shareError && <p role="alert" className="type-body mt-4 text-caution">{shareError}</p>}
+          {!created && (
+            <button data-testid="create-link" disabled={trail.length === 0 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className="type-body mt-4 min-h-12 w-full rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50">Create link</button>
+          )}
+          {created && !guideDeleted && (
+            <div className="mt-6">
+              <p className="type-body">Your link:</p>
+              <p data-testid="guide-url" className="type-body mt-2 break-all font-bold">{created.url}</p>
+              <p data-testid="guide-expiry" className="type-body mt-2">This link deletes itself on {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(created.expires_at))}.</p>
+              <button data-testid="copy-link" onClick={() => { void navigator.clipboard?.writeText(created.url); setCopied(true); }} className="type-body mt-4 min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper">Copy link</button>
+              {copied && <span className="type-body ml-3">Copied</span>}
+              <button data-testid="delete-link" onClick={() => void deleteLink()} className="type-body ml-3 mt-4 min-h-12 rounded-control bg-mist px-6 py-3">Delete now</button>
+            </div>
+          )}
+          {guideDeleted && <p data-testid="guide-deleted" className="type-body mt-6">This link has been deleted. Anyone who had it will now see that the guide has gone.</p>}
+          <button data-testid="share-back" onClick={() => setPhase("step")} className="type-small mt-6 min-h-12 underline">Back to your steps</button>
         </section>
       )}
     </main>

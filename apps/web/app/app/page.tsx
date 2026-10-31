@@ -12,6 +12,9 @@ import { maskPii } from "../../lib/redaction/patterns";
 
 type Phase = "start" | "review" | "looking" | "step" | "share";
 type TrailStep = { n: number; instruction: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
+const BTN_PRIMARY = "type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50";
+const BTN_SECONDARY = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-5 py-2 font-bold text-ink hover:bg-mist";
+const SHOT_HELP = [["iPhone", "side button + volume up."], ["Android", "power + volume down."], ["Windows", "Windows key + Shift + S."], ["Mac", "Command + Shift + 4."]] as const;
 const ERROR_COPY: Record<string, string> = {
   rate_limited: "You have used ShowMe a lot this hour. Try again later.",
   spend_cap_reached: "ShowMe is resting until tomorrow so it stays free. Your screenshot was not sent.",
@@ -21,6 +24,7 @@ const ERROR_COPY: Record<string, string> = {
 
 export default function AppPage() {
   const [phase, setPhase] = useState<Phase>("start");
+  const [dragging, setDragging] = useState(false);
   const [goal, setGoal] = useState("");
   const [error, setError] = useState("");
   const [lines, setLines] = useState<readonly OcrLine[]>([]);
@@ -155,41 +159,49 @@ export default function AppPage() {
 
   const stepNumber = history.length + 1;
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-10" onPaste={onPaste}>
-      <h1 className="type-title">ShowMe</h1>
-      {error && <p role="alert" className="type-body mt-4 text-caution">{error}</p>}
+    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12" onPaste={onPaste}>
+      <h1 className="sr-only">ShowMe</h1>
+      {error && <p role="alert" className="type-body mb-6 rounded-panel bg-blush p-4 text-caution">{error}</p>}
 
       {phase === "start" && (
-        <section>
-          <label className="type-body mt-8 block" htmlFor="goal">What do you want to do?</label>
-          <input data-testid="goal-input" id="goal" value={goal} onChange={(e) => setGoal(e.target.value)} maxLength={300} placeholder="cancel my subscription" className="type-body mt-2 w-full rounded-control border-2 border-ink p-4" />
+        <section className="mx-auto max-w-2xl">
+          <label className="type-title block" htmlFor="goal">What do you want to do?</label>
+          <input data-testid="goal-input" id="goal" value={goal} onChange={(e) => setGoal(e.target.value)} maxLength={300} placeholder="cancel my subscription" className="type-body mt-4 min-h-14 w-full rounded-control border-2 border-ink bg-paper px-4 py-3" />
           <label data-testid="drop-zone"
-            onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) void loadImage(f); }}
-            className="type-body mt-6 block rounded-panel bg-mist p-10 text-center">
-            Add a screenshot, or paste it here
-            <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="mt-4 block w-full" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) void loadImage(f); }}
+            className={`mt-8 flex cursor-pointer flex-col items-center gap-4 rounded-panel border-2 border-dashed px-6 py-12 text-center hover:bg-sun focus-within:bg-sun focus-within:border-ink focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter ${dragging ? "border-ink bg-sun" : "border-ink/40 bg-mist"}`}>
+            <span className="type-instruction">Add a screenshot, or paste it here</span>
+            <span className={`${BTN_PRIMARY} inline-flex items-center`}>Choose a picture</span>
+            <span className="type-small">You can also paste with Ctrl+V or Command+V, or drag a picture onto this box.</span>
+            <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
           </label>
-          <details className="mt-6">
-            <summary data-testid="screenshot-help" className="type-body cursor-pointer underline">How do I take a screenshot?</summary>
-            <p className="type-small mt-2">iPhone: side button + volume up. Android: power + volume down. Windows: Windows key + Shift + S. Mac: Command + Shift + 4.</p>
+          <details className="mt-8">
+            <summary data-testid="screenshot-help" className="type-body cursor-pointer font-bold text-ink underline underline-offset-4">How do I take a screenshot?</summary>
+            <ul className="type-small mt-4 grid gap-3 sm:grid-cols-2">
+              {SHOT_HELP.map(([device, how]) => (<li key={device} className="rounded-panel bg-mist p-4"><strong>{device}:</strong> {how}</li>))}
+            </ul>
           </details>
-          <p className="type-small mt-6">Your screenshot stays on this device until you check it.</p>
-          {history.length > 0 && <p className="type-small mt-2">Step {stepNumber}. Add the next screenshot to continue.</p>}
+          <p className="type-small mt-8 flex items-start gap-3">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+            Your screenshot stays on this device until you check it.
+          </p>
+          {history.length > 0 && <p className="type-small mt-3 rounded-panel bg-sun p-4">Step {stepNumber}. Add the next screenshot to continue.</p>}
         </section>
       )}
 
       {phase === "review" && (
-        <section>
-          <h2 className="type-title mt-6">Check what we will send</h2>
-          <p className="type-body mt-2">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
-          {ocrFailed ? <p className="type-small mt-2">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
-          <div className="mt-4 flex gap-3">
-            <button data-testid="brush-toggle" onClick={() => setBrush((b) => !b)} className="min-h-12 rounded-control bg-ink px-4 text-paper">{brush ? "Brush on" : "Brush"}</button>
-            <button data-testid="undo-btn" onClick={() => { setEntries((r) => r.slice(0, -1)); }} className="min-h-12 rounded-control bg-mist px-4">Undo</button>
-            <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(2, z + 0.25))} className="min-h-12 rounded-control bg-mist px-4">Zoom in</button>
-            <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className="min-h-12 rounded-control bg-mist px-4">Zoom out</button>
+        <section className="mx-auto max-w-3xl">
+          <h2 className="type-title">Check what we will send</h2>
+          <p className="type-body mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
+          {ocrFailed ? <p className="type-small mt-3 rounded-panel bg-sun p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-3 rounded-panel bg-sun p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_SECONDARY} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
+            <button data-testid="undo-btn" onClick={() => { setEntries((r) => r.slice(0, -1)); }} className={BTN_SECONDARY}>Undo</button>
+            <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(2, z + 0.25))} className={BTN_SECONDARY}>Zoom in</button>
+            <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className={BTN_SECONDARY}>Zoom out</button>
           </div>
-          <div className="relative mt-4 overflow-auto">
+          <div className="relative mt-6 overflow-auto rounded-panel border-2 border-mist bg-mist p-2">
             <div style={{ width: `${zoom * 100}%` }} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img data-testid="review-image" src={imageUrl} alt="Your screenshot for checking" className="w-full"
@@ -211,80 +223,87 @@ export default function AppPage() {
               {regions.map((r, i) => (<div key={i} className="absolute bg-ink" style={{ left: `${(r.x / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(r.y / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${(r.width / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${(r.height / (bitmapRef.current?.height ?? 1)) * 100}%` }} />))}
             </div>
           </div>
-          <p className="type-small mt-3">The only thing that leaves this device is what this screen shows.</p>
-          <button data-testid="review-continue" disabled={!goal.trim()} onClick={() => void continueReview()} className="type-body mt-4 min-h-12 w-full rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50">Looks private. Continue</button>
-          {!goal.trim() && <p className="type-small mt-2">Go back and type what you want to do first.</p>}
+          <p className="type-small mt-4">The only thing that leaves this device is what this screen shows.</p>
+          <button data-testid="review-continue" disabled={!goal.trim()} onClick={() => void continueReview()} className={`${BTN_PRIMARY} mt-6 w-full`}>Looks private. Continue</button>
+          {!goal.trim() && <p className="type-small mt-3">Go back and type what you want to do first.</p>}
         </section>
       )}
 
-      {phase === "looking" && <p data-testid="progress-text" className="type-instruction mt-10" aria-live="polite">{progressText(elapsed)}</p>}
+      {phase === "looking" && (
+        <section className="mx-auto max-w-2xl">
+          <p data-testid="progress-text" className="type-instruction" aria-live="polite">{progressText(elapsed)}</p>
+          <div aria-hidden="true" className="mt-8 h-64 rounded-panel bg-mist motion-safe:animate-pulse" />
+        </section>
+      )}
 
       {phase === "step" && current && (
-        <section className="mt-6 grid gap-6 md:grid-cols-[1fr_380px]">
+        <section className="grid gap-8 md:grid-cols-[1fr_380px]">
           <div>
             {current.status === "not_visible" ? (
-              <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={imageUrl} alt="Your screenshot" className="w-full" /><p className="type-body mt-3">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-2">Scroll {current.scroll_direction}</p>}</div>
+              <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={imageUrl} alt="Your screenshot" className="w-full rounded-panel border-2 border-mist" /><p className="type-body mt-4">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-3">Scroll {current.scroll_direction}</p>}</div>
             ) : current.status === "done" ? (
-              <div data-testid="done-screen"><p className="type-instruction text-done">You did it: {goal}</p><button data-testid="share-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className="type-body mt-4 min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper">Share these steps</button><button data-testid="start-new-btn" onClick={resetAll} className="type-body ml-3 mt-4 min-h-12 rounded-control bg-mist px-6 py-3">Start something new</button></div>
+              <div data-testid="done-screen" className="rounded-panel bg-sage p-8"><p className="type-instruction text-done">You did it: {goal}</p><div className="mt-6 flex flex-wrap gap-3"><button data-testid="share-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className={BTN_PRIMARY}>Share these steps</button><button data-testid="start-new-btn" onClick={resetAll} className={BTN_SECONDARY}>Start something new</button></div></div>
             ) : current.status === "refuse" ? (
-              <div data-testid="refuse-panel"><p className="type-body">{current.instruction}</p></div>
+              <div data-testid="refuse-panel" className="rounded-panel border-2 border-mist bg-mist p-6"><p className="type-body">{current.instruction}</p></div>
             ) : bitmapRef.current && (
               <Overlay imageUrl={redactedRef.current?.dataUrl ?? imageUrl} width={redactedRef.current?.meta.width ?? bitmapRef.current.width} height={redactedRef.current?.meta.height ?? bitmapRef.current.height} step={current} refinement={refinement} stepNumber={stepNumber} />
             )}
           </div>
-          <div aria-live="polite">
-            <p className="type-small">Step {stepNumber}</p>
-            {current.caution && <p data-testid="caution-banner" className="type-body mt-2 rounded-panel bg-mist p-4 text-caution">⚠ Careful: {current.caution}</p>}
-            {current.status === "unsure" && <p className="type-body mt-2">I think it is this one. Check before you tap.</p>}
-            <p data-testid="step-instruction" className="type-instruction mt-3">{current.instruction}</p>
-            {current.type_text && <p className="type-body mt-2">Type: {current.type_text}</p>}
-            <button data-testid="read-aloud" onClick={readAloud} className="type-body mt-4 min-h-12 rounded-control bg-mist px-4">Read it to me</button>
+          <div aria-live="polite" className="self-start rounded-panel border-2 border-mist bg-paper p-6">
+            <p className="type-small flex items-center gap-3 font-bold"><span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-highlighter text-ink">{stepNumber}</span><span>Step {stepNumber}</span></p>
+            {current.caution && <p data-testid="caution-banner" className="type-body mt-4 flex items-start gap-3 rounded-panel bg-blush p-4 text-caution"><svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17.5v.01" /></svg><span><strong>Careful:</strong> {current.caution.replace(/^careful:\s*/i, "")}</span></p>}
+            {current.status === "unsure" && <p className="type-body mt-4 rounded-panel bg-sun p-4">I think it is this one. Check before you tap.</p>}
+            <p data-testid="step-instruction" className="type-instruction mt-4">{current.instruction}</p>
+            {current.type_text && <p className="type-body mt-3">Type: {current.type_text}</p>}
+            <button data-testid="read-aloud" onClick={readAloud} className={`${BTN_SECONDARY} mt-6 w-full`}>Read it to me</button>
             {current.status !== "done" && current.status !== "refuse" && (<>
-              <button data-testid="next-btn" onClick={() => nextWith("done")} className="type-body mt-3 min-h-12 w-full rounded-control bg-ink px-6 py-3 font-bold text-paper">I did it, next</button>
-              <button data-testid="failed-btn" onClick={() => nextWith("failed")} className="type-body mt-3 min-h-12 w-full rounded-control bg-mist px-6 py-3">That didn&apos;t work</button>
-              <label className="type-small mt-3 block">Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="block w-full" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
+              <button data-testid="next-btn" onClick={() => nextWith("done")} className={`${BTN_PRIMARY} mt-3 w-full`}>I did it, next</button>
+              <button data-testid="failed-btn" onClick={() => nextWith("failed")} className={`${BTN_SECONDARY} mt-3 w-full`}>That didn&apos;t work</button>
+              <label className={`${BTN_SECONDARY} mt-3 flex w-full cursor-pointer items-center justify-center focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter`}>Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
             </>)}
-            <p data-testid="shortcut-help" className="type-small mt-3">Keyboard: N next step, R read aloud, Esc cancel</p>
-            <button data-testid="start-over" onClick={resetAll} className="type-small mt-4 min-h-12 underline">Start over</button>
+            <p data-testid="shortcut-help" className="type-small mt-6">Keyboard: N next step, R read aloud, Esc cancel</p>
+            <button data-testid="start-over" onClick={resetAll} className="type-small mt-2 min-h-12 underline underline-offset-4">Start over</button>
           </div>
         </section>
       )}
 
       {phase === "share" && (
-        <section>
-          <h2 className="type-title mt-6">Share these steps</h2>
-          <p className="type-body mt-2">Check each picture before sharing. These are the checked pictures from your steps, with private details hidden.</p>
+        <section className="mx-auto max-w-2xl">
+          <h2 className="type-title">Share these steps</h2>
+          <p className="type-body mt-3">Check each picture before sharing. These are the checked pictures from your steps, with private details hidden.</p>
           {trail.map((t, i) => (
-            <div key={t.n} className="mt-6">
+            <div key={t.n} className="mt-8 rounded-panel border-2 border-mist bg-paper p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img data-testid={`share-image-${i}`} src={t.image.dataUrl} alt={`Step ${t.n}. ${t.instruction}`} className="w-full rounded-panel" />
-              <p className="type-body mt-2">Step {t.n}. {t.instruction}</p>
-              <label className="type-body mt-2 flex min-h-12 items-center gap-3">
-                <input data-testid={`share-check-${i}`} type="checkbox" checked={checked[i] ?? false} onChange={(e) => setChecked((c) => c.map((v, j) => (j === i ? e.target.checked : v)))} className="h-6 w-6" />
+              <img data-testid={`share-image-${i}`} src={t.image.dataUrl} alt={`Step ${t.n}. ${t.instruction}`} className="w-full rounded-control" />
+              <p className="type-body mt-4">Step {t.n}. {t.instruction}</p>
+              <label className="type-body mt-3 flex min-h-12 items-center gap-3">
+                <input data-testid={`share-check-${i}`} type="checkbox" checked={checked[i] ?? false} onChange={(e) => setChecked((c) => c.map((v, j) => (j === i ? e.target.checked : v)))} className="h-6 w-6 accent-ink" />
                 I checked this picture
               </label>
             </div>
           ))}
-          <label className="type-body mt-6 flex min-h-12 items-start gap-3">
-            <input data-testid="share-consent" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-6 w-6" />
+          <label className="type-body mt-8 flex min-h-12 items-start gap-3 rounded-panel bg-sun p-4">
+            <input data-testid="share-consent" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-ink" />
             I understand anyone with the link can see these pictures for 7 days
           </label>
-          {shareError && <p role="alert" className="type-body mt-4 text-caution">{shareError}</p>}
+          {shareError && <p role="alert" className="type-body mt-4 rounded-panel bg-blush p-4 text-caution">{shareError}</p>}
           {!created && (
-            <button data-testid="create-link" disabled={trail.length === 0 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className="type-body mt-4 min-h-12 w-full rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50">Create link</button>
+            <button data-testid="create-link" disabled={trail.length === 0 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className={`${BTN_PRIMARY} mt-6 w-full`}>Create link</button>
           )}
           {created && !guideDeleted && (
-            <div className="mt-6">
+            <div className="mt-8 rounded-panel bg-mist p-6">
               <p className="type-body">Your link:</p>
               <p data-testid="guide-url" className="type-body mt-2 break-all font-bold">{created.url}</p>
-              <p data-testid="guide-expiry" className="type-body mt-2">This link deletes itself on {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(created.expires_at))}.</p>
-              <button data-testid="copy-link" onClick={() => { void navigator.clipboard?.writeText(created.url); setCopied(true); }} className="type-body mt-4 min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper">Copy link</button>
-              {copied && <span className="type-body ml-3">Copied</span>}
-              <button data-testid="delete-link" onClick={() => void deleteLink()} className="type-body ml-3 mt-4 min-h-12 rounded-control bg-mist px-6 py-3">Delete now</button>
+              <p data-testid="guide-expiry" className="type-small mt-3">This link deletes itself on {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(created.expires_at))}.</p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <button data-testid="copy-link" onClick={() => { void navigator.clipboard?.writeText(created.url); setCopied(true); }} className={BTN_PRIMARY}>Copy link</button>
+                {copied && <span className="type-body">Copied</span>}
+                <button data-testid="delete-link" onClick={() => void deleteLink()} className={BTN_SECONDARY}>Delete now</button>
+              </div>
             </div>
           )}
-          {guideDeleted && <p data-testid="guide-deleted" className="type-body mt-6">This link has been deleted. Anyone who had it will now see that the guide has gone.</p>}
-          <button data-testid="share-back" onClick={() => setPhase("step")} className="type-small mt-6 min-h-12 underline">Back to your steps</button>
+          {guideDeleted && <p data-testid="guide-deleted" className="type-body mt-8 rounded-panel bg-sage p-4 text-done">This link has been deleted. Anyone who had it will now see that the guide has gone.</p>}
+          <button data-testid="share-back" onClick={() => setPhase("step")} className="type-small mt-6 min-h-12 underline underline-offset-4">Back to your steps</button>
         </section>
       )}
     </main>

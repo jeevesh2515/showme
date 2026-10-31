@@ -13,6 +13,9 @@ const config: Config = {
         caution: "var(--caution)",
         done: "var(--done)",
         scrim: "var(--scrim)",
+        sun: "var(--sun)",
+        sage: "var(--sage)",
+        blush: "var(--blush)",
       },
       borderRadius: {
         control: "12px",

@@ -6,9 +6,10 @@ Screenshot + goal → one highlighted step at a time on the user's own screen. B
 
 ## Repo state (verify, don't assume)
 
-- Day 1, docs-only. Only `docs/`, `spikes/`, `.learnings/`, `.env.example` exist. No `apps/web`, `backend/`, `eval/`, `Makefile`, root manifest, or CI yet — `make *` commands below are Day 2 targets, not runnable today.
-- `README.md` is empty. `spikes/` is throwaway verification code: never import from it, never ship it.
-- `AGENTS.md` was a symlink to `CLAUDE.md`; now separate. Keep both in sync on rule changes, or re-symlink — don't let them drift silently.
+- Days 1 to 6 built: `apps/web`, `backend`, `eval`, `scripts/`, `Makefile`, `docker-compose.yml`, `README.md`. Day 7 (hardening, feature freeze Mon Nov 2 23:59) is next.
+- Open founder items: Day 3 phone OCR timing, Day 4 founder phone run, Day 6 usability sessions.
+- `spikes/` is throwaway verification code: never import from it, never ship it.
+- `AGENTS.md` is canonical; `CLAUDE.md` is a synced copy. Keep both in sync on rule changes: edit `AGENTS.md`, then re-copy.
 
 ## Read before any change (in order)
 
@@ -30,7 +31,7 @@ Docs win over code until a MEMORY.md decision changes them. Update the doc in th
 - Never fake result: every published number comes from generated file in `eval/results/`; never hand-edit `RESULTS.md`/`summary.json`/`predictions.jsonl`; write "not run" instead of estimating. Label estimates with arithmetic.
 - SAM never moves click point; outline only when it agrees with model box (see below).
 
-## Target layout (ARCHITECTURE.md §2 — not yet built)
+## Layout (ARCHITECTURE.md §2)
 
 - `apps/web`: Next.js 14 App Router, TS strict (no `any`, no `!` on API data). Redaction in `lib/redaction/`; API client generated from OpenAPI, never hand-written.
 - `backend`: FastAPI, Python 3.11 + `uv`, Pydantic v2. `showme/core` is pure (no FastAPI, no env reads, no globals; settings passed in) and imported by both API and eval so eval runs production path.
@@ -53,14 +54,14 @@ Load key without printing (every live run):
 set -a; . ./.env; set +a
 ```
 
-Runnable today (spikes only):
+Spikes (throwaway):
 ```bash
 cd spikes/grounding && EFFORT=minimal python3.11 -I smoke.py ../data/screenspot10 muse-spark-1.3
 cd spikes/sam && .venv/bin/python api_sam.py
 cd spikes/redaction && node run.mjs
 ```
 
-Targets once Day 2 `Makefile` exists (do not invent equivalents):
+Make targets:
 ```bash
 make setup        # uv sync + pnpm install
 make dev          # web :3000, API :8000

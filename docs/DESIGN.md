@@ -26,6 +26,11 @@ Review against generic defaults (done before writing this spec): no cream backgr
 | `caution` | `#B3261E` | Caution banner text and icon (always with icon + words, never colour alone) |
 | `done` | `#1D6B45` | Completion state |
 | `scrim` | `rgba(22,38,74,0.55)` | Dims everything outside the target |
+| `sun` | `#FFF4C2` | Soft highlighter tint: hero demo surface, "families" section (D38) |
+| `sage` | `#E3F1E8` | Soft done tint: privacy section, done screen (D38) |
+| `blush` | `#FBE9E7` | Soft caution tint: caution banner background only (D38) |
+
+Section tints always carry `ink` text (all ≥ 12:1) and become `paper` in high-contrast mode. One full `ink` colour block (paper text) is allowed once per page, for the landing numbers band.
 
 Contrast (computed with the WCAG 2.x formula on 2026-10-27; re-verify with axe): `ink` on `paper` 14.9:1; `ink` on `mist` 12.8:1; `ink` on `highlighter` 10.4:1; `caution` on `paper` 6.5:1; `done` on `paper` 6.5:1. `highlighter` on `paper` is only 1.4:1, which is why the ring always carries an `ink` outer stroke (§3). High-contrast mode swaps `mist` to `paper`, thickens all strokes by 2 px, and removes the scrim tint (pure black at 0.65).
 

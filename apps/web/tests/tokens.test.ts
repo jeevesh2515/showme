@@ -10,6 +10,9 @@ const tokens = {
   highlighter: "#ffd43b",
   caution: "#b3261e",
   done: "#1d6b45",
+  sun: "#fff4c2",
+  sage: "#e3f1e8",
+  blush: "#fbe9e7",
 };
 
 const css = readFileSync(

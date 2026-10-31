@@ -11,6 +11,10 @@
   --caution: #b3261e;
   --done: #1d6b45;
   --scrim: rgba(22, 38, 74, 0.55);
+  /* Section tints (D38): each pairs with ink text at >= 12:1. */
+  --sun: #fff4c2;
+  --sage: #e3f1e8;
+  --blush: #fbe9e7;
 
   color-scheme: light;
 }
@@ -88,6 +92,9 @@
 /* A11Y-6: high contrast swaps mist for paper and darkens the scrim (DESIGN.md §2). */
 [data-contrast="high"] {
   --mist: #ffffff;
+  --sun: #ffffff;
+  --sage: #ffffff;
+  --blush: #ffffff;
   --scrim: rgba(0, 0, 0, 0.65);
 }
 

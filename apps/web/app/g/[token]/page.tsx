@@ -25,9 +25,9 @@ export default async function SharedGuide({ params }: { params: { token: string 
   if (!guide) notFound();
   const expiry = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(guide.expires_at));
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
+    <main className="mx-auto min-h-screen max-w-3xl px-6 py-12">
       <h1 className="type-title">Shared guide</h1>
-      <p data-testid="guide-banner" className="type-body mt-4 rounded-panel bg-mist p-4">Shared guide. Deletes itself on {expiry}.</p>
+      <p data-testid="guide-banner" className="type-body mt-4 rounded-panel bg-sun p-4">Shared guide. Deletes itself on {expiry}.</p>
       <p className="type-body mt-4">{guide.goal}</p>
       <div className="mt-6">
         <GuideStepper guide={guide} />

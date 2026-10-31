@@ -26,19 +26,19 @@ export default function GuideStepper({ guide }: { guide: GetGuideResponse }) {
   return (
     <section>
       <div aria-live="polite">
-        <p className="type-small">Step {step.n} of {guide.steps.length}</p>
+        <p className="type-small font-bold">Step {step.n} of {guide.steps.length}</p>
         <p data-testid="guide-instruction" className="type-instruction mt-3">{step.instruction}</p>
       </div>
-      <div className="mt-4">
+      <div className="mt-6">
         {step.target ? (
           <Overlay imageUrl={step.image_url} width={step.width} height={step.height} step={shim} refinement={step.svg_path ? { mode: "outline", svg_path: step.svg_path, origin: step.svg_origin ?? null, box: step.target.box, timings_ms: {}, cost_usd: 0 } : null} stepNumber={step.n} />
         ) : (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={step.image_url} alt={`Step ${step.n}. ${step.instruction}`} className="w-full" />
+          <img src={step.image_url} alt={`Step ${step.n}. ${step.instruction}`} className="w-full rounded-panel border-2 border-mist" />
         )}
       </div>
-      <div className="mt-6 flex gap-3">
-        <button data-testid="guide-prev" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))} className="type-body min-h-12 rounded-control bg-mist px-6 py-3 disabled:opacity-50">Previous step</button>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <button data-testid="guide-prev" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))} className="type-body min-h-12 rounded-control border-2 border-ink bg-paper px-6 py-3 font-bold text-ink disabled:opacity-50">Previous step</button>
         <button data-testid="guide-next" disabled={index >= guide.steps.length - 1} onClick={() => setIndex((i) => Math.min(guide.steps.length - 1, i + 1))} className="type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50">Next step</button>
       </div>
     </section>

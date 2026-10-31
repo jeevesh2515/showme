@@ -36,4 +36,6 @@ eval:
 	uv run --project eval python -m showme_eval --suite $(SUITE) --split $(SPLIT) --n $(N) --model $(MODEL) --effort $(EFFORT) --sam $(SAM) --max-side $(MAXSIDE)
 
 e2e:
-	@echo "not run: e2e starts Day 5"
+	node eval/e2e/run.mjs --limit $(E2E_LIMIT)
+
+E2E_LIMIT ?= 10

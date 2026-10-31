@@ -1,0 +1,187 @@
+# EVAL-8: 20 public tasks, no login. Predicate = the only definition of success.
+# viewport: desktop = 1280x800, mobile = iPhone 13 emulation (390x844). deviceScaleFactor is forced to 1
+# by run.mjs so screenshot pixels == CSS pixels == model point space.
+# predicate.type: url_regex (on target page URL) | text_visible | text_gone (on rendered body text, case-insensitive regex).
+# shortcut: values are read raw by run.mjs's parser (quotes stripped, no YAML escapes), keep to this flat shape.
+tasks:
+  - id: e2e-01-bbc-cookies
+    goal: "Reject all cookies"
+    start_url: "https://www.bbc.co.uk/"
+    viewport: desktop
+    predicate:
+      type: text_gone
+      pattern: "cookies on the bbc website"
+    max_steps: 10
+
+  - id: e2e-02-govuk-passport
+    goal: "Renew my adult passport"
+    start_url: "https://www.gov.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "gov\\.uk/apply-renew-passport"
+    max_steps: 10
+
+  - id: e2e-03-govuk-bank-holidays
+    goal: "Check the UK bank holidays"
+    start_url: "https://www.gov.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "gov\\.uk/bank-holidays"
+    max_steps: 10
+
+  - id: e2e-04-nhs-find-gp
+    goal: "Find a GP near me"
+    start_url: "https://www.nhs.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "find-a-gp|services/gp"
+    max_steps: 10
+
+  - id: e2e-05-nhs-111
+    goal: "Get help from NHS 111 online"
+    start_url: "https://www.nhs.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "111\\.nhs\\.uk|nhs\\.uk/.*111"
+    max_steps: 10
+
+  - id: e2e-06-bbc-weather-london
+    goal: "Show me the weather forecast for London"
+    start_url: "https://www.bbc.co.uk/weather"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "weather/2643743"
+    max_steps: 10
+
+  - id: e2e-07-nationalrail-plan
+    goal: "Plan a train journey from London to Manchester"
+    start_url: "https://www.nationalrail.co.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "journey-planner"
+    max_steps: 10
+
+  - id: e2e-08-royalmail-track
+    goal: "Track a parcel"
+    start_url: "https://www.royalmail.com/"
+    viewport: mobile
+    predicate:
+      type: url_regex
+      pattern: "track-your-item|/track"
+    max_steps: 10
+
+  - id: e2e-09-ikea-returns
+    goal: "Find IKEA UK's returns policy"
+    start_url: "https://www.ikea.com/gb/en/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "returns"
+    max_steps: 10
+
+  - id: e2e-10-apple-cancel-subscription
+    goal: "How do I cancel a subscription from Apple?"
+    start_url: "https://support.apple.com/en-gb"
+    viewport: mobile
+    predicate:
+      type: text_visible
+      pattern: "cancel a subscription from apple"
+    max_steps: 10
+
+  - id: e2e-11-netflix-cancel
+    goal: "How do I cancel Netflix?"
+    start_url: "https://help.netflix.com/en/"
+    viewport: desktop
+    predicate:
+      type: text_visible
+      pattern: "how to cancel netflix"
+    max_steps: 10
+
+  - id: e2e-12-gmail-password
+    goal: "Change my Gmail password"
+    start_url: "https://support.google.com/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "answer/41078|myaccount\\.google\\.com|accounts\\.google\\.com"
+    max_steps: 10
+
+  - id: e2e-13-wikipedia-spanish
+    goal: "Switch this article to Spanish"
+    start_url: "https://en.wikipedia.org/wiki/London"
+    viewport: mobile
+    predicate:
+      type: url_regex
+      pattern: "^https://es\\.wikipedia\\.org/wiki/"
+    max_steps: 10
+
+  - id: e2e-14-wikipedia-talk
+    goal: "Open this article's talk page"
+    start_url: "https://en.wikipedia.org/wiki/London"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "Talk:London"
+    max_steps: 10
+
+  - id: e2e-15-python-macos
+    goal: "Download Python for macOS"
+    start_url: "https://www.python.org/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "python\\.org/downloads/(macos|release/macos)"
+    max_steps: 10
+
+  - id: e2e-16-github-pricing
+    goal: "Find GitHub's pricing page"
+    start_url: "https://github.com/"
+    viewport: mobile
+    predicate:
+      type: url_regex
+      pattern: "github\\.com/pricing"
+    max_steps: 10
+
+  - id: e2e-17-firefox-download
+    goal: "Download Firefox"
+    start_url: "https://www.mozilla.org/en-GB/"
+    viewport: mobile
+    predicate:
+      type: url_regex
+      pattern: "firefox/(new|download)"
+    max_steps: 10
+
+  - id: e2e-18-leeds-council-contact
+    goal: "Find the contact page for Leeds City Council"
+    start_url: "https://www.leeds.gov.uk/"
+    viewport: desktop
+    predicate:
+      type: url_regex
+      pattern: "/contact-us"
+    max_steps: 10
+
+  # Predicate is the spoken lyric line rendered by the caption renderer; YouTube exposes captions as DOM text.
+  # Known-flaky: consent dialog, ads and bot checks can sit in front of the player.
+  - id: e2e-19-youtube-captions
+    goal: "Turn on captions for this video"
+    start_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    viewport: mobile
+    predicate:
+      type: text_visible
+      pattern: "never gonna give you up"
+    max_steps: 10
+
+  - id: e2e-20-nhm-opening-hours
+    goal: "Find the opening hours of the Natural History Museum"
+    start_url: "https://www.nhm.ac.uk/"
+    viewport: mobile
+    predicate:
+      type: text_visible
+      pattern: "opening times"
+    max_steps: 10

@@ -217,3 +217,15 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 - The plan is built around honest reporting because the product's pitch is honesty. A hidden failure would contradict the product.
 
 **Evidence:** [RULES.md section 2](../docs/RULES.md), [DESIGN.md section 6](../docs/DESIGN.md), [RISKS.md R2 and R5](../docs/RISKS.md)
+
+### Q: What did the 20-task E2E suite actually measure? (added 2026-10-31, Day 6)
+
+**Short answer:** [Measured] Final full run with prompt v2 and the fixed driver: **14/20 (70.0%), average 3.7 steps, 0 refusals** (`eval/results/2026-11-01-e2e-final/report.md`). Three earlier full/partial runs are kept as the before/after chain: 7/20 at 6.65 steps (broken predicates + loops), 8/20 at 5.15 (driver fixes), 5/7 on the parser-fix subset.
+
+**Detail:**
+- Biggest lesson: the harness, not the model, caused most early failures. 7 of 20 predicates could never match (YAML `\\.` kept literal by the flat parser), clicks that open new tabs were not followed, and identical clicks looped to the 10-step cap. Trail screenshots proved the model right on e2e-03/13 while the predicate said fail.
+- Fixes live in `eval/e2e/run.mjs` only (D36): new-tab follow, label-based loop guard, screenshot retry, `\\.` unescape. Prompt v2 (D37) was measured on dev-100 only: 92.0% vs v1 93.0%.
+- `eval/e2e/highlight_ratings.csv`: 104 step rows (final run 103 steps + header), `shown` = sam_outline / model_box / none from the real refine responses; rating column empty for the founder.
+- Remaining failures (6): cookie-banner click loops (IKEA, NHM), bot wall (Royal Mail Access Denied, honest), wrong navigation choice (Python download button), link-click no-navigation (bank holidays in final run), Firefox App Store loop.
+
+**Evidence:** [eval/results/2026-11-01-e2e-final/report.md](../eval/results/2026-11-01-e2e-final/report.md), [MEMORY.md D36, D37](../docs/MEMORY.md)

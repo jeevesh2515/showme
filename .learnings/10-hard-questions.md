@@ -313,3 +313,11 @@ Purpose: rehearse the questions a skeptical judge, investor or interviewer would
 - The first thing I would do with new money is validate the business assumption A9 with a pilot.
 
 **Evidence:** [PRD.md sections 5.2 and 8](../docs/PRD.md), [MEMORY.md A9](../docs/MEMORY.md)
+
+### Q: Your E2E went from 7/20 to 14/20 in a day — did you tune the tests to pass? (added 2026-10-31)
+
+**Short answer:** [Measured] No predicate, goal, or task was changed. The gains came from fixing the harness so it could observe success at all: 7 predicates were unmatchable (`\\.` parser bug, proven by trail screenshots showing the model on the right page), new-tab actions were not followed, and looped clicks burned the step budget. Every intermediate run is kept in `eval/results/2026-11-01-e2e*/` with its generated report, including the 7/20.
+
+**Detail:** The one model change, prompt v2 (`done` needs visible evidence), was gated on the dev split (92.0% vs 93.0%, kept inside the pre-agreed 1-point rule) and never tuned on E2E outcomes. Remaining 6 failures are reported, not hidden.
+
+**Evidence:** [MEMORY.md D36, D37](../docs/MEMORY.md), [eval/results/2026-11-01-e2e-final/report.md](../eval/results/2026-11-01-e2e-final/report.md)

@@ -257,3 +257,11 @@ Purpose: answer "what happens when..." and "who does this not work for". Tags ar
 - These three will be in the README Limitations section, which is never cut.
 
 **Evidence:** [SPIKES.md summary](../docs/SPIKES.md), [PHASES.md cut list](../docs/PHASES.md), [RISKS.md R1 to R3](../docs/RISKS.md)
+
+### Q: Which real sites defeat ShowMe today? (added 2026-10-31, Day 6)
+
+**Short answer:** [Measured] Bot-walled sites (Royal Mail "Access Denied" — ShowMe says so honestly and now stops after 3 tries), persistent cookie banners whose reject button does not respond to synthetic clicks (IKEA, NHM), and tasks whose success is a file download rather than a page (Python, Firefox), where no navigation happens to observe.
+
+**Detail:** Evidence is the Day 6 E2E trail (`eval/results/2026-11-01-e2e-final/`): 6/20 tasks fail in these buckets. The product behaviour in each is honest (`not_visible` or a repeated visible target), never a fabricated success; the driver loop guard caps wasted steps at 3 repeats.
+
+**Evidence:** [MEMORY.md 2026-10-31 Day 6 entry](../docs/MEMORY.md)

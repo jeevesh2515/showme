@@ -110,7 +110,7 @@ Purpose: answer every privacy, security and threat-model question with the exact
 
 ### Q: How do shared guides stay private?
 
-**Short answer:** [Measured locally 2026-10-31; live Supabase pending founder project] Opt-in with a consent checkbox and a second review of every image. An unguessable link with a 128-bit token, only its SHA-256 stored, images in a private bucket served by 10-minute signed URLs, 7-day expiry, and a delete link.
+**Short answer:** [Measured live 2026-10-31] Opt-in with a consent checkbox and a second review of every image. An unguessable link with a 128-bit token, only its SHA-256 stored, images in a private bucket served by 10-minute signed URLs, 7-day expiry, and a delete link. Live Supabase project `xmzalablytiigcmjfylu` (EU): create guide → get guide → signed image URL fetch → wrong-key 403 → delete 200 → 404 verified end-to-end against production.
 
 **Detail:**
 - Token: 22-character base62 (about 128 bits) from `secrets.token_urlsafe`. The database stores only the hash, so a database leak does not reveal live links. The delete key is also stored hashed.
@@ -118,7 +118,8 @@ Purpose: answer every privacy, security and threat-model question with the exact
 - GET returns 404 for unknown or expired tokens with no distinction, so tokens cannot be probed.
 - Guide pages send `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`.
 - Caveat: anyone with the link can see the pictures for 7 days. The consent text says so.
-- Day 5 (2026-10-31): built and verified on the local stack (create → get → wrong-key 403 → delete → 404; Playwright second-review + consent gate). GET is deliberately not IP-rate-limited: the `/g` page fetches server-side, so one egress IP serves every viewer (review F1). Vercel Cron invokes purge with GET, so the route accepts GET and POST. Live Supabase verification (signed URL shape, bulk delete, RPC privileges) waits on the founder creating the EU project.
+- Day 5 (2026-10-31): built and verified on the local stack (create → get → wrong-key 403 → delete → 404; Playwright second-review + consent gate). GET is deliberately not IP-rate-limited: the `/g` page fetches server-side, so one egress IP serves every viewer (review F1). Vercel Cron invokes purge with GET, so the route accepts GET and POST.
+- Live verification 2026-10-31 (Day 5 close-out): Supabase project `xmzalablytiigcmjfylu` live in EU, `backend/migrations/001_guides.sql` executed (`guides` + `usage_counters`, RLS enabled, service-role only; `increment_counter` RPC revoked from public/anon; private `guides` bucket, `public: false`). Production API `https://showme-api-xi.vercel.app` (`/v1/healthz` ok, `lhr1`) + web CSP pinned to the project host. Live share verified end-to-end: create → get → 10-minute signed image URL fetch → wrong-key 403 → delete 200 → 404.
 
 **Evidence:** [ARCHITECTURE.md section 8](../docs/ARCHITECTURE.md), [REQUIREMENTS.md PRIV-5](../docs/REQUIREMENTS.md), [DESIGN.md section 4.5](../docs/DESIGN.md)
 

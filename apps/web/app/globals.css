@@ -72,6 +72,19 @@
   }
 }
 
+/* Landing hero: ring draws on once (DESIGN §6); reduced motion shows final state. */
+.hero-ring {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: hero-draw 900ms ease-out 300ms forwards;
+}
+@keyframes hero-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-ring { animation: none; stroke-dashoffset: 0; }
+}
+
 /* A11Y-6: high contrast swaps mist for paper and darkens the scrim (DESIGN.md §2). */
 [data-contrast="high"] {
   --mist: #ffffff;

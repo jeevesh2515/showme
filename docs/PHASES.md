@@ -65,10 +65,10 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 5 · Sat Oct 31 · Share, accessibility, E2E harness
 
-- [ ] Supabase project (EU), tables + RLS, private bucket (ARCHITECTURE §8)
-- [ ] `/v1/guides` create/get/delete, `/g/[token]` page, second review + consent (PRIV-5)
-- [ ] Vercel Cron → `/internal/purge`; expiry test
-- [ ] Production rate limits + spend cap on Supabase (API-6)
+- [x] Supabase project (EU), tables + RLS, private bucket (ARCHITECTURE §8)
+- [x] `/v1/guides` create/get/delete, `/g/[token]` page, second review + consent (PRIV-5)
+- [x] Vercel Cron → `/internal/purge`; expiry test
+- [x] Production rate limits + spend cap on Supabase (API-6)
 - [x] Accessibility pass: A11Y-1 to A11Y-7; read-aloud (FLOW-13)
 - [x] E2E: `tasks.yaml` with 20 public tasks; Playwright driver; run the first 10
 
@@ -76,10 +76,10 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 6 · Sun Nov 1 · Fix what the evidence says + landing page
 
-- [ ] Full E2E run (20 tasks); human-rate highlight quality per step (CSV)
+- [x] Full E2E run (20 tasks); human-rate highlight quality per step (CSV)
 - [ ] Usability test with 2 to 3 people (kit in `eval/usability/`); summary with counts and quotes, n stated
-- [ ] Triage the top 3 failure modes from eval + E2E; fix with dev-split re-runs only (prompt version bump each time)
-- [ ] Landing page (WEB-1) and `/eval` page (WEB-2) with numbers pulled from `RESULTS.md`
+- [x] Triage the top 3 failure modes from eval + E2E; fix with dev-split re-runs only (prompt version bump each time)
+- [x] Landing page (WEB-1) and `/eval` page (WEB-2) with numbers pulled from `RESULTS.md`
 - [ ] Stretch S1 (voice via Muse Voice Transcribe) only if Days 2 to 5 DoD are all green
 
 **DoD:** E2E success rate and average steps reported; landing page live; every number on it traceable to a results file.

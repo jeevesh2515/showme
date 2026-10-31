@@ -1,0 +1,156 @@
+{
+  "generatedFrom": "eval/results/RESULTS.md",
+  "rows": [
+    {
+      "date": "2026-10-28",
+      "suite": "screenspot-v2",
+      "split": "dev",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 10,
+      "accuracyPct": 90,
+      "predictions": "2026-10-28-screenspot-v2-dev-n10-c99e8b8f-muse-spark-1.3-minimal-samoff-max2560-pvv1-a8155fb4/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-28",
+      "suite": "screenspot-v2",
+      "split": "dev",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 93,
+      "predictions": "2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max0/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-28",
+      "suite": "screenspot-v2",
+      "split": "dev",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 85,
+      "predictions": "2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max1920/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-28",
+      "suite": "screenspot-v2",
+      "split": "dev",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 93,
+      "predictions": "2026-10-28-screenspot-v2-muse-spark-1.3-minimal-samoff-max2560/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "negatives",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 222,
+      "accuracyPct": 64.4,
+      "predictions": "2026-10-29-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv1-d9f845cc/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "screenspot-pro",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 300,
+      "accuracyPct": 63.7,
+      "predictions": "2026-10-29-screenspot-pro-heldout-n300-e08c4fce-muse-spark-1.3-minimal-samoff-max2560-pvv1-31fc78be/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "screenspot-pro",
+      "split": "heldout",
+      "model": "muse-wonder-1.0",
+      "effort": "minimal",
+      "n": 300,
+      "accuracyPct": 66.7,
+      "predictions": "2026-10-29-screenspot-pro-heldout-n300-e08c4fce-muse-wonder-1.0-minimal-samoff-max2560-pvv1-a69a5cf9/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "screenspot-v2",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 90,
+      "predictions": "2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-80346d48/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "screenspot-v2",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 91,
+      "predictions": "2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-9dd53b24/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-29",
+      "suite": "screenspot-v2",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 1172,
+      "accuracyPct": 90.7,
+      "predictions": "2026-10-29-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv1-26831bd6/predictions.jsonl"
+    },
+    {
+      "date": "2026-10-31",
+      "suite": "screenspot-v2",
+      "split": "dev",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 100,
+      "accuracyPct": 92,
+      "predictions": "2026-10-31-screenspot-v2-dev-n100-423a3241-muse-spark-1.3-minimal-samoff-max2560-pvv2-f1a0f843/predictions.jsonl"
+    }
+  ],
+  "headline": {
+    "screenspotV2": {
+      "date": "2026-10-29",
+      "suite": "screenspot-v2",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 1172,
+      "accuracyPct": 90.7,
+      "predictions": "2026-10-29-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv1-26831bd6/predictions.jsonl"
+    },
+    "screenspotPro": {
+      "date": "2026-10-29",
+      "suite": "screenspot-pro",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 300,
+      "accuracyPct": 63.7,
+      "predictions": "2026-10-29-screenspot-pro-heldout-n300-e08c4fce-muse-spark-1.3-minimal-samoff-max2560-pvv1-31fc78be/predictions.jsonl"
+    },
+    "negatives": {
+      "date": "2026-10-29",
+      "suite": "negatives",
+      "split": "heldout",
+      "model": "muse-spark-1.3",
+      "effort": "minimal",
+      "n": 222,
+      "accuracyPct": 64.4,
+      "predictions": "2026-10-29-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv1-d9f845cc/predictions.jsonl"
+    },
+    "e2e": {
+      "dir": "2026-11-01-e2e-final",
+      "date": "2026-10-31",
+      "tasksRun": 20,
+      "passed": 14,
+      "successPct": 70,
+      "avgSteps": 3.7,
+      "refusals": 0
+    }
+  }
+}

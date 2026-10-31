@@ -1,5 +1,5 @@
 {
-  "total_usd": 22.136,
+  "total_usd": 22.7699,
   "runs": [
     {
       "date": "2026-10-28",
@@ -80,6 +80,11 @@
       "date": "2026-10-29",
       "label": "2026-10-29-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv1-d9f845cc",
       "cost_usd": 0.0063
+    },
+    {
+      "date": "2026-10-31",
+      "label": "2026-10-31-screenspot-v2-dev-n100-423a3241-muse-spark-1.3-minimal-samoff-max2560-pvv2-f1a0f843",
+      "cost_usd": 0.6339
     }
   ]
 }

@@ -1,0 +1,180 @@
+{
+  "date": "2026-10-31",
+  "web": "https://showme-web-delta.vercel.app",
+  "tasks": [
+    {
+      "id": "e2e-01-bbc-cookies",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-02-govuk-passport",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 8: not_visible",
+        "step 9: not_visible",
+        "step 10: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-03-govuk-bank-holidays",
+      "success": false,
+      "steps": 5,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-04-nhs-find-gp",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-05-nhs-111",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 3: not_visible",
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 6: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-06-bbc-weather-london",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-07-nationalrail-plan",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-08-royalmail-track",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 1: not_visible",
+        "step 2: not_visible",
+        "step 3: not_visible",
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 6: not_visible",
+        "step 7: not_visible",
+        "step 8: not_visible",
+        "step 9: not_visible",
+        "step 10: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-09-ikea-returns",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-10-apple-cancel-subscription",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-11-netflix-cancel",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-12-gmail-password",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-13-wikipedia-spanish",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 5: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-14-wikipedia-talk",
+      "success": true,
+      "steps": 4,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-15-python-macos",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-16-github-pricing",
+      "success": false,
+      "steps": 9,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-17-firefox-download",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 2: not_visible",
+        "step 3: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-18-leeds-council-contact",
+      "success": false,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false,
+      "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+    },
+    {
+      "id": "e2e-19-youtube-captions",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-20-nhm-opening-hours",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 5: not_visible",
+        "step 6: not_visible",
+        "step 7: not_visible",
+        "step 8: not_visible",
+        "step 9: not_visible"
+      ],
+      "refused": false
+    }
+  ],
+  "success_rate": 0.35,
+  "avg_steps": 6.65
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-31",
+  "web": "https://showme-web-delta.vercel.app",
+  "tasks": [
+    {
+      "id": "e2e-02-govuk-passport",
+      "success": true,
+      "steps": 6,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-03-govuk-bank-holidays",
+      "success": false,
+      "steps": 6,
+      "honesty_events": [
+        "step 6: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-05-nhs-111",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-12-gmail-password",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-13-wikipedia-spanish",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-15-python-macos",
+      "success": false,
+      "steps": 6,
+      "honesty_events": [
+        "step 6: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-16-github-pricing",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    }
+  ],
+  "success_rate": 0.7143,
+  "avg_steps": 4
+}

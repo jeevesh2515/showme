@@ -1,0 +1,175 @@
+{
+  "date": "2026-10-31",
+  "web": "https://showme-web-delta.vercel.app",
+  "tasks": [
+    {
+      "id": "e2e-01-bbc-cookies",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-02-govuk-passport",
+      "success": true,
+      "steps": 7,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-03-govuk-bank-holidays",
+      "success": false,
+      "steps": 5,
+      "honesty_events": [
+        "step 3: not_visible",
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 5: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-04-nhs-find-gp",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-05-nhs-111",
+      "success": true,
+      "steps": 4,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-06-bbc-weather-london",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-07-nationalrail-plan",
+      "success": true,
+      "steps": 9,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-08-royalmail-track",
+      "success": false,
+      "steps": 3,
+      "honesty_events": [
+        "step 1: not_visible",
+        "step 2: not_visible",
+        "step 3: not_visible",
+        "step 3: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-09-ikea-returns",
+      "success": false,
+      "steps": 3,
+      "honesty_events": [
+        "step 3: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-10-apple-cancel-subscription",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-11-netflix-cancel",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-12-gmail-password",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-13-wikipedia-spanish",
+      "success": true,
+      "steps": 4,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-14-wikipedia-talk",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-15-python-macos",
+      "success": false,
+      "steps": 6,
+      "honesty_events": [
+        "step 6: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-16-github-pricing",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-17-firefox-download",
+      "success": false,
+      "steps": 9,
+      "honesty_events": [
+        "step 2: not_visible",
+        "step 9: loop_detected"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-18-leeds-council-contact",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-19-youtube-captions",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [
+        "step 1: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-20-nhm-opening-hours",
+      "success": false,
+      "steps": 5,
+      "honesty_events": [
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 5: loop_detected"
+      ],
+      "refused": false
+    }
+  ],
+  "success_rate": 0.7,
+  "avg_steps": 3.7
+}

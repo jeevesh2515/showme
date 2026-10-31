@@ -14,8 +14,14 @@ const ROOT = resolve(HERE, "../..");
 const PREDICATE_TYPES = new Set(["url_regex", "text_visible", "text_gone"]);
 
 // shortcut: parses only eval/e2e/tasks.yaml's flat shape (list of maps + one nested predicate map).
-// Values are raw: quotes stripped, no YAML escapes. Upgrade to a real YAML parser if the file grows.
-const unquote = (v) => String(v).replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
+// Double-quoted values get YAML's \\ unescape (predicate regexes rely on it); other escapes unsupported.
+// Upgrade to a real YAML parser if the file grows.
+const unquote = (v) => {
+  const s = String(v);
+  const dq = /^"(.*)"$/.exec(s);
+  if (dq) return dq[1].replace(/\\\\/g, "\\");
+  return s.replace(/^'(.*)'$/, "$1");
+};
 
 function parseTasks(text) {
   const tasks = [];
@@ -139,6 +145,7 @@ async function upload(showme, file, goal) {
 }
 
 const taskResults = [];
+const ratingRows = [];
 for (const task of selected) {
   const dir = join(outDir, "trail", task.id);
   mkdirSync(dir, { recursive: true });
@@ -153,7 +160,7 @@ for (const task of selected) {
         : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 },
     );
     const showmeCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-    const target = await targetCtx.newPage();
+    let target = await targetCtx.newPage();
     const showme = await showmeCtx.newPage();
     const goal = task.goal;
 
@@ -164,13 +171,22 @@ for (const task of selected) {
     await showme.waitForTimeout(1500); // let React hydrate before setInputFiles
 
     for (let n = 1; n <= task.max_steps; n++) {
-      const shot = await target.screenshot(); // deviceScaleFactor 1: pixels are CSS pixels
+      let shot;
+      try {
+        shot = await target.screenshot(); // deviceScaleFactor 1: pixels are CSS pixels
+      } catch {
+        await target.waitForTimeout(1000);
+        shot = await target.screenshot();
+      }
       await upload(showme, { name: "screen.png", mimeType: "image/png", buffer: shot }, goal);
 
       const responseP = showme.waitForResponse(
         (r) => r.url().includes("/v1/step") && r.request().method() === "POST",
         { timeout: 120_000 },
       );
+      const refineP = showme
+        .waitForResponse((r) => r.url().includes("/v1/refine") && r.request().method() === "POST", { timeout: 20_000 })
+        .catch(() => null);
       await showme.getByTestId("review-continue").click();
       const response = await responseP;
       const body = await response.json();
@@ -190,7 +206,13 @@ for (const task of selected) {
         response: body,
         action_taken: null,
         predicate: null,
+        highlight: "none",
       };
+      if (body.target) {
+        const refineRes = await refineP;
+        const refineBody = refineRes ? await refineRes.json().catch(() => null) : null;
+        line.highlight = refineBody?.mode === "outline" ? "sam_outline" : "model_box";
+      }
 
       if (body.status === "refuse") {
         record.refused = true;
@@ -237,10 +259,21 @@ for (const task of selected) {
       }
 
       await target.waitForTimeout(1500);
+      // Actions that open a new tab: follow it, or the predicate can never hold on the old page.
+      const pages = targetCtx.pages();
+      if (pages.length > 1 && pages.at(-1) !== target) target = pages.at(-1);
       line.predicate = await predicateHolds(target, task.predicate);
       stepLines.push(line);
       if (line.predicate) {
         record.success = true;
+        break;
+      }
+      // Loop guard: same target label (or identical action) 3 times with no predicate progress wastes spend; stop and record it.
+      const last3 = stepLines.slice(-3);
+      const label = last3[0]?.response?.target?.label;
+      const sameLabel = label && last3.every((l) => l.response?.target?.label === label);
+      if (last3.length === 3 && (sameLabel || last3.every((l) => l.action_taken && l.action_taken === last3[0].action_taken))) {
+        record.honesty_events.push(`step ${n}: loop_detected`);
         break;
       }
     }
@@ -248,6 +281,7 @@ for (const task of selected) {
     record.error = String(error).slice(0, 300);
   } finally {
     writeFileSync(join(dir, "steps.jsonl"), stepLines.map((l) => JSON.stringify(l)).join("\n") + (stepLines.length ? "\n" : ""));
+    for (const l of stepLines) ratingRows.push(`${l.task},${l.step},../results/${outDir.split("/").at(-1)}/trail/${l.task}/step-${l.step}.jpg,${l.highlight},`);
     await browser?.close();
     taskResults.push(record);
     console.log(`${record.success ? "PASS" : "FAIL"} ${record.id} steps=${record.steps}${record.error ? ` error=${record.error}` : ""}`);
@@ -288,4 +322,5 @@ ${rows.join("\n")}
 Redacted screenshot trail and per-step model responses: \`trail/<task>/step-<n>.jpg\` and \`trail/<task>/steps.jsonl\`.
 `;
 writeFileSync(join(outDir, "report.md"), report);
+writeFileSync(join(HERE, "highlight_ratings.csv"), "task,step,screenshot,shown,rating\n" + ratingRows.join("\n") + "\n");
 console.log(`wrote ${outDir} — success ${passed}/${taskResults.length}, avg steps ${results.avg_steps}`);

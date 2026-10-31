@@ -12,6 +12,7 @@
 | 2026-10-29 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 100 | 90.0% | `2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-80346d48/predictions.jsonl` |
 | 2026-10-29 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 100 | 91.0% | `2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-9dd53b24/predictions.jsonl` |
 | 2026-10-29 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 1172 | 90.7% | `2026-10-29-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv1-26831bd6/predictions.jsonl` |
+| 2026-10-31 | screenspot-v2 | dev | muse-spark-1.3 | minimal | 100 | 92.0% | `2026-10-31-screenspot-v2-dev-n100-423a3241-muse-spark-1.3-minimal-samoff-max2560-pvv2-f1a0f843/predictions.jsonl` |
 
 ## Calibration and verifier (generated)
 

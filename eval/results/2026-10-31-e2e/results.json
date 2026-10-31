@@ -16,7 +16,7 @@
       "honesty_events": [
         "step 3: not_visible",
         "step 6: not_visible",
-        "step 8: not_visible",
+        "step 7: not_visible",
         "step 9: not_visible",
         "step 10: not_visible"
       ],
@@ -33,61 +33,68 @@
     },
     {
       "id": "e2e-04-nhs-find-gp",
-      "success": false,
-      "steps": 1,
+      "success": true,
+      "steps": 3,
       "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "refused": false
     },
     {
       "id": "e2e-05-nhs-111",
       "success": false,
-      "steps": 0,
-      "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "steps": 10,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false
     },
     {
       "id": "e2e-06-bbc-weather-london",
-      "success": false,
-      "steps": 0,
+      "success": true,
+      "steps": 2,
       "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "refused": false
     },
     {
       "id": "e2e-07-nationalrail-plan",
       "success": false,
-      "steps": 0,
+      "steps": 9,
       "honesty_events": [],
       "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
     },
     {
       "id": "e2e-08-royalmail-track",
       "success": false,
-      "steps": 0,
-      "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "steps": 10,
+      "honesty_events": [
+        "step 1: not_visible",
+        "step 2: not_visible",
+        "step 3: not_visible",
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 6: not_visible",
+        "step 7: not_visible",
+        "step 8: not_visible",
+        "step 9: not_visible",
+        "step 10: not_visible"
+      ],
+      "refused": false
     },
     {
       "id": "e2e-09-ikea-returns",
       "success": false,
-      "steps": 0,
+      "steps": 10,
       "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "refused": false
     },
     {
       "id": "e2e-10-apple-cancel-subscription",
-      "success": false,
-      "steps": 0,
+      "success": true,
+      "steps": 1,
       "honesty_events": [],
-      "refused": false,
-      "error": "Error: /v1/step 429: rate_limited"
+      "refused": false
     }
   ],
-  "success_rate": 0.1,
-  "avg_steps": 1.9
+  "success_rate": 0.4,
+  "avg_steps": 6.3
 }

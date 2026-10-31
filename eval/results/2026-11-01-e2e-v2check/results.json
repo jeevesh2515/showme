@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-31",
+  "web": "https://showme-web-delta.vercel.app",
+  "tasks": [
+    {
+      "id": "e2e-03-govuk-bank-holidays",
+      "success": false,
+      "steps": 7,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false
+    },
+    {
+      "id": "e2e-13-wikipedia-spanish",
+      "success": false,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false
+    },
+    {
+      "id": "e2e-16-github-pricing",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 3: not_visible",
+        "step 4: not_visible",
+        "step 5: not_visible",
+        "step 6: not_visible",
+        "step 7: not_visible",
+        "step 8: not_visible",
+        "step 9: not_visible",
+        "step 10: not_visible"
+      ],
+      "refused": false
+    }
+  ],
+  "success_rate": 0,
+  "avg_steps": 6.67
+}

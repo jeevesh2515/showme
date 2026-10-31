@@ -55,7 +55,9 @@ def test_eval_2_runner_scores_against_ground_truth(tmp_path, monkeypatch):
     assert prediction["box"] == [400.0, 400.0, 600.0, 600.0]
     assert prediction["status"] == "ok"
     assert prediction["cost_usd"] > 0
-    assert prediction["prompt_version"] == "v1"
+    from showme.core.prompts import PROMPT_VERSION
+
+    assert prediction["prompt_version"] == PROMPT_VERSION
 
 
 def test_runner_reuses_cache_without_calling_model(tmp_path, monkeypatch):

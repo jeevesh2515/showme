@@ -83,7 +83,7 @@ def test_recorded_grounding_fixture_validates():
 
 def test_priv_10_prompt_never_asks_to_remove_blur():
     assert "Never ask the person to remove the blur" in SYSTEM_PROMPT
-    assert PROMPT_VERSION == "v1"
+    assert PROMPT_VERSION == "v2"
 
 
 @respx.mock

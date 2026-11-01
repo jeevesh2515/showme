@@ -193,6 +193,7 @@ export default function AppPage() {
       {phase === "start" && (
         <section className="mx-auto max-w-2xl">
           <label className="type-title block" htmlFor="goal">What do you want to do?</label>
+          <p className="type-small mt-2">Turn a screenshot into a step-by-step guide you or someone you help can follow.</p>
           <input data-testid="goal-input" id="goal" value={goal} onChange={(e) => setGoal(e.target.value)} maxLength={300} placeholder="cancel my subscription" className="type-body mt-4 min-h-14 w-full rounded-control border-2 border-ink bg-paper px-4 py-3" />
           <label data-testid="drop-zone"
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}
@@ -313,6 +314,9 @@ export default function AppPage() {
             {current.status !== "done" && current.status !== "refuse" && (<>
               <button data-testid="failed-btn" onClick={() => nextWith("failed")} className={`${BTN_SECONDARY} mt-3 w-full`}>That didn&apos;t work</button>
               <label className={`${BTN_SECONDARY} mt-3 flex w-full cursor-pointer items-center justify-center focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter`}>Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
+              {trail.length > 0 && (
+                <button data-testid="share-early-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className={`${BTN_SECONDARY} mt-3 w-full`}>Share guide ({trail.length} {trail.length === 1 ? "step" : "steps"})</button>
+              )}
             </>)}
             <p data-testid="shortcut-help" className="type-small mt-6">Keyboard: N next step, R read aloud, Esc cancel</p>
             <button data-testid="start-over" onClick={resetAll} className="type-small mt-2 min-h-12 underline underline-offset-4">Start over</button>

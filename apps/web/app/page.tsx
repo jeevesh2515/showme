@@ -35,7 +35,7 @@ export default function Home() {
           <BillingDemo />
         </div>
         <p className="type-body mt-8 lg:col-span-6 lg:row-start-3 lg:mt-6">
-          Add a screenshot, say what you want to do, and see exactly where to press.
+          Got a screenshot from someone you help? Turn it into a step-by-step guide they can follow.
           Private details are hidden on your device before anything is sent.
         </p>
       </section>
@@ -78,12 +78,12 @@ export default function Home() {
 
       <div className={`${wrap} grid gap-8 py-16 md:grid-cols-2 md:py-24`}>
         <section className="rounded-panel bg-sun p-8 md:p-10" aria-labelledby="families">
-          <h2 id="families" className="type-title">For families</h2>
-          <p className="type-body mt-4">When a relative gets stuck, solve it once and share the steps as a guide. They follow the same highlighted pictures, at their own pace.</p>
+          <h2 id="families" className="type-title">For remote helpers</h2>
+          <p className="type-body mt-4">When a relative or friend gets stuck, they send a screenshot. Turn it into a clean, expiring step-by-step guide in one minute instead of a 20-minute phone call. They open the link on their phone and tap along at their own pace.</p>
         </section>
         <section className="rounded-panel border-2 border-mist p-8 md:p-10" aria-labelledby="companies">
-          <h2 id="companies" className="type-title">For companies</h2>
-          <p className="type-body mt-4">ShowMe for your help centre: customers add a screenshot of your product and get pointed to the next tap, instead of opening a ticket. <a href="https://github.com/jeevesh2515/showme" className="underline">Contact us on GitHub</a>. There is no form, and we store no emails.</p>
+          <h2 id="companies" className="type-title">For digital inclusion</h2>
+          <p className="type-body mt-4">For libraries, charities, and support teams helping people navigate confusing websites and forms without ever seeing passwords, cards, or personal documents. <a href="https://github.com/jeevesh2515/showme" className="underline">Get in touch on GitHub</a>.</p>
         </section>
       </div>
 

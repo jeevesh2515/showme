@@ -214,14 +214,13 @@ Outline, in order:
 
 | Time | Picture | Voice-over |
 | --- | --- | --- |
-| 0:00 to 0:15 | Phone call style caption; a real-looking billing page; cursor hesitating | "My dad called again: 'it wants me to press something, but where?' Help that cannot see your screen does not help." |
-| 0:15 to 0:30 | Landing hero animation | "ShowMe looks at your actual screen and points to the one thing to press next." |
-| 0:30 to 0:55 | Paste screenshot, type "cancel my subscription", privacy check auto-hides email and card, user brushes the name | "Before anything is sent, ShowMe hides emails, phone and card numbers on your device. You check it and hide anything else." |
-| 0:55 to 1:25 | Step 1 ring + instruction, read aloud; box swaps to SAM outline; next screenshot; step 2; caution banner on a payment page; done | "Muse Spark reads the screen and picks one step. SAM 3.1 draws the outline around the exact button. One step at a time, until it is done." |
-| 1:25 to 1:45 | `not_visible` case with scroll arrow; `unsure` dashed ring | "When it cannot see the button, it says so and tells you where to look. It never guesses silently." |
-| 1:45 to 2:00 | Share flow, link with expiry | "Share the steps with family. The link deletes itself after seven days." |
-| 2:00 to 2:20 | `/eval` page numbers, terminal running `make eval` | "We measured it on public benchmarks and 20 real tasks. Here is how often it is right, and where it is not." |
-| 2:20 to 2:30 | "For companies" section, logo | "Next: ShowMe inside help centres, so customers get pointed to the answer instead of opening a ticket." |
+| 0:00 to 0:20 | WhatsApp chat snippet: parent asks "Where do I click to cancel this?"; screenshot attached; phone call caption | "When an older relative gets stuck on an app, they don't want a 20-minute phone call. And you can't see what they're looking at." |
+| 0:20 to 0:40 | Helper opens ShowMe on laptop; drags in the WhatsApp screenshot; goal typed: "Cancel subscription" | "ShowMe turns that screenshot into a step-by-step visual guide you can send right back." |
+| 0:40 to 1:05 | Mandatory review screen: OCR automatically puts ink-black blocks with lock icons over credit card & phone numbers; helper brushes out parent's home address | "Before anything leaves your browser, ShowMe hides credit cards, phone numbers, and emails on your device. You check it and brush out any private details. The raw picture never touches the network." |
+| 1:05 to 1:35 | Step 1 highlights 'Manage Subscriptions' with SAM 3.1 outline; helper clicks 'Share guide' to generate 7-day expiring link; copies link | "Meta's Muse Spark 1.3 pinpoints the next tap. SAM 3.1 draws a precise outline around the button. You can share the guide right from Step 1 with a private link that self-destructs after 7 days." |
+| 1:35 to 2:00 | Parent opens link on iPhone 16 (high-contrast mode on, 150% text size, yellow highlighter ring); taps button; next step appears | "On their phone, they get large clear instructions, high-contrast support, and one highlight at a time at their own pace. No app to install, and no accounts." |
+| 2:00 to 2:20 | Honest states: `not_visible` with scroll arrow; `caution` warning banner; `/eval` dashboard showing 90.7% and 62.4% | "When the button isn't visible, ShowMe tells you to scroll instead of guessing. We publish all our evaluation numbers—including the 62% on absent targets." |
+| 2:20 to 2:30 | Competitive differentiation summary & closing title | "Private on your device. Works from any screenshot. Expiring guides for people you help. Built for the Meta AI Hackathon." |
 
 All footage from the live product (RULES §2). Captions burned in for silent autoplay.
 

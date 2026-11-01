@@ -15,6 +15,9 @@ type TrailStep = { n: number; instruction: string; image: RedactedImage; target:
 const BTN_PRIMARY = "type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50";
 const BTN_SECONDARY = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-5 py-2 font-bold text-ink hover:bg-mist";
 const SHOT_HELP = [["iPhone", "side button + volume up."], ["Android", "power + volume down."], ["Windows", "Windows key + Shift + S."], ["Mac", "Command + Shift + 4."]] as const;
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+// Pointer position as a 0-1 fraction of the element; clamped because pointer capture reports points outside it.
+const frac = (e: React.PointerEvent<HTMLElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: clamp01((e.clientX - r.left) / r.width), y: clamp01((e.clientY - r.top) / r.height) }; };
 const ERROR_COPY: Record<string, string> = {
   rate_limited: "You have used ShowMe a lot this hour. Try again later.",
   spend_cap_reached: "ShowMe is resting until tomorrow so it stays free. Your screenshot was not sent.",
@@ -33,6 +36,7 @@ export default function AppPage() {
   const regions = entries.map((e) => e.r);
   const manualCount = entries.filter((e) => e.manual).length;
   const [brush, setBrush] = useState(false);
+  const [draft, setDraft] = useState<{ x: number; y: number; x2: number; y2: number } | null>(null);
   const [zoom, setZoom] = useState(1);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [trail, setTrail] = useState<TrailStep[]>([]);
@@ -86,6 +90,10 @@ export default function AppPage() {
     const file = item?.getAsFile();
     if (file) void loadImage(file);
   }, [loadImage]);
+
+  function hideLine(line: OcrLine) {
+    setEntries((prev) => [...prev, { r: { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 }, manual: true }]);
+  }
 
   async function continueReview() {
     const bitmap = bitmapRef.current;
@@ -177,7 +185,7 @@ export default function AppPage() {
             <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
           </label>
           <details className="mt-8">
-            <summary data-testid="screenshot-help" className="type-body cursor-pointer font-bold text-ink underline underline-offset-4">How do I take a screenshot?</summary>
+            <summary data-testid="screenshot-help" className="type-body cursor-pointer py-2 font-bold text-ink underline underline-offset-4">How do I take a screenshot?</summary>
             <ul className="type-small mt-4 grid gap-3 sm:grid-cols-2">
               {SHOT_HELP.map(([device, how]) => (<li key={device} className="rounded-panel bg-mist p-4"><strong>{device}:</strong> {how}</li>))}
             </ul>
@@ -204,23 +212,42 @@ export default function AppPage() {
           <div className="relative mt-6 overflow-auto rounded-panel border-2 border-mist bg-mist p-2">
             <div style={{ width: `${zoom * 100}%` }} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img data-testid="review-image" src={imageUrl} alt="Your screenshot for checking" className="w-full"
-                onPointerDown={(e) => { if (!brush) return; const r = e.currentTarget.getBoundingClientRect(); dragRef.current = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }; }}
+              <img data-testid="review-image" src={imageUrl} alt="Your screenshot for checking" draggable={false} onDragStart={(e) => e.preventDefault()}
+                className={`w-full select-none ${brush ? "cursor-crosshair touch-none" : "cursor-pointer"}`}
+                onClick={(e) => {
+                  const bm = bitmapRef.current;
+                  if (brush || !bm) return;
+                  // A11Y-7: phone-scaled lines are 2-7 px tall and a few px apart, so a tap hides the nearest line within 22 css px (a 44 px target) instead of needing an exact hit.
+                  const rect = e.currentTarget.getBoundingClientRect(), s = bm.width / rect.width;
+                  const x = (e.clientX - rect.left) * s, y = (e.clientY - rect.top) * s;
+                  const dist = (l: OcrLine) => Math.hypot(Math.max(l.bbox.x0 - x, 0, x - l.bbox.x1), Math.max(l.bbox.y0 - y, 0, y - l.bbox.y1));
+                  const best = lines.reduce<OcrLine | null>((a, l) => (!a || dist(l) < dist(a) ? l : a), null);
+                  if (best && dist(best) <= 22 * s) hideLine(best);
+                }}
+                onPointerDown={(e) => { if (!brush) return; e.currentTarget.setPointerCapture(e.pointerId); const p = frac(e); dragRef.current = p; setDraft({ ...p, x2: p.x, y2: p.y }); }}
+                onPointerMove={(e) => { const d = dragRef.current; if (!brush || !d) return; const p = frac(e); setDraft({ ...d, x2: p.x, y2: p.y }); }}
+                onPointerCancel={() => { dragRef.current = null; setDraft(null); }}
                 onPointerUp={(e) => {
-                  if (!brush || !dragRef.current || !bitmapRef.current) return;
-                  const r = e.currentTarget.getBoundingClientRect(); const w = bitmapRef.current.width, h = bitmapRef.current.height;
-                  const x2 = (e.clientX - r.left) / r.width, y2 = (e.clientY - r.top) / r.height;
-                  const nr = { x: Math.min(dragRef.current?.x ?? 0, x2) * w, y: Math.min(dragRef.current?.y ?? 0, y2) * h, width: Math.abs(x2 - (dragRef.current?.x ?? 0)) * w, height: Math.abs(y2 - (dragRef.current?.y ?? 0)) * h };
+                  const d = dragRef.current;
+                  dragRef.current = null; setDraft(null);
+                  if (!brush || !d || !bitmapRef.current) return;
+                  const w = bitmapRef.current.width, h = bitmapRef.current.height, p = frac(e);
+                  const nr = { x: Math.min(d.x, p.x) * w, y: Math.min(d.y, p.y) * h, width: Math.abs(p.x - d.x) * w, height: Math.abs(p.y - d.y) * h };
                   if (nr.width > 2 && nr.height > 2) setEntries((prev) => [...prev, { r: nr, manual: true }]);
-                  dragRef.current = null;
                 }} />
               {lines.map((line, i) => (
                 <button key={i} data-testid="ocr-line" aria-label={`Hide: ${line.text}`}
                   style={{ left: `${(line.bbox.x0 / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(line.bbox.y0 / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${((line.bbox.x1 - line.bbox.x0) / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${((line.bbox.y1 - line.bbox.y0) / (bitmapRef.current?.height ?? 1)) * 100}%` }}
-                  className="absolute border border-ink/40"
-                  onClick={() => { setEntries((prev) => [...prev, { r: { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 }, manual: true }]); }} />
+                  // Pointer taps go to the image (nearest-line hit test); these buttons stay for keyboard and screen readers.
+                  className="pointer-events-none absolute border border-ink"
+                  onClick={() => hideLine(line)} />
               ))}
-              {regions.map((r, i) => (<div key={i} className="absolute bg-ink" style={{ left: `${(r.x / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(r.y / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${(r.width / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${(r.height / (bitmapRef.current?.height ?? 1)) * 100}%` }} />))}
+              {entries.map(({ r, manual }, i) => (
+                <div key={i} data-testid="hidden-region" className="pointer-events-none absolute flex items-center justify-center overflow-hidden bg-ink" style={{ left: `${(r.x / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(r.y / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${(r.width / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${(r.height / (bitmapRef.current?.height ?? 1)) * 100}%` }}>
+                  {!manual && <svg aria-hidden="true" className="h-3 max-h-full w-3 text-highlighter" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
+                </div>
+              ))}
+              {draft && <div aria-hidden="true" className="pointer-events-none absolute border-2 border-dashed border-ink bg-ink/30" style={{ left: `${Math.min(draft.x, draft.x2) * 100}%`, top: `${Math.min(draft.y, draft.y2) * 100}%`, width: `${Math.abs(draft.x2 - draft.x) * 100}%`, height: `${Math.abs(draft.y2 - draft.y) * 100}%` }} />}
             </div>
           </div>
           <p className="type-small mt-4">The only thing that leaves this device is what this screen shows.</p>

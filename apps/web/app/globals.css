@@ -97,6 +97,10 @@
   --blush: #ffffff;
   --scrim: rgba(0, 0, 0, 0.65);
 }
+/* Tints turn white in high contrast, so tinted surfaces get an ink edge to keep their boundary. */
+[data-contrast="high"] :is(.bg-sun, .bg-sage, .bg-blush) {
+  border: 2px solid var(--ink);
+}
 
 /* A11Y-5: reduced motion turns every animation and transition instant. */
 @media (prefers-reduced-motion: reduce) {

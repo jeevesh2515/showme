@@ -217,3 +217,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Ticked Day 5 (live Supabase verified end-to-end); re-ran E2E 1–10 (4/10 post-D33), full 20 (7/20), clustered failures, fixed driver (new-tab follow, label loop guard, screenshot retry, YAML `\\.` predicate unescape), prompt v2 gated on dev-100, re-ran subsets then a final full 20. Built landing + /eval from generated results JSON, usability kit, deployed web+API, restored temporary rate-limit raise.
 - **Result / evidence:** Final E2E **14/20, avg 3.7** (`eval/results/2026-11-01-e2e-final/report.md`); dev-100 v2 92.0% vs v1 93.0%; Lighthouse 98/100; Playwright 41/41 after stale-server restart; `make lint test` green; highlight CSV 74 step rows awaiting founder ratings.
 - **Decision:** D35 (temp rate raise + restore), D36 (driver fixes; predicates were the bug, not the model), D37 (prompt v2 kept at −1.0 dev).
+
+## 2026-11-01 · S30 · iPhone 16 audit fixes (Day 7 hardening)
+
+- **Why:** Live iPhone 16 audit scored 7.3/10 with 8 failing checks; the brush (manual redaction, PRIV-2/FLOW-3) was broken on every device.
+- **What I did:** Failing FLOW-3 tests first (mouse drag, CDP touch drag, thumb tap near a thin line), then fixed brush pointer handling, nearest-line tap, lock glyphs, high-contrast borders, header row, footer/summary targets, `/eval` column order. Added `scripts/live_iphone16_audit.mjs` (headed, all API calls mocked, $0).
+- **Result / evidence:** FLOW-3 3/3 (red before the fix); Playwright 43/43; `make lint test` green (156 + 31 + 80); audit 32/32 checks, header 230 -> 117 px.
+- **Decision:** D39 (nearest-line hit test instead of overlapping 44 px pseudo-element targets).

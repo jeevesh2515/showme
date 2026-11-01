@@ -28,26 +28,26 @@ export default function Eval() {
           <table className="type-small w-full text-left">
             <thead className="bg-mist">
               <tr>
-                <th className="p-2">Date</th>
                 <th className="p-2">Suite</th>
-                <th className="p-2">Split</th>
-                <th className="p-2">Model</th>
-                <th className="p-2">n</th>
                 <th className="p-2">Accuracy</th>
+                <th className="p-2">Split</th>
+                <th className="p-2">n</th>
+                <th className="p-2">Model</th>
+                <th className="p-2">Date</th>
                 <th className="p-2">Raw output</th>
               </tr>
             </thead>
             <tbody>
               {results.rows.map((r) => (
                 <tr key={r.predictions} className="border-t border-mist">
-                  <td className="p-2">{r.date}</td>
                   <td className="p-2">{r.suite}</td>
+                  <td className="p-2 font-bold">{r.accuracyPct}%</td>
                   <td className="p-2">{r.split}</td>
+                  <td className="p-2">{r.n}</td>
                   <td className="p-2">
                     {r.model} ({r.effort})
                   </td>
-                  <td className="p-2">{r.n}</td>
-                  <td className="p-2">{r.accuracyPct}%</td>
+                  <td className="p-2 whitespace-nowrap">{r.date}</td>
                   <td className="p-2">
                     <a href={gh(r.predictions)} className="underline">
                       predictions.jsonl

@@ -94,10 +94,10 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-mist">
-        <div className={`${wrap} type-small flex flex-wrap gap-x-6 gap-y-3 py-8`}>
-          <a href="https://github.com/jeevesh2515/showme" className="underline">GitHub</a>
-          <Link href="/eval" className="underline">How often it is right</Link>
-          <Link href="/app" className="underline">Open the app</Link>
+        <div className={`${wrap} type-small flex flex-wrap items-center gap-x-6 gap-y-1 py-8`}>
+          <a href="https://github.com/jeevesh2515/showme" className="inline-flex min-h-11 items-center underline">GitHub</a>
+          <Link href="/eval" className="inline-flex min-h-11 items-center underline">How often it is right</Link>
+          <Link href="/app" className="inline-flex min-h-11 items-center underline">Open the app</Link>
           <span>Built for the Meta hackathon. Screenshots in examples are made up.</span>
         </div>
       </footer>

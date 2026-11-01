@@ -277,5 +277,11 @@
   "score": 10.0,
   "sha": "a2e8af3",
   "fails": []
+ },
+ {
+  "label": "day7",
+  "score": 10.0,
+  "sha": "06a7238",
+  "fails": []
  }
 ]

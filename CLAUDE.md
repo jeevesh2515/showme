@@ -1,8 +1,8 @@
-# CLAUDE.md — ShowMe (synced copy of AGENTS.md; AGENTS.md is canonical, edit there then re-copy)
+# AGENTS.md — ShowMe
 
-Screenshot + goal → one highlighted step at a time on the user's own screen. Browser redacts before upload. Meta API: `muse-spark-1.3` grounding, `sam-3.1` outline. Hackathon: freeze Mon Nov 2 23:59, submit Wed Nov 4 18:00 London.
+Screenshot + goal → one highlighted step at a time on the user's own screen. Browser redacts before upload. Meta API: `muse-spark-1.3` grounding, `sam-3.1` outline. Hackathon: freeze Mon Nov 2 23:59, submit Wed Nov 4 21:00 ET (Nov 5 02:00 London).
 
-Detail lives in `docs/` — do not duplicate it here.
+`CLAUDE.md` duplicates this file's predecessor; this file is the OpenCode entry point. Detail lives in `docs/` — do not duplicate it here.
 
 ## Repo state (verify, don't assume)
 
@@ -13,7 +13,7 @@ Detail lives in `docs/` — do not duplicate it here.
 
 ## Read before any change (in order)
 
-1. `docs/RULES.md` — privacy P1–P9, "never fake a result", coding/testing/commit duties. Binding; if blocked, record conflict in `docs/MEMORY.md` Open questions, don't work around.
+1. `docs/RULES.md` & `docs/HACKATHON.md` — privacy P1–P9, "never fake a result", event alignment, judging criteria (Impact 30%, Demo 25%, Meta Tools 25%, Tech Depth 20%), coding/testing/commit duties. Binding; if blocked, record conflict in `docs/MEMORY.md` Open questions, don't work around.
 2. `docs/PHASES.md` today's section + `docs/prompts/00-common.md` (session protocol, spend, end-of-day duties) + today's `docs/prompts/day-*.md`.
 3. Doc for the area you touch: `docs/ARCHITECTURE.md` (contracts, prompt/schema, SAM, redaction, storage, hosting, eval), `docs/DESIGN.md` (tokens/overlay/copy/a11y), `docs/REQUIREMENTS.md` (IDs).
 4. Latest `docs/MEMORY.md` entries (decisions D*, assumptions, open Q*) + `docs/RISKS.md` kill criteria. Evidence: `docs/SPIKES.md`.

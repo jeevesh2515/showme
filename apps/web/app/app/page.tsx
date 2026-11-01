@@ -84,6 +84,8 @@ export default function AppPage() {
     setError("");
     if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { setError(ERROR_COPY.invalid_image ?? ""); return; }
     if (file.size > 20 * 1024 * 1024) { setError(ERROR_COPY.invalid_image ?? ""); return; }
+    // PRIV-2: drop the previous screenshot's review now, so Continue cannot redact this image with the old regions while OCR runs.
+    bitmapRef.current = null; setEntries([]); setLines([]); setPhase("start");
     try {
       const bitmap = await createImageBitmap(file);
       if (gen !== genRef.current) return;
@@ -236,8 +238,8 @@ export default function AppPage() {
 
       {phase === "review" && (
         <section className="mx-auto max-w-3xl">
-          <h2 className="type-title text-[24px] sm:text-[32px] leading-tight">Check what we will send</h2>
-          <p className="type-body text-[18px] sm:text-[20px] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
+          <h2 className="type-title text-[1.5rem] sm:text-[2rem] leading-tight">Check what we will send</h2>
+          <p className="type-body text-[1.125rem] sm:text-[1.25rem] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
           {ocrFailed ? <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
           <div className="mt-2 flex flex-wrap gap-1 sm:mt-6 sm:gap-3">
             <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_TOOLBAR} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
@@ -313,7 +315,7 @@ export default function AppPage() {
             )}
           </div>
           {/* DESIGN §4.4: on phones the instruction and primary action dock at the bottom; the ring is scrolled into the upper part. */}
-          <div aria-live="polite" className="sticky bottom-0 z-30 -mx-6 mt-6 border-t-2 border-ink bg-paper px-6 py-3 md:py-4 md:static md:mx-0 md:mt-0 md:self-start md:rounded-panel md:border-2 md:border-mist md:p-6">
+          <div aria-live="polite" className="sticky bottom-0 z-30 -mx-4 sm:-mx-6 mt-6 border-t-2 border-ink bg-paper px-4 sm:px-6 py-3 md:py-4 md:static md:mx-0 md:mt-0 md:self-start md:rounded-panel md:border-2 md:border-mist md:p-6">
             <p className="type-small flex items-center gap-3 font-bold"><span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-highlighter text-ink">{stepNumber}</span><span>Step {stepNumber}</span></p>
             {current.caution && <p data-testid="caution-banner" className="type-body mt-3 flex items-start gap-3 rounded-panel bg-blush p-3 md:mt-4 md:p-4 text-caution"><svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17.5v.01" /></svg><span><strong>Careful:</strong> {current.caution.replace(/^careful:\s*/i, "")}</span></p>}
             {current.status === "unsure" && <p className="type-body mt-3 rounded-panel bg-sun p-3 md:mt-4 md:p-4">I think it is this one. Check before you tap.</p>}

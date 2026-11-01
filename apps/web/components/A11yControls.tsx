@@ -11,7 +11,7 @@ const SIZE_UI: Record<(typeof SIZES)[number], { name: string; glyph: string }> =
   125: { name: "Large", glyph: "text-[22px]" },
   150: { name: "Largest", glyph: "text-[28px]" },
 };
-const CONTROL = "inline-flex min-h-12 min-w-12 items-center justify-center rounded-control border-2 border-ink font-bold leading-none aria-pressed:bg-ink aria-pressed:text-paper";
+const CONTROL = "inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-control border-2 border-ink font-bold leading-none aria-pressed:bg-ink aria-pressed:text-paper";
 type Size = (typeof SIZES)[number];
 
 export default function A11yControls() {
@@ -39,9 +39,9 @@ export default function A11yControls() {
             <span className="relative">ShowMe</span>
           </span>
         </Link>
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-[6px] sm:gap-[8px]">
           <span className="sr-only" id="text-size-label">Text size</span>
-          <div role="group" aria-labelledby="text-size-label" className="flex gap-1.5 sm:gap-2">
+          <div role="group" aria-labelledby="text-size-label" className="flex gap-[6px] sm:gap-[8px]">
             {SIZES.map((s) => (
               <button
                 key={s}
@@ -59,9 +59,9 @@ export default function A11yControls() {
             data-testid="contrast-toggle"
             aria-pressed={contrast}
             onClick={toggleContrast}
-            className={`${CONTROL} gap-2 text-[18px] sm:px-3`}
+            className={`${CONTROL} gap-[8px] text-[18px] sm:px-[12px]`}
           >
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" /></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[24px] w-[24px]"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" /></svg>
             <span className="sr-only sm:not-sr-only">High contrast</span>
           </button>
         </div>

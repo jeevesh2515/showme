@@ -253,3 +253,48 @@ test.describe("phone layout (iPhone 16 Safari viewport 393 x 659)", () => {
     await expect(page.getByTestId("next-btn")).toBeInViewport();
   });
 });
+
+test.describe("A11Y-1 review and step fit and scale on phones and desktop", () => {
+  test.setTimeout(90_000);
+  const fits = (page: Page) =>
+    page.evaluate(() => {
+      const card = document.querySelector('[aria-live="polite"]')?.getBoundingClientRect();
+      return { scroll: document.documentElement.scrollWidth, vw: window.innerWidth, left: card?.left ?? 0, right: card?.right ?? 0 };
+    });
+
+  for (const [width, size] of [[320, "100"], [320, "150"], [393, "100"], [393, "150"]] as const) {
+    {
+      test(`step card does not overflow at ${width}px, text ${size}%`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 700 });
+        await reachStepAt(page, size);
+        const m = await fits(page);
+        expect(m.scroll).toBeLessThanOrEqual(width);
+        expect(m.left).toBeGreaterThanOrEqual(0);
+        expect(m.right).toBeLessThanOrEqual(width);
+      });
+    }
+  }
+
+  for (const width of [393, 1280]) {
+    test(`review heading and paragraph grow with Largest text at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await mockApi(page);
+      await openReview(page);
+      const sizes = () => page.evaluate(() => ["h2", "h2 + p"].map((s) => parseFloat(getComputedStyle(document.querySelector(`main section ${s}`) as Element).fontSize)));
+      const normal = await sizes();
+      await page.getByTestId("text-size-150").click();
+      const largest = await sizes();
+      expect(largest[0]).toBeGreaterThan(normal[0] ?? 0);
+      expect(largest[1]).toBeGreaterThan(normal[1] ?? 0);
+    });
+  }
+});
+
+async function reachStepAt(page: Page, size: string) {
+  await mockApi(page);
+  await page.goto("/app");
+  if (size !== "100") await page.getByTestId(`text-size-${size}`).click();
+  await page.getByTestId("goal-input").fill("cancel my subscription");
+  await page.getByTestId("file-input").setInputFiles(IMAGE_FILE);
+  await continueToStep(page);
+}

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
 import { GOAL, refineOutline, refineBox, stepOk, stepOkSecond } from "./fixtures";
-import { mockApi } from "./helpers";
+import { mockApi, pasteScreenshot } from "./helpers";
 
 const OCR_A = { name: "ocr-a.png", mimeType: "image/png", buffer: require("node:fs").readFileSync(path.join(__dirname, "assets", "ocr-a.png")) };
 const OCR_B = { name: "ocr-b.png", mimeType: "image/png", buffer: require("node:fs").readFileSync(path.join(__dirname, "assets", "ocr-b.png")) };
@@ -28,6 +28,21 @@ test.describe("Review race regressions (2026-10-30 review)", () => {
     await expect(page.getByTestId("ocr-line").first()).toBeVisible({ timeout: 30_000 });
     const labels = await page.getByTestId("ocr-line").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label") ?? ""));
     expect(labels.join(" ")).toContain("bob");
+    expect(labels.join(" ")).not.toContain("alice");
+  });
+
+  test("PRIV-2 replacing a screenshot invalidates the old review: no Continue until the new OCR finishes", async ({ page }) => {
+    const api = await mockApi(page);
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill(GOAL);
+    await page.getByTestId("file-input").setInputFiles(OCR_A);
+    await expect(page.locator("text=/We hid [1-9]/")).toBeVisible({ timeout: 30_000 });
+    await pasteScreenshot(page);
+    // The pasted screenshot is still in OCR: A's review (and its Continue) must already be gone.
+    await expect(page.getByTestId("review-continue")).toHaveCount(0);
+    expect(api.stepBodies).toHaveLength(0);
+    await expect(page.getByTestId("review-continue")).toBeVisible({ timeout: 30_000 });
+    const labels = await page.getByTestId("ocr-line").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label") ?? ""));
     expect(labels.join(" ")).not.toContain("alice");
   });
 

@@ -252,3 +252,18 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
   7. Fixed share rate-limit error copy to use backend message (`err.message`) and narrowed demo target to isolate "Cancel subscription" from "Update payment method".
 - **Result / evidence:** `make lint test` clean (156 backend + 31 eval + 80 web); Playwright 52/52 passing (including axe); score gate 10.0/10; iPhone 16 audit 35/35 passing.
 - **Decision:** D42–D46.
+
+## 2026-11-01 · S34 · External review P1/P2 fixes and evidence correction
+
+- **Why:** Senior review of 2026-11-01 found a false-positive E2E pass, two P1 privacy defects, overstated claims and two layout regressions.
+- **What I did:**
+  1. Screenshot replacement now clears the old review before OCR on the new image (D49).
+  2. Share create writes the row first so failed cleanup cannot orphan images; aggregate payload cap on server and client (D46).
+  3. Spend reconcile uses the reservation's UTC day (D47).
+  4. E2E predicates fixed with offline negative tests (hidden/empty caption elements, BBC reject cookie, IKEA search URL); 4 suspect passes disclosed, the other 10 described as awaiting validation; generated results untouched (D48).
+  5. `make eval SUITE=all` and `make dev` (web + API) now work as documented.
+  6. README, SUBMISSION and REQUIREMENTS_STATUS corrected: partial auto-redaction, privacy scope in the helper flow, sourced competitor rows, real evidence paths; `scripts/check_doc_paths.py` added to `make lint`.
+  7. Review text in rem; step card margins match container padding; header controls fixed px.
+- **Result / evidence:** `make lint test` clean (160 backend + 32 eval + 81 web unit + 5 predicate + 1 doc-path); Playwright 59/59 with backend proxied to a dead port (no live calls); predicate tests 10/10; predicate and doc-path checks added to CI. Spend $0.
+- **Not done:** E2E re-run (live), deploy of current `main`, two-person helper/recipient sessions.
+- **Decision:** D46–D49.

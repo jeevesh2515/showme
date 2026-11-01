@@ -77,6 +77,13 @@ export default function Eval() {
                 Full E2E report
               </a>
             </p>
+            {/* shortcut: audit note pinned to this run's dir, disappears once a re-run regenerates results. */}
+            {e2e.dir === "2026-11-01-e2e-final" && (
+              <p className="type-body mt-4">
+                An audit of this run found 4 of the {e2e.passed} passes are suspect: the success check matched a video
+                title, search suggestions or a sign-in page before the task was done. The other {e2e.passed - 4} recorded passes still await validation. The checks are fixed and a re-run is pending.
+              </p>
+            )}
           </div>
         </section>
       )}

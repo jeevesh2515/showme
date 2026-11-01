@@ -1,6 +1,6 @@
 # ShowMe
 
-> Screenshot + goal → one highlighted step at a time on your own screen. Private details are hidden in your browser before upload.
+> Screenshot + goal → one highlighted step at a time on your own screen. Detected private details are masked in your browser, and you review them before upload.
 
 ShowMe is an on-screen assistant built for the **Meta Global AI Developer Hackathon (Indie track)**. It uses **`muse-spark-1.3`** for vision grounding and **`sam-3.1`** for segmentation outlines via the Meta Model API.
 
@@ -15,30 +15,32 @@ ShowMe is an on-screen assistant built for the **Meta Global AI Developer Hackat
 When an older relative or friend gets stuck on an app or website, phone calls are painful ("What do you see now?") and remote desktop tools compromise privacy.
 
 ShowMe is built for **the remote helper**:
-When someone you help sends you a screenshot on WhatsApp or Messages, you drop it into ShowMe with what they want to do. ShowMe finds the exact button or link, auto-masks private details client-side, and generates an **ephemeral 7-day step-by-step guide** you can send back. They open the link on their phone or tablet, follow one clean visual highlight at a time at their own pace, and the guide self-destructs after 7 days.
+When someone you help sends you a screenshot on WhatsApp or Messages, you drop it into ShowMe with what they want to do. ShowMe finds the exact button or link, masks detected private details client-side, and can generate an **expiring 7-day guide link** you can send back. One screenshot gives one step; for a second step you need a new screenshot from them. They open the link and view the highlighted screenshot with Previous and Next buttons. The guide is a picture, so tapping it does not operate their real app; they find the same control in their own app. The creator's delete key removes the guide at once. Access ends after 7 days; stored images are then removed by the next successful daily purge.
+
+Privacy scope: ShowMe guarantees that only the redacted image is uploaded to its backend and to Meta. When a helper receives a screenshot over WhatsApp or Messages, they already hold the raw image from the messaging service, and ShowMe cannot undo that.
 
 Confident self-helpers can also use ShowMe directly for their own tricky screens (cancelling subscriptions, complex government forms, obscure privacy settings).
 
 1. **Screenshot & Goal**: Add a screenshot of what is currently on screen and state what you want to do (e.g. "cancel my subscription").
-2. **On-Device Redaction**: Client-side OCR + regex auto-hides emails, phone numbers, payment card numbers, UK postcodes, and IBANs. A mandatory review screen lets the user tap or brush to obscure anything private. The raw unredacted image never leaves the device.
+2. **On-Device Redaction**: Client-side OCR + regex masks emails, phone numbers, payment card numbers, UK postcodes, IBANs, and long digit strings. This detection is partial: it does not catch free text such as a visible typed password or a name. A mandatory review screen is where the user taps or brushes to hide anything else. The raw unredacted image is never uploaded.
 3. **Step & Refinement**: The redacted screenshot is sent to `muse-spark-1.3` to identify the single next action. If `sam-3.1` segmentation agrees with the model bounding box, a precise outline highlight is drawn; otherwise, the bounding box is shown.
-4. **Follow & Progress**: Tap the highlighted element on your screen, take the next screenshot, and repeat until the task is complete.
-5. **Opt-in Sharing**: Share a step-by-step guide with family or customers via an auto-expiring 7-day private link. Guides can be shared starting right from Step 1.
+4. **Follow & Progress**: Find the highlighted element in your real app and tap it there, take the next screenshot, and repeat until the task is complete.
+5. **Opt-in Sharing**: Share the guide steps with family or customers via a 7-day link that expires automatically. Guides can be shared starting right from Step 1.
 
 ---
 
-## 2. Competitive Differentiation: What Only ShowMe Does
+## 2. How ShowMe Differs
 
-Visual grounding and UI overlays are active areas (e.g. Microsoft Copilot Vision Highlights, Google Gemini Live, enterprise Digital Adoption Platforms). Here is why ShowMe is architecturally distinct:
+Visual grounding and UI overlays are active areas (e.g. Microsoft Copilot Vision Highlights, Google Gemini Live, enterprise Digital Adoption Platforms). Here is how ShowMe differs, limited to what we could source. "Not documented" means we did not find it in the cited pages, not that the product lacks it:
 
-| Capability / Invariant | ShowMe | Microsoft Copilot Vision (Highlights) | Google Gemini Live | Enterprise DAPs (WalkMe, Pendo) |
+| Capability | ShowMe | Microsoft Copilot Vision | Google Gemini Live | Enterprise DAPs (WalkMe, Pendo) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Client-Side Pre-Upload Redaction** | **Yes** (WASM OCR + regex + user review; raw bytes never leave device) | No (streams raw frames to Microsoft cloud) | No (streams live video/audio to Google cloud) | No client redaction (runs in DOM) |
-| **Zero Install / Any Platform** | **Yes** (pure web app; any screenshot from iOS, Android, Mac, Windows) | No (Windows 11 US only, desktop app) | No (Pixel 10 / Android app ecosystem) | No (requires enterprise app code injection) |
-| **Shareable Expiring Guides** | **Yes** (7-day self-destructing links for remote relatives) | No (live session only) | No (live session only) | No (enterprise license only) |
-| **Radical Transparency & Error Reporting** | **Yes** (reports `not_visible` and refusals; all benchmark & failure logs public) | No (uncalibrated confidence, opaque failures) | No (opaque conversational steering) | N/A (rule-based DOM selectors) |
+| **Client-side redaction before upload** | Yes, partial: OCR + regex masks structured data, mandatory manual review covers the rest | Not documented | Not documented | Not reviewed |
+| **Platforms** | Web app; the helper can use a screenshot from iOS, Android, Mac, or Windows | Windows, web (screen share), Copilot mobile app (camera) per Microsoft support | Android and iPhone/iPad (camera and screen sharing) per Google support | Not reviewed |
+| **Shareable expiring guide link** | Yes (7-day expiry, creator delete key) | Not documented | Not documented | Not reviewed |
+| **Reports `not_visible` and refusals** | Yes, with measured rates (62.4% on absent targets, so it often still guesses) | Not documented | Not documented | Not reviewed |
 
-*Sources: Copilot Vision Highlights announced for Windows 11 US ([Microsoft Windows Experience Blog, June 2025](https://blogs.windows.com/windowsexperience/2025/06/12/copilot-vision-on-windows-with-highlights-now-available-in-us/)); Gemini Live camera overlays ([TechBriefly, August 2025](https://techbriefly.com/2025/08/21/google-gemini-live-adds-visual-overlays-and-a-new-audio-model/)). "One minute vs 20-minute phone call" represents our estimated product UX goal.*
+*Sources, all as of 2026-11-01: Microsoft, [Using Copilot Vision with Microsoft Copilot](https://support.microsoft.com/en-gb/topic/using-copilot-vision-with-microsoft-copilot-3c67686f-fa97-40f6-8a3e-0e45265d425f) (desktop Windows or web screen share; mobile app camera); Google, [Gemini Apps Help: Talk naturally with Gemini Live, iPhone & iPad](https://support.google.com/gemini/answer/15274899?hl=en&co=GENIE.Platform%3DiOS) (Gemini mobile app on iPhone/iPad, with camera and screen sharing). "One minute vs 20-minute phone call" represents our estimated product UX goal, not a measurement.*
 
 ---
 
@@ -85,7 +87,7 @@ flowchart LR
 | Data | Browser | Backend Memory | Backend Logs / Disk | Supabase Storage | Meta API |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Raw screenshot** | Yes (in memory only) | **Never** | **Never** | **Never** | **Never** |
-| **Redacted image** | Yes | Request lifecycle | **Never** | Only if shared (7-day TTL) | Per request (Standard mode, not used for training) |
+| **Redacted image** | Yes | Request lifecycle | **Never** | Only if shared (7-day TTL) | Per request (Standard mode requested; Meta's data handling is per Meta's terms) |
 | **Goal text** | Yes | Request lifecycle | **Never** (length only) | Only if shared | Per request |
 | **Step instructions** | Yes | Request lifecycle | **Never** | Only if shared | Output generated |
 | **IP address** | N/A | Request lifecycle | **Never** | Salted daily hash for rate limits (48 h TTL) | N/A |
@@ -95,11 +97,11 @@ flowchart LR
 
 ## 4. Privacy Invariants
 
-- **Private by Construction (PRIV-1)**: Raw screenshot bytes never reach the network. The TypeScript API client strictly requires a branded `RedactedImage` symbol generated solely by `lib/redaction/redact.ts`. Verified by Playwright network interception tests.
+- **Private by Construction (PRIV-1)**: Raw screenshot bytes are never uploaded to ShowMe's backend or Meta. The TypeScript API client strictly requires a branded `RedactedImage` symbol generated solely by `apps/web/lib/redaction/redact.ts`. Verified by Playwright network interception tests.
 - **Mandatory Human Review (PRIV-2)**: No API request can be dispatched until the user inspects the redacted screenshot on the review screen and clicks Continue. Cannot be skipped or disabled.
-- **Zero Content Logging (PRIV-3)**: The backend never logs screenshots, instructions, goal strings, or raw IP addresses.
-- **Ephemeral (PRIV-4)**: Screenshots and session history exist in tab memory only; no tracking cookies, IndexedDB, or localStorage caches.
-- **Standard Mode Only (PRIV-6)**: Strictly uses Meta API standard mode. Contributor-mode models (`*-contributor`) are completely banned to guarantee content rights remain with the user.
+- **Zero Content Logging (PRIV-3)**: The backend is designed never to log screenshots, instructions, goal strings, or raw IP addresses.
+- **Ephemeral (PRIV-4)**: Screenshots and session history stay in tab memory unless the user opts in to Share; no tracking cookies or localStorage image caches (Playwright-checked).
+- **Standard Mode Only (PRIV-6)**: Uses Meta API standard mode. Contributor-mode models (`*-contributor`) are rejected by a settings validator so content rights remain with the user.
 
 ---
 
@@ -114,8 +116,8 @@ Every figure below is generated directly from output logs in `eval/results/` and
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-wonder-1.0` (minimal) | v1 | 300 | **66.7%** | Point inside control (+3.0 pts at ~3× cost) |
 | **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v1 | 210 | **62.4%** | Correctly stated `not_visible` (131 / 210) |
 | **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v1 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
-| **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v2 | 20 | **70.0% (14/20)** | Full multi-step task completion (avg 3.7 steps) |
-| **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (pending founder rating) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
+| **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v2 | 20 | **70.0% (14/20) recorded; 4 passes suspect** (10 recorded passes awaiting validation, not a verified rate) | Task predicate met (avg 3.7 steps); see Known Limitations 2 |
+| **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (all 74 rating cells empty; no claim vs boxes) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
 
 *Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-01-e2e-final/report.md`](eval/results/2026-11-01-e2e-final/report.md).*
 
@@ -127,7 +129,7 @@ Every figure below is generated directly from output logs in `eval/results/` and
 
 In keeping with our transparency principles:
 1. **Absent-Target Honesty**: On held-out screens where the requested target is not present, `muse-spark-1.3` says `not_visible` 62.4% of the time (131/210), falling short of our 90% target. In 37.6% of absent cases, the model still hallucinates a highlight.
-2. **E2E Task Set Scope**: The 70.0% (14/20) live web completion rate was evaluated across iterative test runs on the 20 public tasks; no unseen held-out E2E task suite has been run yet.
+2. **E2E Task Set Scope and Predicate Audit**: The recorded 70.0% (14/20) comes from the generated run in `eval/results/2026-11-01-e2e-final/`. A 2026-11-01 audit of the saved trails found 4 of the 14 passes are suspect because their success predicate could match text or a URL reached before the task was done: e2e-19 (YouTube captions: the predicate matched the video title; captions were never turned on), e2e-10 (Apple) and e2e-11 (Netflix) (help-article titles matched search suggestions), and e2e-12 (Google password: the predicate matched the sign-in page). Those predicates now check the caption player state or the specific help-article URL, with offline negative tests in `eval/e2e/predicate.test.mjs`. That leaves 10 recorded passes (14 − 4) still awaiting validation; subtracting suspects does not verify them, so this is not a 50% verified success rate. The generated files are left unedited until a re-run regenerates them. The tasks were also used during iterative development, so no unseen held-out E2E task suite has been run yet.
 3. **Free-form Text Inputs**: Regex covers structured PII (emails, cards, phones, postcodes, IBANs), but unstructured personal text (names, custom notes) depends on the user's manual brush on the review screen.
 4. **Dense Desktop Interfaces**: Accuracy drops to 63.7% on high-resolution professional software (ScreenSpot-Pro) with tightly packed toolbars.
 5. **Live Web E2E Failure Modes**: 6 of 20 live web tasks failed due to anti-bot defenses (e.g. Royal Mail Access Denied), stubborn third-party cookie consent banners, and file download triggers without in-page success states.

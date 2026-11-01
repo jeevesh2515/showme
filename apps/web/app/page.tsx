@@ -58,7 +58,7 @@ export default function Home() {
           <ul className="mt-10 grid gap-8 md:grid-cols-3 md:gap-12">
             <li className="type-body"><strong>The raw picture never leaves your device.</strong> Private text is hidden in your browser, on this device, before anything is sent.</li>
             <li className="type-body"><strong>No accounts, no tracking cookies.</strong> Nothing is kept unless you share it.</li>
-            <li className="type-body"><strong>Shared guides delete themselves after 7 days.</strong> You can delete yours sooner.</li>
+            <li className="type-body"><strong>Shared guide links stop working after 7 days.</strong> Their pictures are removed at the next daily clean-up. You can delete yours sooner.</li>
           </ul>
         </div>
       </section>
@@ -71,7 +71,7 @@ export default function Home() {
             {h.screenspotV2 && <Metric pct={h.screenspotV2.accuracyPct} label={`ScreenSpot-v2 held-out: point inside the right control (n=${h.screenspotV2.n})`}><a href={gh(h.screenspotV2.predictions)} className="underline">Raw predictions</a></Metric>}
             {h.screenspotPro && <Metric pct={h.screenspotPro.accuracyPct} label={`ScreenSpot-Pro held-out (hard, high-resolution screens) (n=${h.screenspotPro.n})`}><a href={gh(h.screenspotPro.predictions)} className="underline">Raw predictions</a></Metric>}
             {h.negatives && <Metric pct={h.negatives.accuracyPct} label={`Negatives: correctly said not visible, unsure, or refused (n=${h.negatives.n})`}><a href={gh(h.negatives.predictions)} className="underline">Raw predictions</a></Metric>}
-            {h.e2e && <Metric pct={h.e2e.successPct} label={`E2E tasks completed (${h.e2e.passed}/${h.e2e.tasksRun}, average ${h.e2e.avgSteps} steps, ${h.e2e.date})`}><Link href="/eval" className="underline">Full results</Link></Metric>}
+            {h.e2e && <Metric pct={h.e2e.successPct} label={`E2E tasks completed (${h.e2e.passed}/${h.e2e.tasksRun}, average ${h.e2e.avgSteps} steps, ${h.e2e.date})${h.e2e.dir === "2026-11-01-e2e-final" ? "; 4 passes under audit, see full results" : ""}`}><Link href="/eval" className="underline">Full results</Link></Metric>}
           </ul>
         </div>
       </section>
@@ -83,7 +83,7 @@ export default function Home() {
         </section>
         <section className="rounded-panel border-2 border-mist p-8 md:p-10" aria-labelledby="companies">
           <h2 id="companies" className="type-title">For digital inclusion</h2>
-          <p className="type-body mt-4">For libraries, charities, and support teams helping people navigate confusing websites and forms without ever seeing passwords, cards, or personal documents. <a href="https://github.com/jeevesh2515/showme" className="underline">Get in touch on GitHub</a>.</p>
+          <p className="type-body mt-4">For libraries, charities, and support teams helping people navigate confusing websites and forms. Private details you mark stay hidden from ShowMe and Meta. <a href="https://github.com/jeevesh2515/showme" className="underline">Get in touch on GitHub</a>.</p>
         </section>
       </div>
 

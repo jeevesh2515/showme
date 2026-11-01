@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ["README.md", "docs/SUBMISSION.md", "docs/REQUIREMENTS_STATUS.md"]
+DOCS = ["README.md", "docs/SUBMISSION.md", "docs/REQUIREMENTS_STATUS.md", "docs/HACKATHON.md", "eval/e2e/README.md"]
 LINK = re.compile(r"\]\(([^)\s]+)")
 TICK = re.compile(r"`([^`\s]+)`")
 EXT = re.compile(r"\.[A-Za-z0-9]+$")
@@ -42,7 +42,7 @@ def check(root: Path = ROOT, docs: list[str] = DOCS) -> list[str]:
             missing.append(doc)
             continue
         for raw in candidates((root / doc).read_text()):
-            if raw and "://" not in raw and not raw.startswith("mailto:") and not exists(root, doc, raw):
+            if raw and "://" not in raw and "<" not in raw and not raw.startswith("mailto:") and not exists(root, doc, raw):  # <x> = template
                 missing.append(f"{doc}: {raw}")
     return missing
 

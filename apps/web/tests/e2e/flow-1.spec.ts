@@ -69,3 +69,16 @@ test.describe("FLOW-1 add a screenshot and a goal", () => {
     }
   });
 });
+
+test.describe("FLOW-1 example screenshot", () => {
+  test("FLOW-1 the example button loads a made-up billing screen and opens the review with a goal", async ({ page }) => {
+    test.setTimeout(90_000);
+    await mockApi(page);
+    await page.goto("/app");
+    await page.getByTestId("sample-demo-btn").click();
+    await expect(page.getByTestId("review-image")).toBeVisible({ timeout: 30_000 });
+    // The example carries a made-up email, so auto-redaction has something to hide.
+    await expect.poll(() => page.getByTestId("hidden-region").count()).toBeGreaterThan(0);
+    await expect(page.getByTestId("review-continue")).toBeEnabled();
+  });
+});

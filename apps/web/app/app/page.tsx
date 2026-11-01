@@ -56,6 +56,15 @@ export default function AppPage() {
   const startedRef = useRef(0);
   const genRef = useRef(0); // B3: stale async results must never land on a newer screenshot
 
+  // DESIGN §4.4: on phones, scroll the ring into the upper part of the view, above the docked card.
+  useEffect(() => {
+    if (phase !== "step" || !window.matchMedia("(max-width: 767px)").matches) return;
+    const badge = document.querySelector('[data-testid="step-badge"]');
+    if (!badge) return;
+    const top = badge.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.2;
+    window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [phase, current]);
+
   useEffect(() => {
     if (phase !== "looking") return;
     const t = setInterval(() => setElapsed(Date.now() - startedRef.current), 250);
@@ -93,6 +102,16 @@ export default function AppPage() {
 
   function hideLine(line: OcrLine) {
     setEntries((prev) => [...prev, { r: { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 }, manual: true }]);
+  }
+
+  // FLOW-1: one-tap demo with a made-up billing screen (synthetic data); it goes through the same review as any upload.
+  async function loadSample() {
+    try {
+      const res = await fetch("/examples/billing.png");
+      if (!res.ok) throw new Error(String(res.status));
+      setGoal((g) => g.trim() || "Cancel subscription");
+      await loadImage(await res.blob());
+    } catch { setError("The example picture did not load. Add your own screenshot instead."); }
   }
 
   async function continueReview() {
@@ -184,6 +203,10 @@ export default function AppPage() {
             <span className="type-small">You can also paste with Ctrl+V or Command+V, or drag a picture onto this box.</span>
             <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
           </label>
+          <button data-testid="sample-demo-btn" type="button" onClick={() => void loadSample()} className="type-small mt-4 inline-flex min-h-12 items-center gap-3 rounded-control border-2 border-ink bg-sun px-4 py-2 font-bold text-ink hover:bg-highlighter">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 15h6" /><rect x="6" y="8" width="8" height="3" rx="1" /></svg>
+            Try with an example billing screenshot
+          </button>
           <details className="mt-8">
             <summary data-testid="screenshot-help" className="type-body cursor-pointer py-2 font-bold text-ink underline underline-offset-4">How do I take a screenshot?</summary>
             <ul className="type-small mt-4 grid gap-3 sm:grid-cols-2">
@@ -243,11 +266,11 @@ export default function AppPage() {
                   onClick={() => hideLine(line)} />
               ))}
               {entries.map(({ r, manual }, i) => (
-                <div key={i} data-testid="hidden-region" className="pointer-events-none absolute flex items-center justify-center overflow-hidden bg-ink" style={{ left: `${(r.x / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(r.y / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${(r.width / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${(r.height / (bitmapRef.current?.height ?? 1)) * 100}%` }}>
+                <div key={i} data-testid="hidden-region" className="fade-in pointer-events-none absolute flex items-center justify-center overflow-hidden bg-ink" style={{ left: `${(r.x / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(r.y / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${(r.width / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${(r.height / (bitmapRef.current?.height ?? 1)) * 100}%` }}>
                   {!manual && <svg aria-hidden="true" className="h-3 max-h-full w-3 text-highlighter" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
                 </div>
               ))}
-              {draft && <div aria-hidden="true" className="pointer-events-none absolute border-2 border-dashed border-ink bg-ink/30" style={{ left: `${Math.min(draft.x, draft.x2) * 100}%`, top: `${Math.min(draft.y, draft.y2) * 100}%`, width: `${Math.abs(draft.x2 - draft.x) * 100}%`, height: `${Math.abs(draft.y2 - draft.y) * 100}%` }} />}
+              {draft && <div aria-hidden="true" className="fade-in pointer-events-none absolute border-2 border-dashed border-ink bg-ink/30" style={{ left: `${Math.min(draft.x, draft.x2) * 100}%`, top: `${Math.min(draft.y, draft.y2) * 100}%`, width: `${Math.abs(draft.x2 - draft.x) * 100}%`, height: `${Math.abs(draft.y2 - draft.y) * 100}%` }} />}
             </div>
           </div>
           <p className="type-small mt-4">The only thing that leaves this device is what this screen shows.</p>
@@ -264,8 +287,8 @@ export default function AppPage() {
       )}
 
       {phase === "step" && current && (
-        <section className="grid gap-8 md:grid-cols-[1fr_380px]">
-          <div>
+        <section className="md:grid md:grid-cols-[1fr_380px] md:grid-rows-[auto_1fr] md:gap-x-8">
+          <div className="md:row-span-2">
             {current.status === "not_visible" ? (
               <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={imageUrl} alt="Your screenshot" className="w-full rounded-panel border-2 border-mist" /><p className="type-body mt-4">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-3">Scroll {current.scroll_direction}</p>}</div>
             ) : current.status === "done" ? (
@@ -276,15 +299,18 @@ export default function AppPage() {
               <Overlay imageUrl={redactedRef.current?.dataUrl ?? imageUrl} width={redactedRef.current?.meta.width ?? bitmapRef.current.width} height={redactedRef.current?.meta.height ?? bitmapRef.current.height} step={current} refinement={refinement} stepNumber={stepNumber} />
             )}
           </div>
-          <div aria-live="polite" className="self-start rounded-panel border-2 border-mist bg-paper p-6">
+          {/* DESIGN §4.4: on phones the instruction and primary action dock at the bottom; the ring is scrolled into the upper part. */}
+          <div aria-live="polite" className="sticky bottom-0 z-30 -mx-6 mt-6 border-t-2 border-ink bg-paper px-6 py-4 md:static md:mx-0 md:mt-0 md:self-start md:rounded-panel md:border-2 md:border-mist md:p-6">
             <p className="type-small flex items-center gap-3 font-bold"><span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-highlighter text-ink">{stepNumber}</span><span>Step {stepNumber}</span></p>
             {current.caution && <p data-testid="caution-banner" className="type-body mt-4 flex items-start gap-3 rounded-panel bg-blush p-4 text-caution"><svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17.5v.01" /></svg><span><strong>Careful:</strong> {current.caution.replace(/^careful:\s*/i, "")}</span></p>}
             {current.status === "unsure" && <p className="type-body mt-4 rounded-panel bg-sun p-4">I think it is this one. Check before you tap.</p>}
             <p data-testid="step-instruction" className="type-instruction mt-4">{current.instruction}</p>
             {current.type_text && <p className="type-body mt-3">Type: {current.type_text}</p>}
-            <button data-testid="read-aloud" onClick={readAloud} className={`${BTN_SECONDARY} mt-6 w-full`}>Read it to me</button>
+            {current.status !== "done" && current.status !== "refuse" && <button data-testid="next-btn" onClick={() => nextWith("done")} className={`${BTN_PRIMARY} mt-4 w-full`}>I did it, next</button>}
+          </div>
+          <div className="mt-6 md:col-start-2 md:mt-4 md:px-6">
+            <button data-testid="read-aloud" onClick={readAloud} className={`${BTN_SECONDARY} w-full`}>Read it to me</button>
             {current.status !== "done" && current.status !== "refuse" && (<>
-              <button data-testid="next-btn" onClick={() => nextWith("done")} className={`${BTN_PRIMARY} mt-3 w-full`}>I did it, next</button>
               <button data-testid="failed-btn" onClick={() => nextWith("failed")} className={`${BTN_SECONDARY} mt-3 w-full`}>That didn&apos;t work</button>
               <label className={`${BTN_SECONDARY} mt-3 flex w-full cursor-pointer items-center justify-center focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter`}>Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
             </>)}

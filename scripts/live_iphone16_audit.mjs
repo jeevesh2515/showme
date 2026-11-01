@@ -61,7 +61,7 @@ function probe() {
     if (ratio < 4.5) low.push({ text: el.textContent.trim().slice(0, 40), ratio: +ratio.toFixed(2), fg: s.color, bg: bgOf(el) });
   }
   return {
-    overflowX: document.documentElement.scrollWidth - window.innerWidth,
+    overflowX: document.documentElement.scrollWidth - screen.width, // mobile layout viewport grows to fit overflow; device width does not
     smallTargets: small,
     minContrast: +min.toFixed(2),
     lowContrast: low,
@@ -109,7 +109,9 @@ try {
   const hero = await page.locator("main h1").boundingBox();
   check("A", "hero headline above the fold", !!hero && hero.y + hero.height < 852, `h1 bottom ${hero && Math.round(hero.y + hero.height)}px`);
   const ringBox = await page.locator(".hero-ring").boundingBox();
-  check("A", "hero demo ring visible in first 2 screens", !!ringBox && ringBox.y < 852 * 2, `ring top ${ringBox && Math.round(ringBox.y)}px`);
+  const demoBox = await page.getByRole("group", { name: /Example: ShowMe highlighting/ }).boundingBox();
+  check("A", "hero demo card starts above 550 px", !!demoBox && demoBox.y < 550, `demo top ${demoBox && Math.round(demoBox.y)}px`);
+  check("A", "hero ring drawn on the first screen", !!ringBox && ringBox.y + ringBox.height < 852, `ring bottom ${ringBox && Math.round(ringBox.y + ringBox.height)}px`);
   for (const id of ["how", "privacy", "accuracy", "families", "companies", "models"]) {
     const y = await page.locator(`#${id}`).evaluate((e) => e.getBoundingClientRect().top + window.scrollY - 80);
     await smoothScroll(page, y);
@@ -162,6 +164,8 @@ try {
   report.steps.C = C;
   const choose = await page.getByText("Choose a picture").boundingBox();
   check("C", "'Choose a picture' visible without scrolling", !!choose && choose.y + choose.height < 852, `bottom ${choose && Math.round(choose.y + choose.height)}px`);
+  const sample = await page.getByTestId("sample-demo-btn").boundingBox();
+  check("C", "'Try with an example' button on the first screen", !!sample && sample.y + sample.height < 852, `bottom ${sample && Math.round(sample.y + sample.height)}px`);
   check("C", "touch targets >= 44 px", C.smallTargets.filter((t) => !t.inline).length === 0, JSON.stringify(C.smallTargets));
   await page.getByTestId("goal-input").tap();
   await page.getByTestId("goal-input").pressSequentially("cancel my subscription", { delay: 60 });
@@ -225,7 +229,7 @@ try {
   await page.getByTestId("zoom-in").tap();
   await page.getByTestId("zoom-in").tap();
   await shot(page, "D4-zoom-150");
-  const zoomOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  const zoomOverflow = await page.evaluate(() => document.documentElement.scrollWidth - screen.width);
   check("D", "zoom stays inside its scroll box (no page overflow)", zoomOverflow <= 0, `page overflow ${zoomOverflow}px`);
   await page.getByTestId("zoom-out").tap();
   await page.getByTestId("zoom-out").tap();
@@ -253,6 +257,10 @@ try {
   const nextBox = await page.getByTestId("next-btn").boundingBox();
   report.steps.E.layout = { imageBottom: svgBox && Math.round(svgBox.y + svgBox.height), nextTop: nextBox && Math.round(nextBox.y) };
   check("E", "'I did it, next' visible with the ring (no scroll)", !!nextBox && nextBox.y + nextBox.height < 852, `next top ${nextBox && Math.round(nextBox.y)}px`);
+  await page.mouse.wheel(0, -3000);
+  await page.waitForTimeout(500);
+  const docked = await page.getByTestId("next-btn").boundingBox();
+  check("E", "step card docked: 'I did it, next' stays on screen when scrolled to top", !!docked && docked.y + docked.height <= 852, `next bottom ${docked && Math.round(docked.y + docked.height)}px`);
   check("E", "touch targets >= 44 px", E.smallTargets.filter((t) => !t.inline).length === 0, JSON.stringify(E.smallTargets));
   await page.getByTestId("next-btn").scrollIntoViewIfNeeded();
   await shot(page, "E3-step-card");

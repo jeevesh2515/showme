@@ -3,11 +3,11 @@
 export default function BillingDemo() {
   return (
     <div className="rounded-panel bg-sun p-6 sm:p-10" role="group" aria-label="Example: ShowMe highlighting Cancel subscription on a made-up billing screen">
-      <p className="type-small font-bold">Example billing screen (made-up data)</p>
+      <p className="type-small font-bold">Made-up billing screen</p>
       <div className="mt-4 rounded-control border border-ink bg-paper p-6">
         <p className="type-body font-bold">Your plan</p>
         <p className="type-small mt-2">Example Stream Co, £9.99 a month</p>
-        <p className="type-small">Card ending 0000 · renews 12 November</p>
+        <p className="type-small">Card ending 0000, renews 12 November</p>
         <div className="relative mt-8 inline-block">
           <span className="type-body inline-flex min-h-12 items-center rounded-control bg-ink px-5 py-2 font-bold text-paper">Cancel subscription</span>
           <svg className="pointer-events-none absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)]" viewBox="0 0 270 64" preserveAspectRatio="none" aria-hidden="true">

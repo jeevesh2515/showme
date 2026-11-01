@@ -184,3 +184,39 @@ test("A11Y-1 200% zoom: goal input visible, no horizontal overflow", async ({ pa
   }));
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
 });
+
+test.describe("phone layout (393 x 852)", () => {
+  test.use({ viewport: { width: 393, height: 852 }, hasTouch: true, isMobile: true });
+
+  for (const path of ["/", "/app", "/eval"]) {
+    test(`A11Y-1 150% text on a phone does not overflow ${path}`, async ({ page }) => {
+      await page.goto(path);
+      await page.getByTestId("text-size-150").click();
+      // In mobile emulation the layout viewport grows to fit overflow, so compare with the device width.
+      const width = await page.evaluate(() => document.documentElement.scrollWidth);
+      expect(width).toBeLessThanOrEqual(393);
+    });
+  }
+
+  test("WEB-1 hero demo starts above 550 px on a phone", async ({ page }) => {
+    await page.goto("/");
+    const demo = await page.getByRole("group", { name: /Example: ShowMe highlighting/ }).boundingBox();
+    expect(demo?.y ?? 9999).toBeLessThan(550);
+  });
+
+  test("FLOW-4 step card is docked: ring and 'I did it, next' visible together", async ({ page }) => {
+    test.setTimeout(90_000);
+    // A phone screenshot is tall: render one so the card would fall below the fold if it were not docked.
+    await page.setContent('<div style="height:2400px;background:linear-gradient(#fff,#9ab)"></div>');
+    const tall = await page.screenshot({ fullPage: true });
+    await mockApi(page);
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill("cancel my subscription");
+    await page.getByTestId("file-input").setInputFiles({ name: "tall.png", mimeType: "image/png", buffer: tall });
+    await continueToStep(page);
+    await expect(page.getByTestId("step-badge")).toBeInViewport();
+    await expect(page.getByTestId("next-btn")).toBeInViewport();
+    await page.mouse.wheel(0, -2000);
+    await expect(page.getByTestId("next-btn")).toBeInViewport();
+  });
+});

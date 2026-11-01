@@ -24,21 +24,20 @@ function Metric({ pct, label, children }: { pct: number; label: string; children
 export default function Home() {
   return (
     <main>
-      <section className={`${wrap} grid items-center gap-10 py-12 lg:grid-cols-12 lg:gap-12 lg:py-16`}>
-        <div className="lg:col-span-6">
-          <h1 className="type-display">Stuck on a screen? ShowMe points to the next tap.</h1>
-          <p className="type-body mt-6">
-            Add a screenshot, say what you want to do, and see exactly where to press.
-            Private details are hidden on your device before anything is sent.
-          </p>
-          <p className="mt-8 flex flex-wrap gap-3">
-            <Link href="/app" className={`${btn} bg-ink text-paper`}>Try it with a screenshot</Link>
-            <Link href="/eval" className={`${btn} border-2 border-ink text-ink`}>See how often it is right</Link>
-          </p>
-        </div>
-        <div className="lg:col-span-6">
+      {/* Phones: headline, buttons, then the demo so the ring draws above the fold; text last. Desktop: text left, demo right. */}
+      <section className={`${wrap} grid grid-cols-[minmax(0,1fr)] pb-12 pt-8 lg:grid-cols-12 lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-12 lg:py-16`}>
+        <h1 className="type-display lg:col-span-6 lg:row-start-2">Stuck on a screen? ShowMe points to <span className="mark">the next tap</span>.</h1>
+        <p className="mt-8 flex flex-wrap gap-3 lg:col-span-6 lg:row-start-4">
+          <Link href="/app" className={`${btn} bg-ink text-paper`}>Try it with a screenshot</Link>
+          <Link href="/eval" className={`${btn} border-2 border-ink text-ink`}>See how often it is right</Link>
+        </p>
+        <div className="mt-8 lg:col-span-6 lg:col-start-7 lg:row-span-5 lg:row-start-1 lg:mt-0 lg:self-center">
           <BillingDemo />
         </div>
+        <p className="type-body mt-8 lg:col-span-6 lg:row-start-3 lg:mt-6">
+          Add a screenshot, say what you want to do, and see exactly where to press.
+          Private details are hidden on your device before anything is sent.
+        </p>
       </section>
 
       <section className={`${wrap} py-16 md:py-24`} aria-labelledby="how">

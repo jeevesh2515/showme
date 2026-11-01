@@ -89,6 +89,27 @@
   .hero-ring { animation: none; stroke-dashoffset: 0; }
 }
 
+/* Highlighter stroke behind headline words; it draws on just before the hero ring.
+   box-decoration-break keeps the stroke on every line when the phrase wraps. */
+.mark {
+  background: linear-gradient(var(--highlighter), var(--highlighter)) 0 88% / 100% 0.38em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
+  animation: mark-draw 500ms ease-out both;
+}
+@keyframes mark-draw {
+  from { background-size: 0 0.38em; }
+}
+
+/* Review screen: hidden blocks and the brush rectangle fade in so each change is visible. */
+.fade-in {
+  animation: fade-in 150ms ease-out;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
 /* A11Y-6: high contrast swaps mist for paper and darkens the scrim (DESIGN.md §2). */
 [data-contrast="high"] {
   --mist: #ffffff;

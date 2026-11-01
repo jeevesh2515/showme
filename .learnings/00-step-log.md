@@ -224,3 +224,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Failing FLOW-3 tests first (mouse drag, CDP touch drag, thumb tap near a thin line), then fixed brush pointer handling, nearest-line tap, lock glyphs, high-contrast borders, header row, footer/summary targets, `/eval` column order. Added `scripts/live_iphone16_audit.mjs` (headed, all API calls mocked, $0).
 - **Result / evidence:** FLOW-3 3/3 (red before the fix); Playwright 43/43; `make lint test` green (156 + 31 + 80); audit 32/32 checks, header 230 -> 117 px.
 - **Decision:** D39 (nearest-line hit test instead of overlapping 44 px pseudo-element targets).
+
+## 2026-11-01 · S31 · Judge-facing UI polish (Day 7)
+
+- **Why:** Make the first minute work for judges on a phone: one-tap example, hero ring above the fold, docked step card (DESIGN §4.4).
+- **What I did:** Failing tests first (example button, hero demo < 550 px, docked card with a tall phone screenshot), then the example button, hero reorder, sticky step sheet with ring auto-scroll, highlighter headline stroke, fade-ins. Audit gained hero, example and docked-card checks.
+- **Result / evidence:** Playwright 49/49; `make lint test` green (156 + 31 + 80); score gate 10.0/10; iPhone 16 audit 35/35 (demo top 513 px, ring bottom 832 px, docked next button bottom 643 px). Sonnet design critique found the hero overflowing at 150% text on phones (grid track grew to the demo button min-content, pre-existing); the audit missed it because mobile emulation widens the layout viewport, so the probe now compares with `screen.width` and a red-then-green e2e covers `/`, `/app`, `/eval`.
+- **Decision:** D40 (brief styling swapped for DESIGN tokens where they conflicted).

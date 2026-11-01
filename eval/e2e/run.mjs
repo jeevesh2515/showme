@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { PREDICATE_TYPES, predicateHolds } from "./predicate.mjs";
 
 const { chromium, devices } = createRequire(
   new URL("../../apps/web/package.json", import.meta.url),
@@ -11,7 +12,6 @@ const { chromium, devices } = createRequire(
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
-const PREDICATE_TYPES = new Set(["url_regex", "text_visible", "text_gone"]);
 
 // shortcut: parses only eval/e2e/tasks.yaml's flat shape (list of maps + one nested predicate map).
 // Double-quoted values get YAML's \\ unescape (predicate regexes rely on it); other escapes unsupported.
@@ -66,9 +66,11 @@ function validate(tasks) {
     if (t.start_url && !/^https?:\/\//.test(t.start_url)) problems.push(`${t.id}: start_url must be http(s)`);
     if (t.viewport && !["desktop", "mobile"].includes(t.viewport)) problems.push(`${t.id}: bad viewport`);
     if (t.max_steps !== 10) problems.push(`${t.id}: max_steps must be 10`);
-    if (!t.predicate?.type || !t.predicate?.pattern) problems.push(`${t.id}: predicate needs type and pattern`);
-    else if (!PREDICATE_TYPES.has(t.predicate.type)) problems.push(`${t.id}: bad predicate type`);
-    else {
+    const pr = t.predicate;
+    if (!pr?.type || !(pr.type === "selector" ? pr.selector : pr.pattern)) problems.push(`${t.id}: predicate needs type and pattern (selector for type selector)`);
+    else if (!PREDICATE_TYPES.has(pr.type)) problems.push(`${t.id}: bad predicate type`);
+    else if (pr.type === "cookie" && !pr.name) problems.push(`${t.id}: cookie predicate needs name`);
+    else if (pr.type !== "selector") {
       try {
         new RegExp(t.predicate.pattern);
       } catch {
@@ -116,18 +118,6 @@ const only = arg("tasks", "");
 if (only) selected = tasks.filter((t) => only.split(",").includes(t.id));
 if (arg("limit")) selected = selected.slice(0, Number(arg("limit")));
 mkdirSync(outDir, { recursive: true });
-
-async function predicateHolds(page, predicate) {
-  if (predicate.type === "url_regex") return new RegExp(predicate.pattern, "i").test(page.url());
-  let text = "";
-  try {
-    text = await page.locator("body").innerText({ timeout: 5000 });
-  } catch {
-    // shortcut: body unreadable mid-navigation counts as no text; upgrade if text_gone yields false passes.
-  }
-  const hit = new RegExp(predicate.pattern, "i").test(text);
-  return predicate.type === "text_visible" ? hit : !hit;
-}
 
 async function upload(showme, file, goal) {
   const next = showme.getByTestId("next-screenshot-input");

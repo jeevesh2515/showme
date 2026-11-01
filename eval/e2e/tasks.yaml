@@ -1,16 +1,19 @@
 # EVAL-8: 20 public tasks, no login. Predicate = the only definition of success.
 # viewport: desktop = 1280x800, mobile = iPhone 13 emulation (390x844). deviceScaleFactor is forced to 1
 # by run.mjs so screenshot pixels == CSS pixels == model point space.
-# predicate.type: url_regex (on target page URL) | text_visible | text_gone (on rendered body text, case-insensitive regex).
+# predicate.type: url_regex (on target page URL) | text_visible | text_gone (on rendered body text, case-insensitive regex)
+# | selector (CSS selector list that must match in the DOM; use when text can appear before the task is done).
 # shortcut: values are read raw by run.mjs's parser (quotes stripped, no YAML escapes), keep to this flat shape.
 tasks:
   - id: e2e-01-bbc-cookies
     goal: "Reject all cookies"
     start_url: "https://www.bbc.co.uk/"
     viewport: desktop
+    # ckns_policy=000 is set only by "Reject additional cookies"; the old text_gone check also passed on accept.
     predicate:
-      type: text_gone
-      pattern: "cookies on the bbc website"
+      type: cookie
+      name: ckns_policy
+      pattern: "^000$"
     max_steps: 10
 
   - id: e2e-02-govuk-passport
@@ -46,7 +49,7 @@ tasks:
     viewport: desktop
     predicate:
       type: url_regex
-      pattern: "111\\.nhs\\.uk|nhs\\.uk/.*111"
+      pattern: "111\\.nhs\\.uk|nhs\\.uk/[^?#]*111"
     max_steps: 10
 
   - id: e2e-06-bbc-weather-london
@@ -80,9 +83,10 @@ tasks:
     goal: "Find IKEA UK's returns policy"
     start_url: "https://www.ikea.com/gb/en/"
     viewport: desktop
+    # Returns pages only (probed 2026-11-01); the bare "returns" also matched a search URL ?q=returns.
     predicate:
       type: url_regex
-      pattern: "returns"
+      pattern: "ikea\\.com/gb/en/(customer-service/returns-claims|returns)(/|$)"
     max_steps: 10
 
   - id: e2e-10-apple-cancel-subscription
@@ -90,8 +94,8 @@ tasks:
     start_url: "https://support.apple.com/en-gb"
     viewport: mobile
     predicate:
-      type: text_visible
-      pattern: "cancel a subscription from apple"
+      type: url_regex
+      pattern: "support\\.apple\\.com/(en-gb/)?(118428|HT202039)"
     max_steps: 10
 
   - id: e2e-11-netflix-cancel
@@ -99,8 +103,8 @@ tasks:
     start_url: "https://help.netflix.com/en/"
     viewport: desktop
     predicate:
-      type: text_visible
-      pattern: "how to cancel netflix"
+      type: url_regex
+      pattern: "help\\.netflix\\.com/en/node/407"
     max_steps: 10
 
   - id: e2e-12-gmail-password
@@ -109,7 +113,7 @@ tasks:
     viewport: desktop
     predicate:
       type: url_regex
-      pattern: "answer/41078|myaccount\\.google\\.com|accounts\\.google\\.com"
+      pattern: "answer/41078|myaccount\\.google\\.com/signinoptions/password"
     max_steps: 10
 
   - id: e2e-13-wikipedia-spanish
@@ -166,15 +170,16 @@ tasks:
       pattern: "/contact-us"
     max_steps: 10
 
-  # Predicate is the spoken lyric line rendered by the caption renderer; YouTube exposes captions as DOM text.
+  # Predicate is DOM state, never page text (the video title contains the lyric): captions toggle pressed, or a
+  # rendered caption segment. Selectors cover desktop (.ytp-subtitles-button) and mobile player (.ytp-caption-segment).
   # Known-flaky: consent dialog, ads and bot checks can sit in front of the player.
   - id: e2e-19-youtube-captions
     goal: "Turn on captions for this video"
     start_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     viewport: mobile
     predicate:
-      type: text_visible
-      pattern: "never gonna give you up"
+      type: selector
+      selector: '.ytp-subtitles-button[aria-pressed="true"], .ytp-caption-segment, .caption-window .captions-text'
     max_steps: 10
 
   - id: e2e-20-nhm-opening-hours

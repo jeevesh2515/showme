@@ -102,3 +102,15 @@ def test_eval_7_results_md_generated_from_summaries(tmp_path):
     out = write_results_md(tmp_path)
     text = out.read_text()
     assert "90.0%" in text and "predictions.jsonl" in text and "screenspot-v2" in text
+
+
+def test_cli_suite_all_runs_three_suites(monkeypatch):
+    from showme_eval import cli
+
+    seen = []
+    monkeypatch.setattr(cli, "_run_suite", lambda a: seen.append(a.suite) or 0)
+    assert cli.main(["--suite", "all", "--split", "dev"]) == 0
+    assert seen == ["screenspot-v2", "screenspot-pro", "negatives"]
+    seen.clear()
+    monkeypatch.setattr(cli, "_run_suite", lambda a: seen.append(a.suite) or 2)
+    assert cli.main(["--suite", "all"]) == 2 and seen == ["screenspot-v2"]

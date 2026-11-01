@@ -28,6 +28,9 @@ DATA_ROOT = EVAL_ROOT / "data"
 RESULTS_ROOT = EVAL_ROOT / "results"
 
 
+SUITES = ["screenspot-v2", "screenspot-pro", "negatives"]
+
+
 def _settings(model: str, effort: str) -> object:
     values = {
         "api_key": os.environ.get("MODEL_API_KEY", ""),
@@ -48,7 +51,7 @@ def _parse(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="showme-eval")
     parser.add_argument(
         "--suite",
-        choices=["screenspot-v2", "screenspot-pro", "negatives"],
+        choices=[*SUITES, "all"],
         required=True,
     )
     parser.add_argument("--split", choices=["dev", "heldout"], default="heldout")
@@ -104,6 +107,17 @@ def _prompt_version() -> str:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse(argv)
+    if args.suite != "all":
+        return _run_suite(args)
+    # Sequential; shared response cache still applies per suite. Stop on first failure.
+    for suite in SUITES:
+        rc = _run_suite(argparse.Namespace(**{**vars(args), "suite": suite}))
+        if rc:
+            return rc
+    return 0
+
+
+def _run_suite(args: argparse.Namespace) -> int:
     if args.headline and args.split == "dev":
         print(
             "EVAL-9: a dev-split run cannot be headline; nothing was run",

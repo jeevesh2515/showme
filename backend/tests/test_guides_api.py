@@ -197,6 +197,55 @@ def test_priv_5_failed_create_leaves_no_orphan_images() -> None:
     assert store._images == {}
 
 
+def _step_body(image: str, n: int = 1) -> dict:  # type: ignore[type-arg]
+    return {
+        "n": n,
+        "instruction": "Tap",
+        "image": image,
+        "target": None,
+        "svg_path": None,
+        "svg_origin": None,
+        "width": 8,
+        "height": 8,
+    }
+
+
+def test_priv_5_orphaned_images_purged_when_create_and_cleanup_both_fail() -> None:
+    client = TestClient(create_app(ApiSettings(cron_secret="s3cret", guide_ttl_days=-1)), raise_server_exceptions=False)
+    store = client.app.state.guide_store  # type: ignore[attr-defined]
+    real_put_image = store.put_image
+
+    async def _flaky_put_image(path: str, data: bytes, content_type: str) -> None:
+        if path.endswith("/2.png"):
+            raise RuntimeError("storage down")
+        await real_put_image(path, data, content_type)
+
+    async def _fail_delete(path: str) -> None:
+        raise RuntimeError("storage down")
+
+    store.put_image = _flaky_put_image  # type: ignore[method-assign]
+    real_delete_image = store.delete_image
+    store.delete_image = _fail_delete  # type: ignore[method-assign]
+    res = client.post(
+        "/v1/guides", json={"goal": "x", "consent": True, "steps": [_step_body(_img(), 1), _step_body(_img(), 2)]}
+    )
+    assert res.status_code == 500
+    assert len(store._images) == 1  # orphan survived the failed cleanup
+    store.delete_image = real_delete_image  # type: ignore[method-assign]
+    assert client.post("/internal/purge", headers={"X-Cron-Secret": "s3cret"}).json()["purged_guides"] == 1
+    assert store._images == {}
+
+
+def test_api_6_aggregate_payload_cap_returns_413_before_quota(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("showme.api.main.MAX_GUIDE_PAYLOAD_CHARS", 100)
+    client = _client(rate_guides_per_day=1)
+    res = client.post("/v1/guides", json={"goal": "x", "consent": True, "steps": [_step_body(_img())]})
+    assert res.status_code == 413
+    assert res.json()["error"]["code"] == "payload_too_large"
+    monkeypatch.undo()
+    _create(client)  # quota untouched by the rejected request
+
+
 def test_api_6_production_requires_supabase_settings(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     monkeypatch.setenv("VERCEL_ENV", "production")
     import pytest

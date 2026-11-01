@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import pytest
@@ -8,6 +8,7 @@ import respx
 
 from showme.api.ratelimit import (
     InMemoryCounterStore,
+    InMemorySpendCap,
     SupabaseCounterStore,
     SupabaseRateLimiter,
     SupabaseSpendCap,
@@ -57,14 +58,15 @@ def test_api_6_supabase_spend_cap_reserve_reconcile() -> None:
     async def run() -> None:
         counter = FakeCounterStore()
         cap = SupabaseSpendCap(counter)
-        day = f"spend:{date.today().isoformat()}"
+        day = f"spend:{datetime.now(UTC).date().isoformat()}"
 
-        assert await cap.reserve(0.01, daily_cap_usd=0.02, total_cap_usd=1.0)
-        assert not await cap.reserve(0.02, daily_cap_usd=0.02, total_cap_usd=1.0)  # over daily cap
+        day_key = await cap.reserve(0.01, daily_cap_usd=0.02, total_cap_usd=1.0)
+        assert day_key
+        assert await cap.reserve(0.02, daily_cap_usd=0.02, total_cap_usd=1.0) is None  # over daily cap
         assert (await counter.get(day))[1] == pytest.approx(1.0, abs=1e-9)  # rollback
         assert await cap.check(0.02, 1.0)
 
-        await cap.reconcile(reserved_usd=0.01, actual_cost_usd=0.004)
+        await cap.reconcile(0.01, 0.004, day_key)
         assert (await counter.get(day))[1] == pytest.approx(0.4, abs=1e-9)
         await cap.record(0.001)
         assert (await counter.get("spend:total"))[1] == pytest.approx(0.5, abs=1e-9)
@@ -121,3 +123,35 @@ def test_api_6_supabase_rate_limiter_uses_utc_expiry() -> None:
         assert expires_at is not None and expires_at.tzinfo is not None
 
     asyncio.run(run())
+
+
+@pytest.fixture
+def clock(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
+    state = {"day": "2026-11-01"}
+    monkeypatch.setattr("showme.api.ratelimit._utc_day", lambda: state["day"])
+    return state
+
+
+def test_api_6_spend_reconcile_after_midnight_adjusts_reservation_day(clock: dict[str, str]) -> None:
+    async def run() -> None:
+        counter = FakeCounterStore()
+        cap = SupabaseSpendCap(counter)
+        day_key = await cap.reserve(0.01, daily_cap_usd=1.0, total_cap_usd=1.0)
+        assert day_key
+        clock["day"] = "2026-11-02"  # midnight passes while the call is in flight
+        await cap.reconcile(0.01, 0.004, day_key)
+        assert (await counter.get("spend:2026-11-01"))[1] == pytest.approx(0.4, abs=1e-9)
+        assert (await counter.get("spend:2026-11-02"))[1] == 0
+        assert (await counter.get("spend:total"))[1] == pytest.approx(0.4, abs=1e-9)
+
+    asyncio.run(run())
+
+
+def test_api_6_in_memory_spend_reconcile_after_midnight(clock: dict[str, str]) -> None:
+    cap = InMemorySpendCap()
+    day_key = cap.reserve(0.01, 1.0, 1.0)
+    assert day_key == "2026-11-01"
+    clock["day"] = "2026-11-02"
+    cap.reconcile(0.01, 0.004, day_key)
+    assert cap._day_total == 0 and cap._reserved_day == 0
+    assert cap._total == pytest.approx(0.004) and cap._reserved_total == 0

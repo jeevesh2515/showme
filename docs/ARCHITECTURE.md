@@ -150,7 +150,7 @@ Response 200:
 
 `status` ∈ `ok | unsure | not_visible | done | refuse`. When `status` ≠ `ok`/`unsure`, `target` is `null`. Coordinates are pixels of the uploaded image.
 
-Errors: 400 `invalid_image`, 413 `image_too_large`, 422 validation, 429 `rate_limited` (with `retry_after_s`), 503 `spend_cap_reached`, 502 `model_error` (after retries), 504 `model_timeout`.
+Errors: 400 `invalid_image`, 413 `image_too_large`, 413 `payload_too_large` (share body over 4,000,000 base64 chars in total, D46), 422 validation, 429 `rate_limited` (with `retry_after_s`), 503 `spend_cap_reached`, 502 `model_error` (after retries), 504 `model_timeout`.
 
 ### `POST /v1/refine`
 

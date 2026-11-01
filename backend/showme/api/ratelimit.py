@@ -1,10 +1,14 @@
 import hashlib
 import math
 import time
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
 import httpx
+
+
+def _utc_day() -> str:
+    return datetime.now(UTC).date().isoformat()
 
 
 def hash_key(ip: str, salt: str = "") -> str:
@@ -36,14 +40,14 @@ class InMemoryRateLimiter:
 
 class InMemorySpendCap:
     def __init__(self) -> None:
-        self._day = date.today()
+        self._day = _utc_day()
         self._day_total = 0.0
         self._total = 0.0
         self._reserved_day = 0.0
         self._reserved_total = 0.0
 
     def _rollover(self) -> None:
-        today = date.today()
+        today = _utc_day()
         if today != self._day:
             self._day = today
             self._day_total = 0.0
@@ -55,23 +59,25 @@ class InMemorySpendCap:
             self._total + self._reserved_total
         ) < total_cap_usd
 
-    def reserve(self, amount_usd: float, daily_cap_usd: float, total_cap_usd: float) -> bool:
-        """Atomically reserve a conservative budget for an in-flight request (review 2026-10-29 #2)."""
+    def reserve(self, amount_usd: float, daily_cap_usd: float, total_cap_usd: float) -> str | None:
+        """Atomically reserve a conservative budget for an in-flight request (review 2026-10-29 #2).
+        Returns the reservation's UTC day (pass it to reconcile) or None when over a cap."""
         self._rollover()
         if (self._day_total + self._reserved_day + amount_usd) > daily_cap_usd or (
             self._total + self._reserved_total + amount_usd
         ) > total_cap_usd:
-            return False
+            return None
         self._reserved_day += amount_usd
         self._reserved_total += amount_usd
-        return True
+        return self._day
 
-    def reconcile(self, reserved_usd: float, actual_cost_usd: float) -> None:
-        """Release reservation and record actual cost incurred."""
+    def reconcile(self, reserved_usd: float, actual_cost_usd: float, day: str) -> None:
+        """Release reservation and record actual cost incurred; the daily part only if `day` is still today."""
         self._rollover()
-        self._reserved_day = max(0.0, self._reserved_day - reserved_usd)
+        if day == self._day:
+            self._reserved_day = max(0.0, self._reserved_day - reserved_usd)
+            self._day_total += actual_cost_usd
         self._reserved_total = max(0.0, self._reserved_total - reserved_usd)
-        self._day_total += actual_cost_usd
         self._total += actual_cost_usd
 
     def record(self, cost_usd: float) -> None:
@@ -183,37 +189,33 @@ class SupabaseSpendCap:
     def __init__(self, counter: CounterStore) -> None:
         self._counter = counter
 
-    @staticmethod
-    def _buckets() -> tuple[str, str]:
-        return f"spend:{date.today().isoformat()}", "spend:total"
-
     async def check(self, daily_cap_usd: float, total_cap_usd: float) -> bool:
-        day_bucket, total_bucket = self._buckets()
+        day_bucket, total_bucket = f"spend:{_utc_day()}", "spend:total"
         _, day_cents = await self._counter.get(day_bucket)
         _, total_cents = await self._counter.get(total_bucket)
         return day_cents < daily_cap_usd * 100 and total_cents < total_cap_usd * 100
 
-    async def _incr(self, cents: float) -> tuple[float, float]:
+    async def _incr(self, cents: float, day: str) -> tuple[float, float]:
         # Daily bucket may be purged after 48 h (ARCH §8); the total cap bucket must outlive the demo.
-        day_bucket, total_bucket = self._buckets()
         now = datetime.now(UTC)
-        _, day_cents = await self._counter.incr(day_bucket, 0, cents, now + timedelta(hours=48))
-        _, total_cents = await self._counter.incr(total_bucket, 0, cents, now + timedelta(days=3650))
+        _, day_cents = await self._counter.incr(f"spend:{day}", 0, cents, now + timedelta(hours=48))
+        _, total_cents = await self._counter.incr("spend:total", 0, cents, now + timedelta(days=3650))
         return day_cents, total_cents
 
-    async def reserve(self, amount_usd: float, daily_cap_usd: float, total_cap_usd: float) -> bool:
-        cents = amount_usd * 100
-        day_cents, total_cents = await self._incr(cents)
+    async def reserve(self, amount_usd: float, daily_cap_usd: float, total_cap_usd: float) -> str | None:
+        """Returns the reservation's UTC day (pass it to reconcile) or None when over a cap."""
+        cents, day = amount_usd * 100, _utc_day()
+        day_cents, total_cents = await self._incr(cents, day)
         if day_cents > daily_cap_usd * 100 or total_cents > total_cap_usd * 100:
-            await self._incr(-cents)
-            return False
-        return True
+            await self._incr(-cents, day)
+            return None
+        return day
 
-    async def reconcile(self, reserved_usd: float, actual_cost_usd: float) -> None:
+    async def reconcile(self, reserved_usd: float, actual_cost_usd: float, day: str) -> None:
         delta = (actual_cost_usd - reserved_usd) * 100
         if delta:
-            await self._incr(delta)
+            await self._incr(delta, day)
 
     async def record(self, cost_usd: float) -> None:
         if cost_usd:
-            await self._incr(cost_usd * 100)
+            await self._incr(cost_usd * 100, _utc_day())

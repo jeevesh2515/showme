@@ -256,6 +256,8 @@ export type GuideStepInput = {
   svgOrigin: PointPx | null;
 };
 
+export const MAX_GUIDE_PAYLOAD_CHARS = 4_000_000;
+
 /** PRIV-5: only redacted trail images (from redact()) can be shared, and only with consent. */
 export async function createGuide(
   goal: string,
@@ -263,6 +265,10 @@ export async function createGuide(
   consent: boolean,
   opts: RequestOptions = {},
 ): Promise<CreateGuideResponse> {
+  // Mirrors backend MAX_GUIDE_PAYLOAD_CHARS: fail before uploading anything the host would reject (~4.5 MB body cap).
+  if (steps.reduce((n, s) => n + s.image.dataUrl.length, 0) > MAX_GUIDE_PAYLOAD_CHARS) {
+    throw new ApiClientError("payload_too_large", "These screenshots are too large to share together. Share fewer steps.");
+  }
   const payload: CreateGuideRequest = {
     goal,
     consent,

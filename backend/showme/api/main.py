@@ -62,6 +62,7 @@ logging.getLogger("uvicorn.access").disabled = True
 
 _DATA_URL = re.compile(r"^data:image/(?:jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$")
 MAX_IMAGE_BYTES = 3 * 1024 * 1024
+MAX_GUIDE_PAYLOAD_CHARS = 4_000_000  # base64 chars across all steps; hosting caps request bodies at ~4.5 MB
 MAX_SIDE_PX = 2560  # D20 cap; ARCH §4
 
 
@@ -207,9 +208,10 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         await _enforce_rate_limit(request)
         # Reserve the worst-case cost (max generations x bounded tokens) so the cap holds before spend, not after.
         reserve_usd = max_step_cost(cfg.to_core_settings(escalate=req.escalate).model)
-        if not await _maybe_await(
+        reserved_day = await _maybe_await(
             request.app.state.spend.reserve(reserve_usd, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
-        ):
+        )
+        if not reserved_day:
             raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
         reserved = reserve_usd
@@ -256,15 +258,16 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 cost_usd=round(actual_cost, 6),
             )
         finally:
-            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost))
+            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost, reserved_day))
 
     @app.post("/v1/refine", response_model=RefineResponse)
     async def refine_step(req: RefineRequest, request: Request) -> RefineResponse:
         # API-6 counts steps, not refinements: one user step = /v1/step + /v1/refine would otherwise
         # halve the 30/hour quota (measured in the 2026-10-31 E2E run). SAM cost stays gated by the spend reserve.
-        if not await _maybe_await(
+        reserved_day = await _maybe_await(
             request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
-        ):
+        )
+        if not reserved_day:
             raise ApiError(503, "spend_cap_reached", "ShowMe has reached its demo spending limit. Try again tomorrow.")
 
         reserved = RESERVE_REFINE_USD
@@ -289,7 +292,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 cost_usd=round(actual_cost, 6),
             )
         finally:
-            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost))
+            await _maybe_await(request.app.state.spend.reconcile(reserved, actual_cost, reserved_day))
 
     @app.post("/v1/guides", response_model=CreateGuideResponse)
     async def create_guide(req: CreateGuideRequest, request: Request) -> CreateGuideResponse:
@@ -297,6 +300,10 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         if not req.consent:
             raise ApiError(
                 400, "consent_required", "Sharing needs your consent. Tick the consent box to create a link."
+            )
+        if sum(len(st.image) for st in req.steps) > MAX_GUIDE_PAYLOAD_CHARS:
+            raise ApiError(
+                413, "payload_too_large", "These screenshots are too large to share together. Share fewer steps."
             )
         # API-6: charge the 5/day guide quota before any image decode work (2026-10-31 review H5).
         now = datetime.now(UTC)
@@ -317,41 +324,45 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         guide_id = str(uuid.uuid4())  # guides.id is a Postgres uuid
         expires_at = now + timedelta(days=cfg.guide_ttl_days)
         stored_steps: list[dict[str, Any]] = []
-        uploaded: list[str] = []
-        try:
-            for step_in, (data, mime) in zip(req.steps, decoded, strict=True):
-                ext = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}.get(mime, "jpg")
-                path = f"{guide_id}/{step_in.n}.{ext}"
-                await request.app.state.guide_store.put_image(path, data, mime)
-                uploaded.append(path)
-                stored_steps.append(
-                    {
-                        "n": step_in.n,
-                        "instruction": mask_pii(step_in.instruction),
-                        "target": step_in.target.model_dump() if step_in.target else None,
-                        "svg_path": step_in.svg_path,
-                        "svg_origin": step_in.svg_origin.model_dump() if step_in.svg_origin else None,
-                        "width": step_in.width,
-                        "height": step_in.height,
-                        "image_path": path,
-                    }
-                )
-            await request.app.state.guide_store.put(
-                GuideRecord(
-                    id=guide_id,
-                    token_hash=hash_secret(token),
-                    delete_key_hash=hash_secret(delete_key),
-                    goal=mask_pii(req.goal),
-                    steps=stored_steps,
-                    created_at=now,
-                    expires_at=expires_at,
-                )
+        uploads: list[tuple[str, bytes, str]] = []
+        for step_in, (data, mime) in zip(req.steps, decoded, strict=True):
+            ext = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}.get(mime, "jpg")
+            path = f"{guide_id}/{step_in.n}.{ext}"
+            uploads.append((path, data, mime))
+            stored_steps.append(
+                {
+                    "n": step_in.n,
+                    "instruction": mask_pii(step_in.instruction),
+                    "target": step_in.target.model_dump() if step_in.target else None,
+                    "svg_path": step_in.svg_path,
+                    "svg_origin": step_in.svg_origin.model_dump() if step_in.svg_origin else None,
+                    "width": step_in.width,
+                    "height": step_in.height,
+                    "image_path": path,
+                }
             )
+        store = request.app.state.guide_store
+        # Row first: any object uploaded below is then covered by purge_expired even if cleanup fails (P1).
+        # The token is only returned on success, so a half-created guide is unreachable until it expires.
+        record = GuideRecord(
+            id=guide_id,
+            token_hash=hash_secret(token),
+            delete_key_hash=hash_secret(delete_key),
+            goal=mask_pii(req.goal),
+            steps=stored_steps,
+            created_at=now,
+            expires_at=expires_at,
+        )
+        await store.put(record)
+        try:
+            for path, data, mime in uploads:
+                await store.put_image(path, data, mime)
         except Exception:
-            # No row will reference these objects; delete them so a failed create leaves no orphans (review H4).
-            for path in uploaded:
-                with contextlib.suppress(Exception):
-                    await request.app.state.guide_store.delete_image(path)
+            # Best effort: if either cleanup fails, purge_expired retries via the row.
+            with contextlib.suppress(Exception):
+                for path, _, _ in uploads:
+                    await store.delete_image(path)
+                await store.remove(record.token_hash)
             raise
         base = (cfg.public_base_url or str(request.base_url)).rstrip("/")
         return CreateGuideResponse(url=f"{base}/g/{token}", delete_key=delete_key, expires_at=expires_at.isoformat())

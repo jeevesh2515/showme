@@ -238,3 +238,17 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Failing phone test first (header ≤ 72 px, spoken names, no "%"), then three "A" glyph buttons plus a contrast icon per DESIGN §4.1.
 - **Result / evidence:** Phone header 117 -> 65 px (one row), 150% wraps to two rows with no overflow; Playwright 50/50, `make lint test` green, score gate 10.0/10, iPhone 16 audit 35/35.
 - **Decision:** D41.
+
+## 2026-11-01 · S33 · Review audit fixes, mobile viewport tuning and honest reporting
+
+- **Why:** Address findings from `docs/REVIEW-2026-11-01.md`: review score was 7.2/10, aiming for 8.5+; resolve persona mismatch, iPhone 16 Safari visible height constraint (659 px), and evidence integrity.
+- **What I did:**
+  1. Repositioned product narrative from Ken (who struggled with the multi-step loop) to Priya the remote helper.
+  2. Added early guide sharing directly on Step 1 (`data-testid="share-early-btn"`).
+  3. Unbundled honesty metrics into 62.4% absent-target (131/210) and 100% safety refusals (12/12).
+  4. Marked SAM highlight quality in `highlight_ratings.csv` as "not run" pending founder audit per RULES §2.
+  5. Corrected calibration AUROC to 0.6225; fixed 7 non-existent test file citations in `REQUIREMENTS_STATUS.md`.
+  6. Tuned iPhone 16 review toolbar to `px-2 sm:px-5` so all 4 buttons fit on a single row (y = 167 px) with single-line responsive headings, bringing "Looks private. Continue" to 522 px (bottom 576 px < 659 px viewport) with unclipped natural image bounds.
+  7. Fixed share rate-limit error copy to use backend message (`err.message`) and narrowed demo target to isolate "Cancel subscription" from "Update payment method".
+- **Result / evidence:** `make lint test` clean (156 backend + 31 eval + 80 web); Playwright 52/52 passing (including axe); score gate 10.0/10; iPhone 16 audit 35/35 passing.
+- **Decision:** D42–D46.

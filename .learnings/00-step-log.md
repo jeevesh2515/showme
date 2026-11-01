@@ -231,3 +231,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Failing tests first (example button, hero demo < 550 px, docked card with a tall phone screenshot), then the example button, hero reorder, sticky step sheet with ring auto-scroll, highlighter headline stroke, fade-ins. Audit gained hero, example and docked-card checks.
 - **Result / evidence:** Playwright 49/49; `make lint test` green (156 + 31 + 80); score gate 10.0/10; iPhone 16 audit 35/35 (demo top 513 px, ring bottom 832 px, docked next button bottom 643 px). Sonnet design critique found the hero overflowing at 150% text on phones (grid track grew to the demo button min-content, pre-existing); the audit missed it because mobile emulation widens the layout viewport, so the probe now compares with `screen.width` and a red-then-green e2e covers `/`, `/app`, `/eval`.
 - **Decision:** D40 (brief styling swapped for DESIGN tokens where they conflicted).
+
+## 2026-11-01 · S32 · Compact header without percentages
+
+- **Why:** Founder asked to drop the "%" labels and make the header responsive.
+- **What I did:** Failing phone test first (header ≤ 72 px, spoken names, no "%"), then three "A" glyph buttons plus a contrast icon per DESIGN §4.1.
+- **Result / evidence:** Phone header 117 -> 65 px (one row), 150% wraps to two rows with no overflow; Playwright 50/50, `make lint test` green, score gate 10.0/10, iPhone 16 audit 35/35.
+- **Decision:** D41.

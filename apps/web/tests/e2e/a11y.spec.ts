@@ -198,6 +198,17 @@ test.describe("phone layout (393 x 852)", () => {
     });
   }
 
+  test("A11Y-1 header fits one row on a phone and every control keeps a spoken name", async ({ page }) => {
+    await page.goto("/");
+    const header = await page.locator("header").boundingBox();
+    expect(header?.height ?? 999).toBeLessThanOrEqual(72);
+    await expect(page.getByRole("button", { name: "High contrast" })).toBeVisible();
+    for (const name of ["Normal", "Large", "Largest"]) {
+      await expect(page.getByRole("group", { name: "Text size" }).getByRole("button", { name, exact: true })).toBeVisible();
+    }
+    await expect(page.locator("header")).not.toContainText("%");
+  });
+
   test("WEB-1 hero demo starts above 550 px on a phone", async ({ page }) => {
     await page.goto("/");
     const demo = await page.getByRole("group", { name: /Example: ShowMe highlighting/ }).boundingBox();

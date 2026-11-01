@@ -42,9 +42,10 @@ eval:
 	uv run --project eval python -m showme_eval --suite $(SUITE) --split $(SPLIT) --n $(N) --model $(MODEL) --effort $(EFFORT) --sam $(SAM) --max-side $(MAXSIDE)
 
 e2e:
-	node eval/e2e/run.mjs --limit $(E2E_LIMIT)
+	node eval/e2e/run.mjs --limit $(E2E_LIMIT) --budget-usd $(E2E_BUDGET_USD)
 
 E2E_LIMIT ?= 10
+E2E_BUDGET_USD ?= 3
 
 sim:
 	pnpm --filter web exec playwright open --device="iPhone 16" http://localhost:3000

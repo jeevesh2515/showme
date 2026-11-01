@@ -24,19 +24,19 @@ function Metric({ pct, label, children }: { pct: number; label: string; children
 export default function Home() {
   return (
     <main>
-      {/* Phones: headline, buttons, then the demo so the ring draws above the fold; text last. Desktop: text left, demo right. */}
-      <section className={`${wrap} grid grid-cols-[minmax(0,1fr)] pb-12 pt-8 lg:grid-cols-12 lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-12 lg:py-16`}>
+      {/* Phones: headline, demo so the ring draws above the 659px fold (DESIGN §6), text, then buttons. Desktop: text left, demo right. */}
+      <section className={`${wrap} grid grid-cols-[minmax(0,1fr)] pb-12 pt-6 lg:grid-cols-12 lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-12 lg:py-16`}>
         <h1 className="type-display lg:col-span-6 lg:row-start-2">Stuck on a screen? ShowMe points to <span className="mark">the next tap</span>.</h1>
-        <p className="mt-8 flex flex-wrap gap-3 lg:col-span-6 lg:row-start-4">
-          <Link href="/app" className={`${btn} bg-ink text-paper`}>Try it with a screenshot</Link>
-          <Link href="/eval" className={`${btn} border-2 border-ink text-ink`}>See how often it is right</Link>
-        </p>
-        <div className="mt-8 lg:col-span-6 lg:col-start-7 lg:row-span-5 lg:row-start-1 lg:mt-0 lg:self-center">
+        <div className="mt-6 lg:col-span-6 lg:col-start-7 lg:row-span-5 lg:row-start-1 lg:mt-0 lg:self-center">
           <BillingDemo />
         </div>
-        <p className="type-body mt-8 lg:col-span-6 lg:row-start-3 lg:mt-6">
+        <p className="type-body mt-6 lg:col-span-6 lg:row-start-3">
           Got a screenshot from someone you help? Turn it into a step-by-step guide they can follow.
           Private details are hidden on your device before anything is sent.
+        </p>
+        <p className="mt-6 flex flex-wrap gap-3 lg:col-span-6 lg:row-start-4">
+          <Link href="/app" className={`${btn} bg-ink text-paper`}>Try it with a screenshot</Link>
+          <Link href="/eval" className={`${btn} border-2 border-ink text-ink`}>See how often it is right</Link>
         </p>
       </section>
 

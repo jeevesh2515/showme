@@ -38,6 +38,8 @@ Visual grounding and UI overlays are active areas (e.g. Microsoft Copilot Vision
 | **Shareable Expiring Guides** | **Yes** (7-day self-destructing links for remote relatives) | No (live session only) | No (live session only) | No (enterprise license only) |
 | **Radical Transparency & Error Reporting** | **Yes** (reports `not_visible` and refusals; all benchmark & failure logs public) | No (uncalibrated confidence, opaque failures) | No (opaque conversational steering) | N/A (rule-based DOM selectors) |
 
+*Sources: Copilot Vision Highlights announced for Windows 11 US ([Microsoft Windows Experience Blog, June 2025](https://blogs.windows.com/windowsexperience/2025/06/12/copilot-vision-on-windows-with-highlights-now-available-in-us/)); Gemini Live camera overlays ([TechBriefly, August 2025](https://techbriefly.com/2025/08/21/google-gemini-live-adds-visual-overlays-and-a-new-audio-model/)). "One minute vs 20-minute phone call" represents our estimated product UX goal.*
+
 ---
 
 ## 3. Architecture
@@ -113,7 +115,7 @@ Every figure below is generated directly from output logs in `eval/results/` and
 | **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v1 | 210 | **62.4%** | Correctly stated `not_visible` (131 / 210) |
 | **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v1 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
 | **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v2 | 20 | **70.0% (14/20)** | Full multi-step task completion (avg 3.7 steps) |
-| **SAM Highlight Audit** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **83.0% good** | Human audit of 74 E2E steps (44 good, 2 partial, 7 wrong; 9 model boxes all good) |
+| **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (pending founder rating) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
 
 *Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-01-e2e-final/report.md`](eval/results/2026-11-01-e2e-final/report.md).*
 
@@ -130,6 +132,7 @@ In keeping with our transparency principles:
 4. **Dense Desktop Interfaces**: Accuracy drops to 63.7% on high-resolution professional software (ScreenSpot-Pro) with tightly packed toolbars.
 5. **Live Web E2E Failure Modes**: 6 of 20 live web tasks failed due to anti-bot defenses (e.g. Royal Mail Access Denied), stubborn third-party cookie consent banners, and file download triggers without in-page success states.
 6. **Mobile Browser OCR**: Laptop Chrome OCR executes in 106–214 ms; mid-range mobile phone browser OCR timing has not been verified in the field yet (marked **not run** per RULES.md transparency policy rather than estimated).
+7. **Human Highlight Quality Rating**: 74 step screenshots and refine outcomes from the 20-task E2E suite are extracted into `eval/e2e/highlight_ratings.csv` (53 SAM outlines, 9 model boxes, 12 no-highlight/scroll states), but human evaluation is currently marked **not run** pending external founder grading.
 
 ---
 

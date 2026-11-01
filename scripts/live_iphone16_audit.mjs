@@ -75,6 +75,7 @@ const smoothScroll = (page, to) => page.evaluate((y) => new Promise((r) => { win
 const browser = await chromium.launch({ headless: false, slowMo: SLOW });
 const context = await browser.newContext({ ...devices["iPhone 16"], locale: "en-GB" });
 const page = await context.newPage();
+const VH = page.viewportSize().height; // 659 on iPhone 16: the visible area under Safari toolbars, not the 852 screen
 page.on("pageerror", (e) => report.consoleErrors.push(String(e)));
 page.on("console", (m) => m.type() === "error" && report.consoleErrors.push(m.text()));
 
@@ -107,11 +108,11 @@ try {
   const A = await page.evaluate(probe);
   report.steps.A = A;
   const hero = await page.locator("main h1").boundingBox();
-  check("A", "hero headline above the fold", !!hero && hero.y + hero.height < 852, `h1 bottom ${hero && Math.round(hero.y + hero.height)}px`);
+  check("A", "hero headline above the fold", !!hero && hero.y + hero.height < VH, `h1 bottom ${hero && Math.round(hero.y + hero.height)}px`);
   const ringBox = await page.locator(".hero-ring").boundingBox();
   const demoBox = await page.getByRole("group", { name: /Example: ShowMe highlighting/ }).boundingBox();
   check("A", "hero demo card starts above 550 px", !!demoBox && demoBox.y < 550, `demo top ${demoBox && Math.round(demoBox.y)}px`);
-  check("A", "hero ring drawn on the first screen", !!ringBox && ringBox.y + ringBox.height < 852, `ring bottom ${ringBox && Math.round(ringBox.y + ringBox.height)}px`);
+  check("A", "hero ring drawn on the first screen", !!ringBox && ringBox.y + ringBox.height < VH, `ring bottom ${ringBox && Math.round(ringBox.y + ringBox.height)}px`);
   for (const id of ["how", "privacy", "accuracy", "families", "companies", "models"]) {
     const y = await page.locator(`#${id}`).evaluate((e) => e.getBoundingClientRect().top + window.scrollY - 80);
     await smoothScroll(page, y);
@@ -163,9 +164,9 @@ try {
   const C = await page.evaluate(probe);
   report.steps.C = C;
   const choose = await page.getByText("Choose a picture").boundingBox();
-  check("C", "'Choose a picture' visible without scrolling", !!choose && choose.y + choose.height < 852, `bottom ${choose && Math.round(choose.y + choose.height)}px`);
+  check("C", "'Choose a picture' visible without scrolling", !!choose && choose.y + choose.height < VH, `bottom ${choose && Math.round(choose.y + choose.height)}px`);
   const sample = await page.getByTestId("sample-demo-btn").boundingBox();
-  check("C", "'Try with an example' button on the first screen", !!sample && sample.y + sample.height < 852, `bottom ${sample && Math.round(sample.y + sample.height)}px`);
+  check("C", "'Try with an example' button on the first screen", !!sample && sample.y + sample.height < VH, `bottom ${sample && Math.round(sample.y + sample.height)}px`);
   check("C", "touch targets >= 44 px", C.smallTargets.filter((t) => !t.inline).length === 0, JSON.stringify(C.smallTargets));
   await page.getByTestId("goal-input").tap();
   await page.getByTestId("goal-input").pressSequentially("cancel my subscription", { delay: 60 });
@@ -192,7 +193,7 @@ try {
   check("D", "auto-redaction found PII blocks", autoBlocks > 0, `${autoBlocks} blocks, copy: "${summary}"`);
   check("D", "auto blocks carry a lock glyph (DESIGN §4.2)", lockGlyphs > 0, `${lockGlyphs} glyphs`);
   const contBox = await page.getByTestId("review-continue").boundingBox();
-  check("D", "Continue reachable without scrolling", !!contBox && contBox.y + contBox.height < 852, `Continue top ${contBox && Math.round(contBox.y)}px (viewport 852)`);
+  check("D", "Continue reachable without scrolling", !!contBox && contBox.y + contBox.height < VH, `Continue top ${contBox && Math.round(contBox.y)}px (viewport ${VH})`);
   // Find the target line for the mocked step, in image pixels.
   const cancel = page.locator('[data-testid=ocr-line][aria-label*="Cancel subscription"]').first();
   if (await cancel.count()) {
@@ -256,11 +257,11 @@ try {
   const svgBox = await page.getByTestId("overlay-svg").boundingBox();
   const nextBox = await page.getByTestId("next-btn").boundingBox();
   report.steps.E.layout = { imageBottom: svgBox && Math.round(svgBox.y + svgBox.height), nextTop: nextBox && Math.round(nextBox.y) };
-  check("E", "'I did it, next' visible with the ring (no scroll)", !!nextBox && nextBox.y + nextBox.height < 852, `next top ${nextBox && Math.round(nextBox.y)}px`);
+  check("E", "'I did it, next' visible with the ring (no scroll)", !!nextBox && nextBox.y + nextBox.height < VH, `next top ${nextBox && Math.round(nextBox.y)}px`);
   await page.mouse.wheel(0, -3000);
   await page.waitForTimeout(500);
   const docked = await page.getByTestId("next-btn").boundingBox();
-  check("E", "step card docked: 'I did it, next' stays on screen when scrolled to top", !!docked && docked.y + docked.height <= 852, `next bottom ${docked && Math.round(docked.y + docked.height)}px`);
+  check("E", "step card docked: 'I did it, next' stays on screen when scrolled to top", !!docked && docked.y + docked.height <= VH, `next bottom ${docked && Math.round(docked.y + docked.height)}px`);
   check("E", "touch targets >= 44 px", E.smallTargets.filter((t) => !t.inline).length === 0, JSON.stringify(E.smallTargets));
   await page.getByTestId("next-btn").scrollIntoViewIfNeeded();
   await shot(page, "E3-step-card");

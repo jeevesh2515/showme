@@ -14,6 +14,7 @@ type Phase = "start" | "review" | "looking" | "step" | "share";
 type TrailStep = { n: number; instruction: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
 const BTN_PRIMARY = "type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50";
 const BTN_SECONDARY = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-5 py-2 font-bold text-ink hover:bg-mist";
+const BTN_TOOLBAR = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-2 sm:px-5 py-2 font-bold text-ink hover:bg-mist";
 const SHOT_HELP = [["iPhone", "side button + volume up."], ["Android", "power + volume down."], ["Windows", "Windows key + Shift + S."], ["Mac", "Command + Shift + 4."]] as const;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // Pointer position as a 0-1 fraction of the element; clamped because pointer capture reports points outside it.
@@ -60,9 +61,16 @@ export default function AppPage() {
   useEffect(() => {
     if (phase !== "step" || !window.matchMedia("(max-width: 767px)").matches) return;
     const badge = document.querySelector('[data-testid="step-badge"]');
-    if (!badge) return;
-    const top = badge.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.2;
-    window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    const img = badge?.closest("div")?.querySelector("img");
+    if (!badge || !img) return;
+    // Measure only once the screenshot has its height; before load the badge sits at the top of an empty box.
+    const go = () => {
+      const top = badge.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.2;
+      window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    };
+    if (img.complete && img.naturalHeight > 0) go();
+    else img.addEventListener("load", go, { once: true });
+    return () => img.removeEventListener("load", go);
   }, [phase, current]);
 
   useEffect(() => {
@@ -186,7 +194,7 @@ export default function AppPage() {
 
   const stepNumber = history.length + 1;
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12" onPaste={onPaste}>
+    <main className="mx-auto min-h-screen max-w-5xl px-4 pt-2 pb-4 sm:px-6 sm:py-12" onPaste={onPaste}>
       <h1 className="sr-only">ShowMe</h1>
       {error && <p role="alert" className="type-body mb-6 rounded-panel bg-blush p-4 text-caution">{error}</p>}
 
@@ -198,10 +206,10 @@ export default function AppPage() {
           <label data-testid="drop-zone"
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) void loadImage(f); }}
-            className={`mt-8 flex cursor-pointer flex-col items-center gap-4 rounded-panel border-2 border-dashed px-6 py-12 text-center hover:bg-sun focus-within:bg-sun focus-within:border-ink focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter ${dragging ? "border-ink bg-sun" : "border-ink/40 bg-mist"}`}>
+            className={`mt-8 flex cursor-pointer flex-col items-center gap-4 rounded-panel border-2 border-dashed px-6 py-8 text-center sm:py-12 hover:bg-sun focus-within:bg-sun focus-within:border-ink focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter ${dragging ? "border-ink bg-sun" : "border-ink/40 bg-mist"}`}>
             <span className="type-instruction">Add a screenshot, or paste it here</span>
             <span className={`${BTN_PRIMARY} inline-flex items-center`}>Choose a picture</span>
-            <span className="type-small">You can also paste with Ctrl+V or Command+V, or drag a picture onto this box.</span>
+            <span className="type-small [@media(pointer:coarse)]:hidden">You can also paste with Ctrl+V or Command+V, or drag a picture onto this box.</span>
             <input data-testid="file-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) void loadImage(f); }} />
           </label>
           <button data-testid="sample-demo-btn" type="button" onClick={() => void loadSample()} className="type-small mt-4 inline-flex min-h-12 items-center gap-3 rounded-control border-2 border-ink bg-sun px-4 py-2 font-bold text-ink hover:bg-highlighter">
@@ -224,16 +232,16 @@ export default function AppPage() {
 
       {phase === "review" && (
         <section className="mx-auto max-w-3xl">
-          <h2 className="type-title">Check what we will send</h2>
-          <p className="type-body mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
-          {ocrFailed ? <p className="type-small mt-3 rounded-panel bg-sun p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-3 rounded-panel bg-sun p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_SECONDARY} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
-            <button data-testid="undo-btn" onClick={() => { setEntries((r) => r.slice(0, -1)); }} className={BTN_SECONDARY}>Undo</button>
-            <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(2, z + 0.25))} className={BTN_SECONDARY}>Zoom in</button>
-            <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className={BTN_SECONDARY}>Zoom out</button>
+          <h2 className="type-title text-[24px] sm:text-[32px] leading-tight">Check what we will send</h2>
+          <p className="type-body text-[18px] sm:text-[20px] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
+          {ocrFailed ? <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
+          <div className="mt-2 flex flex-wrap gap-1 sm:mt-6 sm:gap-3">
+            <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_TOOLBAR} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
+            <button data-testid="undo-btn" onClick={() => { setEntries((r) => r.slice(0, -1)); }} className={BTN_TOOLBAR}>Undo</button>
+            <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(2, z + 0.25))} className={BTN_TOOLBAR}>Zoom in</button>
+            <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className={BTN_TOOLBAR}>Zoom out</button>
           </div>
-          <div className="relative mt-6 overflow-auto rounded-panel border-2 border-mist bg-mist p-2">
+          <div className="relative mt-2 overflow-auto rounded-panel border-2 border-mist bg-mist p-2 sm:mt-6">
             <div style={{ width: `${zoom * 100}%` }} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img data-testid="review-image" src={imageUrl} alt="Your screenshot for checking" draggable={false} onDragStart={(e) => e.preventDefault()}
@@ -274,8 +282,8 @@ export default function AppPage() {
               {draft && <div aria-hidden="true" className="fade-in pointer-events-none absolute border-2 border-dashed border-ink bg-ink/30" style={{ left: `${Math.min(draft.x, draft.x2) * 100}%`, top: `${Math.min(draft.y, draft.y2) * 100}%`, width: `${Math.abs(draft.x2 - draft.x) * 100}%`, height: `${Math.abs(draft.y2 - draft.y) * 100}%` }} />}
             </div>
           </div>
-          <p className="type-small mt-4">The only thing that leaves this device is what this screen shows.</p>
-          <button data-testid="review-continue" disabled={!goal.trim()} onClick={() => void continueReview()} className={`${BTN_PRIMARY} mt-6 w-full`}>Looks private. Continue</button>
+          <p className="type-small mt-1 sm:mt-4">The only thing that leaves this device is what this screen shows.</p>
+          <button data-testid="review-continue" disabled={!goal.trim()} onClick={() => void continueReview()} className={`${BTN_PRIMARY} mt-2 sm:mt-6 w-full`}>Looks private. Continue</button>
           {!goal.trim() && <p className="type-small mt-3">Go back and type what you want to do first.</p>}
         </section>
       )}
@@ -301,13 +309,13 @@ export default function AppPage() {
             )}
           </div>
           {/* DESIGN §4.4: on phones the instruction and primary action dock at the bottom; the ring is scrolled into the upper part. */}
-          <div aria-live="polite" className="sticky bottom-0 z-30 -mx-6 mt-6 border-t-2 border-ink bg-paper px-6 py-4 md:static md:mx-0 md:mt-0 md:self-start md:rounded-panel md:border-2 md:border-mist md:p-6">
+          <div aria-live="polite" className="sticky bottom-0 z-30 -mx-6 mt-6 border-t-2 border-ink bg-paper px-6 py-3 md:py-4 md:static md:mx-0 md:mt-0 md:self-start md:rounded-panel md:border-2 md:border-mist md:p-6">
             <p className="type-small flex items-center gap-3 font-bold"><span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-highlighter text-ink">{stepNumber}</span><span>Step {stepNumber}</span></p>
-            {current.caution && <p data-testid="caution-banner" className="type-body mt-4 flex items-start gap-3 rounded-panel bg-blush p-4 text-caution"><svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17.5v.01" /></svg><span><strong>Careful:</strong> {current.caution.replace(/^careful:\s*/i, "")}</span></p>}
-            {current.status === "unsure" && <p className="type-body mt-4 rounded-panel bg-sun p-4">I think it is this one. Check before you tap.</p>}
-            <p data-testid="step-instruction" className="type-instruction mt-4">{current.instruction}</p>
-            {current.type_text && <p className="type-body mt-3">Type: {current.type_text}</p>}
-            {current.status !== "done" && current.status !== "refuse" && <button data-testid="next-btn" onClick={() => nextWith("done")} className={`${BTN_PRIMARY} mt-4 w-full`}>I did it, next</button>}
+            {current.caution && <p data-testid="caution-banner" className="type-body mt-3 flex items-start gap-3 rounded-panel bg-blush p-3 md:mt-4 md:p-4 text-caution"><svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17.5v.01" /></svg><span><strong>Careful:</strong> {current.caution.replace(/^careful:\s*/i, "")}</span></p>}
+            {current.status === "unsure" && <p className="type-body mt-3 rounded-panel bg-sun p-3 md:mt-4 md:p-4">I think it is this one. Check before you tap.</p>}
+            <p data-testid="step-instruction" className="type-instruction mt-3 md:mt-4">{current.instruction}</p>
+            {current.type_text && <p className="type-body mt-2 md:mt-3">Type: {current.type_text}</p>}
+            {current.status !== "done" && current.status !== "refuse" && <button data-testid="next-btn" onClick={() => nextWith("done")} className={`${BTN_PRIMARY} mt-3 md:mt-4 w-full`}>I did it, next</button>}
           </div>
           <div className="mt-6 md:col-start-2 md:mt-4 md:px-6">
             <button data-testid="read-aloud" onClick={readAloud} className={`${BTN_SECONDARY} w-full`}>Read it to me</button>

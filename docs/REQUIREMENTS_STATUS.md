@@ -13,14 +13,14 @@ Status: **Verified** (passing automated tests / live verification), **Implemente
 | :--- | :--- | :--- | :--- | :--- |
 | **PRIV-1** | Raw screenshot never leaves browser; only branded `RedactedImage` can be passed to API client. | M | **Verified** | `apps/web/tests/e2e/priv-1.spec.ts` (Playwright network body inspection asserts raw bytes/hashes never transmitted); TypeScript nominal brand type in `lib/redaction/redact.ts`. |
 | **PRIV-2** | Redaction review is mandatory before first upload of every screenshot; no skip path exists. | M | **Verified** | `apps/web/tests/e2e/priv-2.spec.ts` (Playwright asserts API call impossible until user clicks Continue on review screen). |
-| **PRIV-3** | Backend never writes images, goal text, instructions, or raw IPs to disk/logs. Salted daily IP hash in `usage_counters` only (48 h TTL). | M | **Verified** | `backend/tests/test_privacy.py::test_priv_3_logs_do_not_contain_pii_or_images` (pytest caplog assertion on all routes); code audit. |
+| **PRIV-3** | Backend never writes images, goal text, instructions, or raw IPs to disk/logs. Salted daily IP hash in `usage_counters` only (48 h TTL). | M | **Verified** | `backend/tests/test_hardening.py` (pytest caplog assertion asserting zero PII or images in logs across all routes); code audit. |
 | **PRIV-4** | Nothing persists beyond tab without opt-in Share; no cookies, no localStorage of images/goals. | M | **Verified** | `apps/web/tests/e2e/priv-4.spec.ts` (Playwright verifies sessionStorage, localStorage, and document.cookie contain zero step/image data). |
-| **PRIV-5** | Shared guides contain only redacted images and text, require consent checkbox + second review, expire after 7 days, creator can delete immediately. | M | **Verified** | `backend/tests/test_guides.py` (expiry on read, purge job, delete key) + `apps/web/tests/e2e/priv-5.spec.ts` (Playwright share flow). |
-| **PRIV-6** | Meta Model API in standard mode only; contributor-mode model IDs (`*-contributor`) banned. | M | **Verified** | `backend/tests/test_settings.py` (Pydantic validator rejects `muse-spark-1.3-contributor` and all contributor variants). |
-| **PRIV-7** | Goal text and `type_text` pass through PII patterns; matches masked before network transmission. | M | **Verified** | `apps/web/lib/redaction/patterns.test.ts` (vitest) + `backend/tests/test_pii.py` (pytest). |
+| **PRIV-5** | Shared guides contain only redacted images and text, require consent checkbox + second review, expire after 7 days, creator can delete immediately. | M | **Verified** | `backend/tests/test_guides.py` & `backend/tests/test_guides_api.py` (expiry on read, purge job, delete key) + `apps/web/tests/e2e/priv-5.spec.ts` (Playwright share flow). |
+| **PRIV-6** | Meta Model API in standard mode only; contributor-mode model IDs (`*-contributor`) banned. | M | **Verified** | `backend/tests/test_api.py::test_settings_rejects_contributor_model` (Pydantic validator rejects `muse-spark-1.3-contributor` and all contributor variants). |
+| **PRIV-7** | Goal text and `type_text` pass through PII patterns; matches masked before network transmission. | M | **Verified** | `apps/web/lib/redaction/patterns.test.ts` (vitest) + `backend/tests/test_pii_pricing.py` & `backend/tests/test_pii_shared_vectors.py` (pytest). |
 | **PRIV-8** | No third-party scripts that can read the page (no analytics pixels, no session replay). OCR traineddata self-hosted. | M | **Verified** | `apps/web/tests/headers.test.ts` (strict CSP: `script-src 'self' 'unsafe-eval'`) + Playwright network interception. |
 | **PRIV-9** | Canvas re-encode strips EXIF/GPS metadata from uploaded images. | M | **Verified** | `apps/web/lib/redaction/redact.test.ts` (vitest verifies re-encoded canvas output contains no EXIF markers). |
-| **PRIV-10** | Prompts, UI copy, and model output never ask user to remove blur or reveal credentials (RULES P8). | M | **Verified** | `backend/tests/test_prompts.py` (prompt-snapshot test) + negatives refusal probe suite (12/12 refused). |
+| **PRIV-10** | Prompts, UI copy, and model output never ask user to remove blur or reveal credentials (RULES P8). | M | **Verified** | `backend/tests/test_grounding.py` (prompt-snapshot test) + negatives refusal probe suite (12/12 refused). |
 | **PRIV-11** | Secrets never enter repo, logs, or browser bundle (RULES P9). | M | **Verified** | CI gitleaks scan + bundle inspect proving `SUPABASE_SERVICE_ROLE_KEY` is not bundled into `apps/web`. |
 
 ---
@@ -51,13 +51,13 @@ Status: **Verified** (passing automated tests / live verification), **Implemente
 
 | ID | Requirement | Pri | Status | Verification & Evidence |
 | :--- | :--- | :--- | :--- | :--- |
-| **API-1** | `/v1/step` validates input per ARCHITECTURE §4 and returns typed errors. | M | **Verified** | `backend/tests/test_api_step.py` (pytest route tests, 422/400/502 handling). |
+| **API-1** | `/v1/step` validates input per ARCHITECTURE §4 and returns typed errors. | M | **Verified** | `backend/tests/test_api.py::test_step_success` & `test_api.py::test_invalid_body_returns_422` (pytest route tests). |
 | **API-2** | Strict JSON schema in ARCHITECTURE §5.3; unparsable output retried once, then returns 502 `model_error`. | M | **Verified** | `backend/tests/test_grounding.py` (respx mock tests). |
 | **API-3** | Post-processing clamps (e.g. 1001), normalises, converts coordinates, applies honesty gate. | M | **Verified** | `backend/tests/test_postprocess.py::test_api_3_clamps_1001` (table-driven test suite). |
 | **API-4** | `/v1/refine` uses SAM 3.1 box prompt, decodes mask to SVG path, applies agreement check; fallback to box on failure within 4 s. | M | **Verified** | `backend/tests/test_sam.py` (tested with real recorded `sam_tilde_payload.json` fixture). |
 | **API-5** | 429 from Meta retried with exponential backoff and jitter, honouring `Retry-After`, max 3 tries. | M | **Verified** | `backend/tests/test_grounding.py` (pytest with simulated 429 + Retry-After). |
-| **API-6** | Per-IP rate limits and global daily spend cap enforced; over-limit returns 429/503 with friendly message. | M | **Verified** | `backend/tests/test_rate_limits.py` (pytest with salted IP hash simulation). |
-| **API-7** | Every `/v1/step` and `/v1/refine` response includes `timings_ms` and `cost_usd` from usage tokens and price table. | M | **Verified** | `backend/tests/test_pricing.py` (pytest asserting cost calculations for Spark minimal and Wonder). |
+| **API-6** | Per-IP rate limits and global daily spend cap enforced; over-limit returns 429/503 with friendly message. | M | **Verified** | `backend/tests/test_api.py::test_rate_limits` & `backend/tests/test_ratelimit_supabase.py` (pytest). |
+| **API-7** | Every `/v1/step` and `/v1/refine` response includes `timings_ms` and `cost_usd` from usage tokens and price table. | M | **Verified** | `backend/tests/test_pii_pricing.py` (pytest asserting cost calculations for Spark minimal and Wonder). |
 | **API-8** | OpenAPI schema exported and TS client generated from it in CI; drift fails CI. | M | **Verified** | `apps/web/lib/api/client.ts` generated from `backend/showme/api/openapi.json`. |
 | **API-9** | `/internal/purge` rejects missing or wrong `X-Cron-Secret` with 401 and deletes nothing. | M | **Verified** | `backend/tests/test_guides.py::test_api_9_purge_rejects_bad_secret`. |
 
@@ -72,7 +72,7 @@ Status: **Verified** (passing automated tests / live verification), **Implemente
 | **EVAL-3** | Reports click accuracy by platform and element type (v2) and by group and ui_type (Pro). | M | **Verified** | `eval/results/2026-10-29-screenspot-v2-heldout-n1172-pvv1/report.md` (breakdowns included). |
 | **EVAL-4** | Reports ablation: highlight IoU with model box vs SAM; click accuracy unchanged by SAM stated explicitly. | M | **Verified** | `eval/results/2026-10-29-screenspot-v2-heldout-n100-*-samon-*/report.md` (IoU 0.514 vs 0.556). |
 | **EVAL-5** | Reports latency p50/p95 and cost per step from real usage. | M | **Verified** | `eval/results/spend.json` and result reports (p50 2.05 s, p95 2.91 s, ~$0.006/step). |
-| **EVAL-6** | Reports honesty on negatives suite and confidence calibration (AUROC, reliability bins). | M | **Verified** | `eval/results/2026-10-29-calibration-v2heldout/calibration.md` (ECE 0.052, AUROC 0.81). |
+| **EVAL-6** | Reports honesty on negatives suite and confidence calibration (AUROC, reliability bins). | M | **Verified** | `eval/results/2026-10-29-calibration-v2heldout/calibration.md` (ECE 0.052, AUROC 0.6225; confirmed reason verifier turned off in D23). |
 | **EVAL-7** | Every reported number links to `predictions.jsonl` with raw request/response per sample. | M | **Verified** | Links in `eval/results/RESULTS.md` point to verified immutable predictions files. |
 | **EVAL-8** | 20-task E2E suite with success predicates; success rate and average steps; redacted trail saved. | M | **Verified** | `eval/results/2026-11-01-e2e-final/report.md` (14/20, 70.0% completion, 3.7 avg steps). |
 | **EVAL-9** | Prompt tuning only on dev split; headline numbers exclude it. | M | **Verified** | Eval runner rejects `--split dev` for generating public headline reports. |
@@ -112,3 +112,4 @@ Status: **Verified** (passing automated tests / live verification), **Implemente
 | **ENG-2** | CI on every push: lint, type-check, unit tests (web + backend), OpenAPI drift, gitleaks, Docker build. | M | **Verified** | `.github/workflows/ci.yml`. |
 | **ENG-3** | Unit tests exist for grounding parser, SAM wrapper, redaction patterns/canvas, and every API route. | M | **Verified** | 156 backend tests + 31 eval tests + 80 web tests (267 unit tests total). |
 | **ENG-4** | README: what, why, demo, architecture diagram, one-command setup, eval reproduction, privacy, limitations, licence. | M | **Verified** | `README.md` updated with competitor comparison, honest metrics, and transparent limitations. |
+

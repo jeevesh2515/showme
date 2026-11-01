@@ -49,7 +49,7 @@ export default function Eval() {
                   </td>
                   <td className="p-2 whitespace-nowrap">{r.date}</td>
                   <td className="p-2">
-                    <a href={gh(r.predictions)} className="underline">
+                    <a href={gh(r.predictions)} className="inline-flex min-h-11 items-center underline">
                       predictions.jsonl
                     </a>
                   </td>

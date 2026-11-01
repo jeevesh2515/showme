@@ -86,3 +86,4 @@ flowchart TD
    Guide creator deletion keys are hashed before storage:
    $$\text{Stored\_Key} = \text{SHA256}(\text{Delete\_Secret})$$
    Only the creator possessing the raw secret can trigger immediate early deletion.
+

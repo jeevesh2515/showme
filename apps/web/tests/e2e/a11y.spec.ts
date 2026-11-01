@@ -185,8 +185,9 @@ test("A11Y-1 200% zoom: goal input visible, no horizontal overflow", async ({ pa
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
 });
 
-test.describe("phone layout (393 x 852)", () => {
-  test.use({ viewport: { width: 393, height: 852 }, hasTouch: true, isMobile: true });
+test.describe("phone layout (iPhone 16 Safari viewport 393 x 659)", () => {
+  // devices["iPhone 16"]: screen 393x852, visible viewport 393x659 once Safari toolbars are drawn.
+  test.use({ viewport: { width: 393, height: 659 }, hasTouch: true, isMobile: true });
 
   for (const path of ["/", "/app", "/eval"]) {
     test(`A11Y-1 150% text on a phone does not overflow ${path}`, async ({ page }) => {
@@ -207,6 +208,27 @@ test.describe("phone layout (393 x 852)", () => {
       await expect(page.getByRole("group", { name: "Text size" }).getByRole("button", { name, exact: true })).toBeVisible();
     }
     await expect(page.locator("header")).not.toContainText("%");
+  });
+
+  test("FLOW-4 ring near the bottom of a tall screenshot is scrolled into the upper part after Continue", async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.setContent('<div style="height:2400px;background:linear-gradient(#fff,#9ab)"></div>');
+    const tall = await page.screenshot({ fullPage: true });
+    const low = { label: "Cancel subscription", point: { x: 200, y: 2230 }, box: { x1: 100, y1: 2200, x2: 300, y2: 2260 } };
+    await mockApi(page, { steps: [{ ...stepOk(), target: low }] });
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill("cancel my subscription");
+    await page.getByTestId("file-input").setInputFiles({ name: "tall.png", mimeType: "image/png", buffer: tall });
+    await continueToStep(page);
+    await expect
+      .poll(async () => page.getByTestId("step-badge").evaluate((e) => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight * 0.6; }), { timeout: 5_000 })
+      .toBe(true);
+  });
+
+  test("FLOW-1 example button sits inside the visible phone viewport", async ({ page }) => {
+    await page.goto("/app");
+    const box = await page.getByTestId("sample-demo-btn").boundingBox();
+    expect((box?.y ?? 9999) + (box?.height ?? 0)).toBeLessThanOrEqual(659);
   });
 
   test("WEB-1 hero demo starts above 550 px on a phone", async ({ page }) => {

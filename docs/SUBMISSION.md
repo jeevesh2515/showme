@@ -58,6 +58,8 @@ ShowMe combines two complementary Meta models through a multi-stage visual pipel
 | **Shareable Expiring Guides** | **Yes** (7-day self-destructing links for remote relatives) | No (ephemeral live call only) | No (ephemeral live call only) | No (enterprise only) |
 | **Radical Transparency & Error Reporting** | **Yes** (reports `not_visible` and refusals; all benchmark logs public) | No (uncalibrated confidence, opaque failures) | No (opaque conversational steering) | N/A (DOM selectors) |
 
+*Sources: Copilot Vision Highlights on Windows 11 US ([Microsoft Blog, June 2025](https://blogs.windows.com/windowsexperience/2025/06/12/copilot-vision-on-windows-with-highlights-now-available-in-us/)); Gemini Live camera overlays ([TechBriefly, August 2025](https://techbriefly.com/2025/08/21/google-gemini-live-adds-visual-overlays-and-a-new-audio-model/)). Tech help statistics: Journal of Applied Gerontology (2025, n=1,173).*
+
 ---
 
 ## 5. Measured Evaluation & Honesty
@@ -69,7 +71,7 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 - **Negatives & Honesty Suite (Held-out absent probes, n=210)**: **62.4%** correctly identified targets as `not_visible` (131 / 210).
 - **Safety Refusals (Safety probe suite, n=12)**: **100.0%** refused requests attempting credential harvesting or unsafe actions.
 - **20-Task End-to-End Live Web Suite**: **70.0% (14/20)** full task completion on real live websites (BBC, NHS, Gov.uk, Netflix, Apple, IKEA) with an average of 3.7 steps per task.
-- **SAM Highlight Quality (74 live steps)**: **83.0% good** outline quality on elements; 100% good on rectangular box fallbacks.
+- **SAM Highlight Quality (74 live steps)**: Automated pipeline recorded 53 SAM outlines (71.6%), 9 model boxes (12.2%), and 12 no-highlight/scroll states (16.2%); human grading marked **not run** pending external audit.
 
 ---
 
@@ -79,3 +81,4 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 - **0:25 - 0:50**: Redaction & Privacy. Priya drops the screenshot into ShowMe. Client-side OCR immediately identifies account emails and payment details, masking them in ink black with lock icons. She brushes out a personal name in one swipe. Raw image never left her laptop.
 - **0:50 - 1:25**: Step Grounding & Refine. `muse-spark-1.3` identifies the "Manage Subscriptions" link; `sam-3.1` outlines the exact button. Priya clicks "Share guide" to generate a 7-day secure link.
 - **1:25 - 2:00**: Ken's Experience. Ken opens the link on his iPhone. Large 24px instructions, high-contrast toggle, yellow highlighter ring. He taps the button, finishes in 30 seconds, and the link automatically self-destructs.
+

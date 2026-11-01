@@ -156,7 +156,11 @@ export default function AppPage() {
       const res = await createGuide(maskPii(goal.trim()).slice(0, 300), trail, consent);
       setCreated(res);
     } catch (err) {
-      setShareError(err instanceof ApiClientError ? (ERROR_COPY[err.code] ?? "That did not work on our side. Your pictures were not shared. Try again.") : "That did not work on our side. Your pictures were not shared. Try again.");
+      setShareError(
+        err instanceof ApiClientError
+          ? err.message || (ERROR_COPY[err.code] ?? "That did not work on our side. Your pictures were not shared. Try again.")
+          : "That did not work on our side. Your pictures were not shared. Try again."
+      );
     }
   }
 

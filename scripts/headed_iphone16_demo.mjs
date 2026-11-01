@@ -48,7 +48,7 @@ const blocked = [];
 page.on("pageerror", (e) => errors.push(String(e)));
 page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 
-let target = { label: "Cancel subscription", point: { x: 640, y: 400 }, box: { x1: 560, y1: 380, x2: 720, y2: 420 } };
+let target = { label: "Cancel subscription", point: { x: 479, y: 632 }, box: { x1: 395, y1: 613, x2: 564, y2: 651 } };
 await page.route("**/api/**", async (route) => {
   const url = route.request().url();
   if (/\/v1\/step/.test(url)) {
@@ -114,7 +114,10 @@ try {
   const cancel = page.locator('[data-testid=ocr-line][aria-label*="Cancel subscription"]').first();
   if (await cancel.count()) {
     const [l, t, w, h] = (await cancel.evaluate((e) => [e.style.left, e.style.top, e.style.width, e.style.height].map(parseFloat))).map((v, i) => (v / 100) * (i % 2 ? 800 : 1280));
-    target = { label: "Cancel subscription", point: { x: Math.round(l + w / 2), y: Math.round(t + h / 2) }, box: { x1: Math.round(l - 10), y1: Math.round(t - 8), x2: Math.round(l + w + 10), y2: Math.round(t + h + 8) } };
+    const hasUpdate = await cancel.evaluate((e) => /update\s+payment/i.test(e.getAttribute("aria-label") || ""));
+    const xLeft = hasUpdate ? l + w * 0.55 : l;
+    const xRight = l + w;
+    target = { label: "Cancel subscription", point: { x: Math.round((xLeft + xRight) / 2), y: Math.round(t + h / 2) }, box: { x1: Math.round(xLeft - 6), y1: Math.round(t - 8), x2: Math.round(xRight + 6), y2: Math.round(t + h + 8) } };
   }
   // Brush: a real finger drag over the lower right of the picture.
   await page.getByTestId("brush-toggle").tap();

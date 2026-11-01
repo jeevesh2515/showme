@@ -199,7 +199,10 @@ try {
   if (await cancel.count()) {
     const pct = await cancel.evaluate((e) => [e.style.left, e.style.top, e.style.width, e.style.height].map(parseFloat));
     const [l, t, w, h] = pct.map((v, i) => (v / 100) * (i % 2 ? 800 : 1280));
-    target = { label: "Cancel subscription", point: { x: Math.round(l + w / 2), y: Math.round(t + h / 2) }, box: { x1: Math.round(l - 12), y1: Math.round(t - 10), x2: Math.round(l + w + 12), y2: Math.round(t + h + 10) } };
+    const hasUpdate = await cancel.evaluate((e) => /update\s+payment/i.test(e.getAttribute("aria-label") || ""));
+    const xLeft = hasUpdate ? l + w * 0.55 : l;
+    const xRight = l + w;
+    target = { label: "Cancel subscription", point: { x: Math.round((xLeft + xRight) / 2), y: Math.round(t + h / 2) }, box: { x1: Math.round(xLeft - 6), y1: Math.round(t - 8), x2: Math.round(xRight + 6), y2: Math.round(t + h + 8) } };
   }
   // Tap a plain text line to hide it.
   const before = await page.getByTestId("hidden-region").count();

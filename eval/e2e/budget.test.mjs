@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { Budget, costOf, recordSpend } from "./budget.mjs";
+import { Budget, STEP_RESERVE_USD, costOf, recordSpend } from "./budget.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN = join(HERE, "run.mjs");
@@ -74,7 +74,7 @@ test("outdir: fresh run writes sheet inside run dir and leaves shared sheet unto
   assert.equal(res.stopped_on_budget, true);
   assert.equal(res.charged_usd, 0);
   assert.equal(res.unknown_cost_responses, 0);
-  assert.equal(res.step_reserve_usd, 0.02);
+  assert.equal(res.step_reserve_usd, STEP_RESERVE_USD);
   assert.ok(existsSync(join(dir, "report.md")));
   assert.match(readFileSync(join(dir, "highlight_ratings.csv"), "utf8"), /^task,step,screenshot,shown,rating\n/);
   assert.deepEqual(readFileSync(SHEET), before);
@@ -89,4 +89,23 @@ test("spend: records charged once per run label, skips zero and duplicates", () 
   const d = JSON.parse(readFileSync(f, "utf8"));
   assert.equal(d.total_usd, 0.52);
   assert.deepEqual(d.runs, [{ date: "2026-11-01", label: "run-a", cost_usd: 0.52, known_usd: 0.5, unknown_cost_responses: 1 }]);
+});
+
+test("budget: near the limit, a step at maximum supported cost is refused, never overshoots", () => {
+  const maxStep = 0.029184 + 0.0025; // backend max_step_cost(spark) + SAM, see budget.mjs
+  const b = new Budget(3.0);
+  b.chargedUsd = 2.98;
+  assert.equal(b.canAdmit(), false);
+  const fit = new Budget(3.0);
+  fit.chargedUsd = 3.0 - STEP_RESERVE_USD;
+  assert.equal(fit.canAdmit(), true);
+  fit.reserve();
+  fit.settle([0.029184, 0.0025]);
+  assert.ok(fit.chargedUsd <= 3.0 + 1e-9, `charged ${fit.chargedUsd} overshoots`);
+  assert.ok(STEP_RESERVE_USD >= maxStep);
+});
+test("run: --step-reserve-usd below the pricing worst case is refused", () => {
+  const res = run("--out", join(mkdtempSync(join(tmpdir(), "e2e-")), "new"), "--limit", "1", "--step-reserve-usd", "0.02");
+  assert.notEqual(res.status, 0);
+  assert.match(res.stderr, /step-reserve-usd must be >=/);
 });

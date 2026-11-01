@@ -1,8 +1,10 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 
 // Hard spend cap for the E2E harness. Pure logic, no I/O, so it is unit tested without a browser.
-// Worst case per loop step: /v1/step ~$0.0051 + /v1/refine ~$0.0025 + one retry of each ($0.0076) = $0.0152, rounded up.
-export const STEP_RESERVE_USD = 0.02;
+// Worst case per loop step from the backend's own admission bounds (backend/showme/core/pricing.py), not averages:
+// /v1/step max_step_cost("muse-spark-1.3") = 2 x (8192 x 1.25 + 1024 x 4.25) / 1e6 = $0.029184, plus /v1/refine SAM
+// $0.0025 = $0.031684, rounded up. The web app never escalates to Wonder. eval/tests checks this stays >= the bound.
+export const STEP_RESERVE_USD = 0.04;
 const EPS = 1e-9;
 
 // Unknown (missing, non-numeric or negative cost_usd) is null, never 0.

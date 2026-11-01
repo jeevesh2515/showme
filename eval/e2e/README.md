@@ -16,11 +16,11 @@ node eval/e2e/run.mjs --tasks e2e-01-bbc-cookies,e2e-13-wikipedia-spanish
 node eval/e2e/run.mjs --web http://localhost:3000 --limit 2 --headed
 ```
 
-Flags: `--web <base>` (default `https://showme-web-delta.vercel.app`), `--limit N`, `--tasks id1,id2`, `--out <dir>` (must not exist), `--budget-usd N` (default 3), `--step-reserve-usd N` (default 0.02), `--spend-file <path>` (default `eval/results/spend.json`), `--headed`, `--dry-run`.
+Flags: `--web <base>` (default `https://showme-web-delta.vercel.app`), `--limit N`, `--tasks id1,id2`, `--out <dir>` (must not exist), `--budget-usd N` (default 3), `--step-reserve-usd N` (default and minimum 0.04, the pricing worst case), `--spend-file <path>` (default `eval/results/spend.json`), `--headed`, `--dry-run`.
 
 ## Cost
 
-Every live step is one grounding call plus a SAM refine call: **~$0.0076 per step** (ground ~$0.0051 at `muse-spark-1.3` minimal + SAM ~$0.0025). Estimate for this suite: 20 tasks × 10 steps × $0.0076 ≈ **$1.52** before retries (up to 200 step calls plus up to 200 refine calls). The harness is a hard cap: each step is admitted only if charged + its $0.02 worst-case reserve fits `--budget-usd`; a missing or unreadable `cost_usd` is charged the full reserve, never $0. At the end the charged total is appended once to `eval/results/spend.json`, keyed by the run directory, so a run is never counted twice. Check `eval/results/spend.json` and today's ceiling in `docs/prompts/day-5-oct-31.md` first. Nothing is spent on `--dry-run` or by re-reading `results.json`.
+Every live step is one grounding call plus a SAM refine call: **~$0.0076 per step** (ground ~$0.0051 at `muse-spark-1.3` minimal + SAM ~$0.0025). Estimate for this suite: 20 tasks × 10 steps × $0.0076 ≈ **$1.52** before retries (up to 200 step calls plus up to 200 refine calls). The harness is a hard cap: each step is admitted only if charged + its $0.04 worst-case reserve (backend max_step_cost $0.029184 + SAM $0.0025, rounded up) fits `--budget-usd`; a missing or unreadable `cost_usd` is charged the full $0.04 reserve, never $0. At the end the charged total is appended once to `eval/results/spend.json`, keyed by the run directory, so a run is never counted twice. Check `eval/results/spend.json` and today's ceiling in `docs/prompts/day-5-oct-31.md` first. Nothing is spent on `--dry-run` or by re-reading `results.json`.
 
 ## Task file
 

@@ -43,6 +43,7 @@ jobs:
           uv run --project backend pytest backend/tests -q
           uv run --project eval pytest eval/tests -q
           uv run --project backend pytest scripts/test_check_doc_paths.py -q
+          uv run --project backend pytest scripts/test_e2e_live.py -q
 
       - name: Doc evidence paths exist
         run: python3 scripts/check_doc_paths.py

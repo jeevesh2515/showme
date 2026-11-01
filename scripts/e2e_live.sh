@@ -8,21 +8,47 @@ BUDGET="${1:-3}"
 api() { vercel "$@" --cwd backend; }
 
 [ -z "$(git status --porcelain)" ] || { echo "working tree not clean; commit first so the run is tied to a SHA" >&2; exit 1; }
+
+# A failed listing is an error (rc 2), never proof that the vars are absent.
+rate_vars() {
+  local out
+  out=$(api env ls production 2>/dev/null) || return 2
+  grep -E '^\s*RATE_PER_(HOUR|DAY)\b' <<<"$out" || true
+}
+
 # Original settings: this script only supports the default state (RATE_* unset, code defaults 30/hour, 150/day).
-if api env ls production 2>/dev/null | grep -qE '^\s*RATE_PER_(HOUR|DAY)\b'; then
-  echo "RATE_PER_* already set on production; restore defaults by hand before running" >&2; exit 1
-fi
+set_vars=$(rate_vars) || { echo "cannot list production env vars; aborting before any change" >&2; exit 1; }
+[ -z "$set_vars" ] || { echo "RATE_PER_* already set on production; restore defaults by hand before running" >&2; exit 1; }
 
 restore() {
+  local rc=$? failed=""
+  trap - EXIT
   set +e
+  # rm may fail with "not found" (var never added); absence is verified by listing instead.
   api env rm RATE_PER_HOUR production --yes >/dev/null 2>&1
   api env rm RATE_PER_DAY production --yes >/dev/null 2>&1
-  api deploy --prod >/dev/null 2>&1
-  if api env ls production 2>/dev/null | grep -qE '^\s*RATE_PER_(HOUR|DAY)\b'; then
-    echo "RESTORE FAILED: RATE_PER_* still set on production; remove by hand and redeploy the backend" >&2; exit 1
+  local left
+  left=$(rate_vars)
+  case $? in
+    0) [ -z "$left" ] || failed="env rm (RATE_PER_* still set)" ;;
+    *) failed="verification listing (vercel env ls failed)" ;;
+  esac
+  # Env changes only reach new deployments, so the redeploy is what restores the live limits.
+  if [ -z "$failed" ]; then api deploy --prod >/dev/null 2>&1 || failed="restore redeploy (vercel deploy --prod failed)"; fi
+  if [ -n "$failed" ]; then
+    {
+      echo "RESTORE FAILED at: $failed. Production may still run raised limits (500/hour, 500/day)."
+      echo "Recover by hand: vercel env rm RATE_PER_HOUR production --yes --cwd backend"
+      echo "                 vercel env rm RATE_PER_DAY production --yes --cwd backend"
+      echo "                 vercel deploy --prod --cwd backend"
+      echo "                 vercel env ls production --cwd backend   # confirm no RATE_PER_*"
+    } >&2
+    exit 1
   fi
   echo "restored: RATE_PER_* unset on production (defaults 30/hour, 150/day), backend redeployed"
+  exit "$rc" # keep the run's own failure
 }
+# Installed before the first env add so a partial raise is still restored.
 trap restore EXIT
 
 printf 500 | api env add RATE_PER_HOUR production >/dev/null

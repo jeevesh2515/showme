@@ -124,8 +124,8 @@ if (existsSync(outDir)) {
 // Hard cap on real spend: a step is admitted only if charged + in-flight reservations + its own worst case fit the budget.
 const budgetUsd = Number(arg("budget-usd", "3"));
 const stepReserveUsd = Number(arg("step-reserve-usd", String(STEP_RESERVE_USD)));
-if (!Number.isFinite(budgetUsd) || budgetUsd < 0 || !Number.isFinite(stepReserveUsd) || stepReserveUsd <= 0) {
-  console.error("--budget-usd must be >= 0 and --step-reserve-usd must be > 0");
+if (!Number.isFinite(budgetUsd) || budgetUsd < 0 || !Number.isFinite(stepReserveUsd) || stepReserveUsd < STEP_RESERVE_USD) {
+  console.error(`--budget-usd must be >= 0 and --step-reserve-usd must be >= ${STEP_RESERVE_USD} (pricing worst case)`);
   process.exit(1);
 }
 const budget = new Budget(budgetUsd, stepReserveUsd);

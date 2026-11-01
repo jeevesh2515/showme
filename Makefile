@@ -25,7 +25,7 @@ test:
 	uv run --project eval pytest eval/tests -q
 	pnpm --filter web test
 	uv run --project backend pytest scripts/test_check_doc_paths.py -q
-	node --test eval/e2e/predicate.test.mjs
+	node --test eval/e2e/predicate.test.mjs eval/e2e/budget.test.mjs
 
 lint:
 	uv run --project backend ruff check backend eval

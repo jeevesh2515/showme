@@ -69,7 +69,7 @@ make test         # pytest + vitest
 make lint         # ruff, mypy --strict (core), eslint, tsc
 make smoke        # live 10-sample grounding smoke (~$0.05)
 make eval SUITE=screenspot-v2|screenspot-pro|negatives|all [N=300] [MODEL=muse-spark-1.3] [EFFORT=minimal]
-make e2e          # 20-task Playwright suite against running stack
+make e2e E2E_LIMIT=20 E2E_BUDGET_USD=3   # 20-task live suite, hard budget; scripts/e2e_live.sh wraps the D35 rate-limit raise/restore
 uv run --project backend pytest backend/tests/test_postprocess.py::test_api_3_clamps_1001   # single backend test
 pnpm --filter web vitest run lib/redaction/patterns.test.ts              # single web test
 ```

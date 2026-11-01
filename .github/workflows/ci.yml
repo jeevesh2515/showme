@@ -71,7 +71,7 @@ jobs:
       - name: E2E task predicates (offline fixtures, no network)
         run: |
           node eval/e2e/run.mjs --dry-run
-          node --test eval/e2e/predicate.test.mjs
+          node --test eval/e2e/predicate.test.mjs eval/e2e/budget.test.mjs
       - name: Playwright (PRIV-1, PRIV-4, FLOW-1..13; API route-mocked, no live spend)
         run: |
           (pnpm --filter web exec next start -p 3000 &)

@@ -2,9 +2,11 @@
 // Success is only ever the task predicate. Results and report.md are generated from the run, never hand-written.
 import { createRequire } from "node:module";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { randomBytes } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Budget, STEP_RESERVE_USD, costOf, recordSpend } from "./budget.mjs";
 import { PREDICATE_TYPES, predicateHolds } from "./predicate.mjs";
 
 const { chromium, devices } = createRequire(
@@ -113,10 +115,20 @@ if (problems.length) {
 
 const web = arg("web", "https://showme-web-delta.vercel.app").replace(/\/$/, "");
 const sha = execSync("git rev-parse --short HEAD", { cwd: ROOT }).toString().trim();
-const outDir = resolve(ROOT, arg("out", `eval/results/${date}-e2e-${sha}`));
-// Hard stop on real spend: summed cost_usd from every /v1/step and /v1/refine response the app receives.
+const runId = new Date().toISOString().slice(11, 19).replace(/:/g, "") + randomBytes(2).toString("hex");
+const outDir = resolve(ROOT, arg("out", `eval/results/${date}-e2e-${sha}-${runId}`));
+if (existsSync(outDir)) {
+  console.error(`refusing to run: output directory already exists (${outDir}); evidence is never overwritten`);
+  process.exit(1);
+}
+// Hard cap on real spend: a step is admitted only if charged + in-flight reservations + its own worst case fit the budget.
 const budgetUsd = Number(arg("budget-usd", "3"));
-let spentUsd = 0;
+const stepReserveUsd = Number(arg("step-reserve-usd", String(STEP_RESERVE_USD)));
+if (!Number.isFinite(budgetUsd) || budgetUsd < 0 || !Number.isFinite(stepReserveUsd) || stepReserveUsd <= 0) {
+  console.error("--budget-usd must be >= 0 and --step-reserve-usd must be > 0");
+  process.exit(1);
+}
+const budget = new Budget(budgetUsd, stepReserveUsd);
 const headed = flag("headed");
 let selected = tasks;
 const only = arg("tasks", "");
@@ -142,8 +154,9 @@ async function upload(showme, file, goal) {
 const taskResults = [];
 const ratingRows = [];
 for (const task of selected) {
-  if (spentUsd >= budgetUsd) {
-    console.log(`STOP budget $${budgetUsd} reached ($${spentUsd.toFixed(4)}); ${task.id} and later tasks not run`);
+  if (!budget.canAdmit()) {
+    budget.stopped = true;
+    console.log(`STOP budget $${budgetUsd} reached (charged $${budget.chargedUsd.toFixed(4)}); ${task.id} and later tasks not run`);
     break;
   }
   const dir = join(outDir, "trail", task.id);
@@ -151,6 +164,11 @@ for (const task of selected) {
   const stepLines = [];
   const record = { id: task.id, success: false, steps: 0, honesty_events: [], refused: false, cost_usd: 0 };
   let browser;
+  let stepCosts = null; // per-request costs of the step in flight; its reservation is released by settleStep
+  const settleStep = () => {
+    if (stepCosts) record.cost_usd += budget.settle(stepCosts);
+    stepCosts = null;
+  };
   try {
     browser = await chromium.launch({ headless: !headed });
     const targetCtx = await browser.newContext(
@@ -161,12 +179,6 @@ for (const task of selected) {
     const showmeCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     let target = await targetCtx.newPage();
     const showme = await showmeCtx.newPage();
-    showme.on("response", async (r) => {
-      if (r.request().method() !== "POST" || !/\/v1\/(step|refine)$/.test(new URL(r.url()).pathname)) return;
-      const cost = Number((await r.json().catch(() => null))?.cost_usd) || 0;
-      spentUsd += cost;
-      record.cost_usd += cost;
-    });
     const goal = task.goal;
 
     await target.goto(task.start_url, { waitUntil: "domcontentloaded", timeout: 45_000 });
@@ -176,10 +188,14 @@ for (const task of selected) {
     await showme.waitForTimeout(1500); // let React hydrate before setInputFiles
 
     for (let n = 1; n <= task.max_steps; n++) {
-      if (spentUsd >= budgetUsd) {
+      settleStep();
+      if (!budget.canAdmit()) {
         record.error = "budget_exhausted";
+        budget.stopped = true;
         break;
       }
+      budget.reserve();
+      stepCosts = [];
       let shot;
       try {
         shot = await target.screenshot(); // deviceScaleFactor 1: pixels are CSS pixels
@@ -199,6 +215,7 @@ for (const task of selected) {
       await showme.getByTestId("review-continue").click();
       const response = await responseP;
       const body = await response.json();
+      stepCosts.push(costOf(body));
       const http = response.status();
       if (http !== 200) throw new Error(`/v1/step ${http}: ${body?.error?.code ?? "unknown"}`);
       record.steps = n;
@@ -220,6 +237,7 @@ for (const task of selected) {
       if (body.target) {
         const refineRes = await refineP;
         const refineBody = refineRes ? await refineRes.json().catch(() => null) : null;
+        stepCosts.push(costOf(refineBody));
         line.highlight = refineBody?.mode === "outline" ? "sam_outline" : "model_box";
       }
 
@@ -289,8 +307,9 @@ for (const task of selected) {
   } catch (error) {
     record.error = String(error).slice(0, 300);
   } finally {
+    settleStep();
     writeFileSync(join(dir, "steps.jsonl"), stepLines.map((l) => JSON.stringify(l)).join("\n") + (stepLines.length ? "\n" : ""));
-    for (const l of stepLines) ratingRows.push(`${l.task},${l.step},../results/${outDir.split("/").at(-1)}/trail/${l.task}/step-${l.step}.jpg,${l.highlight},`);
+    for (const l of stepLines) ratingRows.push(`${l.task},${l.step},trail/${l.task}/step-${l.step}.jpg,${l.highlight},`);
     await browser?.close();
     taskResults.push(record);
     console.log(`${record.success ? "PASS" : "FAIL"} ${record.id} steps=${record.steps}${record.error ? ` error=${record.error}` : ""}`);
@@ -304,7 +323,11 @@ const results = {
   web,
   tasks_selected: selected.length,
   budget_usd: budgetUsd,
-  cost_usd: Number(spentUsd.toFixed(6)),
+  cost_usd: Number(budget.knownUsd.toFixed(6)),
+  charged_usd: Number(budget.chargedUsd.toFixed(6)),
+  unknown_cost_responses: budget.unknownResponses,
+  step_reserve_usd: stepReserveUsd,
+  stopped_on_budget: budget.stopped,
   tasks: taskResults,
   success_rate: taskResults.length ? Number((passed / taskResults.length).toFixed(4)) : 0,
   avg_steps: taskResults.length
@@ -312,6 +335,10 @@ const results = {
     : 0,
 };
 writeFileSync(join(outDir, "results.json"), JSON.stringify(results, null, 2) + "\n");
+const spendFile = resolve(ROOT, arg("spend-file", "eval/results/spend.json"));
+if (recordSpend(spendFile, outDir.split("/").at(-1), budget.chargedUsd, budget.knownUsd, budget.unknownResponses, date)) {
+  console.log(`spend: +$${budget.chargedUsd.toFixed(4)} recorded in ${spendFile}`);
+}
 
 const rows = taskResults.map(
   (r) =>
@@ -324,7 +351,9 @@ Generated by \`eval/e2e/run.mjs\` from \`results.json\` — do not edit by hand.
 - Web app: ${web}
 - Git SHA: ${sha}
 - Tasks run: ${taskResults.length} of ${selected.length} selected
-- Cost: $${results.cost_usd.toFixed(4)} (summed cost_usd from /v1/step and /v1/refine responses; budget $${budgetUsd})
+- Cost: $${results.cost_usd.toFixed(4)} known (summed cost_usd from /v1/step and /v1/refine responses)
+- Charged against budget: $${results.charged_usd.toFixed(4)} of $${budgetUsd} (known plus $${stepReserveUsd} per step with an unknown cost); unknown-cost responses: ${results.unknown_cost_responses}
+- Step reserve: $${stepReserveUsd}; stopped on budget: ${results.stopped_on_budget ? "yes" : "no"}
 - Success rate: ${(results.success_rate * 100).toFixed(1)}% (${passed}/${taskResults.length})
 - Average steps: ${results.avg_steps}
 - Refusals: ${taskResults.filter((r) => r.refused).length}
@@ -337,5 +366,5 @@ ${rows.join("\n")}
 Redacted screenshot trail and per-step model responses: \`trail/<task>/step-<n>.jpg\` and \`trail/<task>/steps.jsonl\`.
 `;
 writeFileSync(join(outDir, "report.md"), report);
-writeFileSync(join(HERE, "highlight_ratings.csv"), "task,step,screenshot,shown,rating\n" + ratingRows.join("\n") + "\n");
+writeFileSync(join(outDir, "highlight_ratings.csv"), "task,step,screenshot,shown,rating\n" + ratingRows.join("\n") + "\n");
 console.log(`wrote ${outDir} — success ${passed}/${taskResults.length}, avg steps ${results.avg_steps}`);

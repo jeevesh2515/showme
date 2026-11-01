@@ -15,12 +15,17 @@ setup:
 	pnpm install
 
 dev:
-	uv run --project backend uvicorn showme.api.main:app --reload --port 8000 --no-access-log
+	trap 'kill 0' INT TERM EXIT; \
+	uv run --project backend uvicorn showme.api.main:app --reload --port 8000 --no-access-log & \
+	pnpm --filter web dev --port 3000 & \
+	wait
 
 test:
 	uv run --project backend pytest backend/tests -q
 	uv run --project eval pytest eval/tests -q
 	pnpm --filter web test
+	uv run --project backend pytest scripts/test_check_doc_paths.py -q
+	node --test eval/e2e/predicate.test.mjs
 
 lint:
 	uv run --project backend ruff check backend eval
@@ -28,6 +33,7 @@ lint:
 	uv run --project backend mypy --strict backend/showme/core
 	pnpm --filter web lint
 	pnpm --filter web typecheck
+	python3 -I scripts/check_doc_paths.py
 
 smoke:
 	uv run --project eval python -m showme_eval --suite screenspot-v2 --split dev --n 10

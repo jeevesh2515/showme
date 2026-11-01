@@ -42,6 +42,10 @@ jobs:
         run: |
           uv run --project backend pytest backend/tests -q
           uv run --project eval pytest eval/tests -q
+          uv run --project backend pytest scripts/test_check_doc_paths.py -q
+
+      - name: Doc evidence paths exist
+        run: python3 scripts/check_doc_paths.py
 
       - name: Docker build
         run: docker build backend
@@ -64,6 +68,10 @@ jobs:
       - run: pnpm --filter web test
       - run: pnpm --filter web build
       - run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: E2E task predicates (offline fixtures, no network)
+        run: |
+          node eval/e2e/run.mjs --dry-run
+          node --test eval/e2e/predicate.test.mjs
       - name: Playwright (PRIV-1, PRIV-4, FLOW-1..13; API route-mocked, no live spend)
         run: |
           (pnpm --filter web exec next start -p 3000 &)

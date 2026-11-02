@@ -23,7 +23,7 @@ Confident self-helpers can also use ShowMe directly for their own tricky screens
 
 1. **Screenshot & Goal**: Add a screenshot of what is currently on screen and state what you want to do (e.g. "cancel my subscription").
 2. **On-Device Redaction**: Client-side OCR + regex masks emails, phone numbers, payment card numbers, UK postcodes, IBANs, and long digit strings. This detection is partial: it does not catch free text such as a visible typed password or a name. A mandatory review screen is where the user taps or brushes to hide anything else. The raw unredacted image is never uploaded.
-3. **Step & Refinement**: The redacted screenshot is sent to `muse-spark-1.3` to identify the single next action. If `sam-3.1` segmentation agrees with the model bounding box, a precise outline highlight is drawn; otherwise, the bounding box is shown.
+3. **Step & Refinement**: The redacted screenshot is sent to `muse-spark-1.3` to identify the single next action. If `sam-3.1` segmentation agrees with the model bounding box, an outline highlight is drawn; otherwise, the bounding box is shown.
 4. **Follow & Progress**: Find the highlighted element in your real app and tap it there, take the next screenshot, and repeat until the task is complete.
 5. **Opt-in Sharing**: Share the guide steps with family or customers via a 7-day link that expires automatically. Guides can be shared starting right from Step 1.
 
@@ -38,7 +38,7 @@ Visual grounding and UI overlays are active areas (e.g. Microsoft Copilot Vision
 | **Client-side redaction before upload** | Yes, partial: OCR + regex masks structured data, mandatory manual review covers the rest | Not documented | Not documented | Not reviewed |
 | **Platforms** | Web app; the helper can use a screenshot from iOS, Android, Mac, or Windows | Windows, web (screen share), Copilot mobile app (camera) per Microsoft support | Android and iPhone/iPad (camera and screen sharing) per Google support | Not reviewed |
 | **Shareable expiring guide link** | Yes (7-day expiry, creator delete key) | Not documented | Not documented | Not reviewed |
-| **Reports `not_visible` and refusals** | Yes, with measured rates (76.7% on absent targets at prompt v3; still guesses in 23.3% of cases) | Not documented | Not documented | Not reviewed |
+| **Reports `not_visible` and refusals** | Yes, with measured rates (75.5% on absent targets at prompt v3, 151/200; 44 of the other 49 still get a highlight) | Not documented | Not documented | Not reviewed |
 
 *Sources, all as of 2026-11-01: Microsoft, [Using Copilot Vision with Microsoft Copilot](https://support.microsoft.com/en-gb/topic/using-copilot-vision-with-microsoft-copilot-3c67686f-fa97-40f6-8a3e-0e45265d425f) (desktop Windows or web screen share; mobile app camera); Google, [Gemini Apps Help: Talk naturally with Gemini Live, iPhone & iPad](https://support.google.com/gemini/answer/15274899?hl=en&co=GENIE.Platform%3DiOS) (Gemini mobile app on iPhone/iPad, with camera and screen sharing). "One minute vs 20-minute phone call" represents our estimated product UX goal, not a measurement.*
 
@@ -114,27 +114,27 @@ Every figure below is generated directly from output logs in `eval/results/` and
 | **ScreenSpot-v2** | Held-out (test) | `muse-spark-1.3` (minimal) | v3 | 1,172 | **89.9%** | Point inside ground-truth control box |
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-spark-1.3` (minimal) | v3 | 300 | **62.0%** | Point inside control (high-res desktop/web) |
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-wonder-1.0` (minimal) | v1 | 300 | **66.7%** | Point inside control (+3.0 pts at ~3× cost) |
-| **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v3 | 210 | **76.7%** | Correctly stated `not_visible` (161 / 210: 151/200 absent pairs = 75.5%, 10/10 injection probes = 100%) |
+| **Negatives (Honesty)** | Absent targets | `muse-spark-1.3` (minimal) | v3 | 200 | **75.5%** | Correctly stated `not_visible` (151/200). Injection probes counted apart: 10/10. Combined 161/210 = 76.7% |
 | **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v3 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
 | **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v3 | 20 | **60.0% (12/20)** on the 2026-11-02 re-run with fixed predicates (avg 4.45 steps) | Task predicate met; see Known Limitations 2 |
-| **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (all 74 rating cells empty; no claim vs boxes) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
+| **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v3 | 89 | **not run** (all rating cells empty; no claim vs boxes) | The 2026-11-02 run recorded 66 SAM outlines, 9 model boxes, 14 none; sheet in `eval/results/2026-11-02-e2e-bb543ba-04574992c7/highlight_ratings.csv` |
 
 *Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md`](eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md).*
 
-> **Prompt Version Note**: Shipped production runs prompt v3 (`pvv3`, frozen 2026-11-02), and the benchmark rows above are that prompt's held-out runs. Prompt v3 added a label-match gate for `ok`; on the dev splits it scored honesty 70.0% vs v2 60.0% and ScreenSpot 94.0% vs 92.0% (MEMORY D52). Historical v1 runs remain in `eval/results/` (ScreenSpot-v2 90.7%, Pro 63.7%, honesty 62.4%). The SAM ablation is still the v1 run and is labelled as such.
+> **Prompt Version Note**: Shipped production runs prompt v3 (`pvv3`, frozen 2026-11-02), and the benchmark rows above are that prompt's held-out runs. Prompt v3 added a label-match gate for `ok`; on the dev splits it scored honesty 70.0% vs v2 60.0% and ScreenSpot 94.0% vs 92.0% (MEMORY D52). Historical v1 runs remain in `eval/results/` (ScreenSpot-v2 90.7%, Pro 63.7%, honesty 62.4%). The SAM ablation is still the v1 run and is labelled as such; the highlight sheet is from the v3 E2E run.
 
 ---
 
 ## 6. Known Limitations
 
 In keeping with our transparency principles:
-1. **Absent-Target Honesty**: On held-out screens where the requested target is not present, `muse-spark-1.3` (prompt v3) says `not_visible` 76.7% of the time (161/210), falling short of our 90% target. In 23.3% of absent cases, the model still highlights something. Prompt v1 scored 62.4% on the same probes; the v3 label-match gate was kept by a pre-registered dev-split rule (D52).
+1. **Absent-Target Honesty**: When the requested target is not on screen, `muse-spark-1.3` (prompt v3) says `not_visible` 75.5% of the time (151/200 absent pairs; 76.7% or 161/210 with 10/10 injection probes), short of our 90% target. In the other 49 cases it returned 37 `ok`, 7 `unsure`, 4 `done` and 1 error, so most got a highlight anyway. Prompt v1 scored 62.4% on the combined probes; the v3 label-match gate was kept by a pre-registered dev-split rule (D52). These splits are by annotation, so they share screenshots with the development split, and one negatives image and goal pair appears in both.
 2. **E2E Task Set Scope**: The 2026-11-02 re-run on the frozen prompt v3 with audited predicates (`eval/results/2026-11-02-e2e-bb543ba-04574992c7/`) records 12/20 (60.0%), avg 4.45 steps. The earlier 14/20 run's 4 suspect passes (predicate matched a video title, search suggestions or a sign-in page) were fixed and covered by offline tests in `eval/e2e/predicate.test.mjs`; in the re-run e2e-19 fails honestly and e2e-09 passes. The 8 failures include one model 502 and one 504 (recorded in the report). The tasks were also used during iterative development, so no unseen held-out E2E task suite has been run yet.
 3. **Free-form Text Inputs**: Regex covers structured PII (emails, cards, phones, postcodes, IBANs), but unstructured personal text (names, custom notes) depends on the user's manual brush on the review screen.
 4. **Dense Desktop Interfaces**: Accuracy drops to 62.0% on high-resolution professional software (ScreenSpot-Pro, prompt v3) with tightly packed toolbars.
-5. **Live Web E2E Failure Modes**: 6 of 20 live web tasks failed due to anti-bot defenses (e.g. Royal Mail Access Denied), stubborn third-party cookie consent banners, and file download triggers without in-page success states.
+5. **Live Web E2E Failure Modes**: 8 of 20 live web tasks failed: anti-bot defenses (e.g. Royal Mail Access Denied), third-party cookie consent banners, file download triggers without in-page success states, one model 502 and one 504.
 6. **Mobile Browser OCR**: Laptop Chrome OCR executes in 106–214 ms; mid-range mobile phone browser OCR timing has not been verified in the field yet (marked **not run** per RULES.md transparency policy rather than estimated).
-7. **Human Highlight Quality Rating**: 74 step screenshots and refine outcomes from the 20-task E2E suite are extracted into `eval/e2e/highlight_ratings.csv` (53 SAM outlines, 9 model boxes, 12 no-highlight/scroll states), but human evaluation is currently marked **not run** pending external founder grading.
+7. **Human Highlight Quality Rating**: 89 step screenshots and refine outcomes from the 2026-11-02 E2E run are in that run's `highlight_ratings.csv` (66 SAM outlines, 9 model boxes, 14 no-highlight/scroll states), but human evaluation is marked **not run**. On the v1 SAM ablation, gated SAM outlines scored lower IoU than the model box on the same 86 samples (0.5145 vs 0.5596), which is why the box stays unless SAM agrees.
 
 ---
 
@@ -160,7 +160,7 @@ make test
 # Run linters and typecheckers (ruff, mypy strict, eslint, tsc)
 make lint
 
-# Run Playwright browser test suite (41 tests, including axe accessibility checks)
+# Run Playwright browser test suite (including axe accessibility checks)
 pnpm --filter web test:e2e
 
 # Run the 10-sample live grounding smoke test (~$0.05)
@@ -172,7 +172,7 @@ make eval SUITE=screenspot-v2 [N=100] [MODEL=muse-spark-1.3] [EFFORT=minimal]
 
 ---
 
-## 7. Project Structure
+## 8. Project Structure
 
 ```text
 showme/
@@ -194,8 +194,8 @@ showme/
 
 ---
 
-## 8. Licence & Citations
+## 9. Licence & Citations
 
 - **Licence**: MIT — see [LICENSE](LICENSE).
 - **Meta Models**: Grounding powered by `muse-spark-1.3`; segmentation outlines powered by `sam-3.1`.
-- **Benchmark**: ScreenSpot dataset (Cheng et al., 2024).
+- **Benchmarks**: ScreenSpot-v2 (OS-Atlas) and ScreenSpot-Pro. Datasets are not redistributed in this repo; see their own licences.

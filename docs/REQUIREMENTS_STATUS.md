@@ -7,15 +7,16 @@ Status: **Verified** (cited evidence exists and was re-checked on 2026-11-01), *
 
 ## November 2 independent audit — overrides older rows below
 
-Full evidence and reproduction: [REVIEW-2026-11-02.md](REVIEW-2026-11-02.md). Findings remain open; this review did not repair application code.
+Full evidence and reproduction: [REVIEW-2026-11-02.md](REVIEW-2026-11-02.md). That review did not repair application code. D54 (2026-11-02) fixes FLOW-3, FLOW-7 and WEB-2 below in source with regression tests; they count as closed on production only after the next deploy.
 
 | ID | Current audited status | Evidence / gap |
 | --- | --- | --- |
-| FLOW-3 | **Partial** | New brush snap shrinks the selected privacy area to OCR bounds; reproduced on production. Redo/Hide-all tests pass. |
-| FLOW-7 / PRIV-5 | **Partial** | Guide caution/status survive production create/read/view/delete, but unsure SAM strokes are solid. Targetless guide statuses are replaced with done in the rendering shim. |
+| FLOW-3 | **Fixed in source (D54), deploy pending** | `brushRegion` keeps the whole drag and grows to touched OCR lines (`regions.test.ts`). The previous build on production shrinks the selection. |
+| FLOW-7 / PRIV-5 | **Fixed in source (D54), deploy pending** | The UI share payload now sends status and caution (it omitted them, so recipients lost warnings even though the API stored them). Unsure SAM outlines are dashed; targetless steps keep stored status (`GuideStepper.test.ts`, `priv-5.spec.ts`, `flow-7.spec.ts`). |
+| FLOW-5 / PRIV-5 races | **Fixed in source (D55), deploy pending** | Late outlines match a stable step id; Create link and Delete send one request per action, with retry after failure (`priv-5.spec.ts`). |
 | EVAL-9 | **Partial** | Negatives-dev and reporting probes overlap by one exact image/goal pair; held-out negatives use the entire source pool. Source v2 partitions are annotation-based, not image-disjoint. |
 | EVAL-8 | **Verified recorded run** | Current v3 fixed-predicate report records 12/20, average 4.45; earlier re-run-pending row is superseded. This does not measure human handoff. |
-| WEB-2 | **Partial selection logic** | Current live headlines match intended v3 runs; same-date equal-n fixture still selects earlier v2. |
+| WEB-2 | **Fixed in source (D54), deploy pending** | Same-date equal-n ties select the newer prompt (`gen-results.test.ts`); `/eval` gains a prompt column and current markers. |
 | PRIV-11 | **Partial evidence** | Current CI succeeds; four local secret values absent from 24 local client assets and ten production scripts. All production env values and hosting logs were not inspected. |
 | WEB-1 / ENG-1 / EVAL-1 | **Still incomplete** | Final demo video and fresh-clone reproduction remain pending; earlier Verified labels describe narrower implementation/offline evidence. |
 | ENG-2 / ENG-3 | **Verified checks at 0096e05** | make lint/test passed: 162 backend + 33 eval + 82 web; wrapper 8/8, Node 20/20; Playwright 60/60; both GitHub CI jobs green. Dependency audit is not a CI gate and reports unresolved advisories. |
@@ -91,8 +92,8 @@ Do not infer that all M requirements are green from the historical table. The fe
 | **EVAL-5** | Reports latency p50/p95 and cost per step from real usage. | M | **Verified** | `eval/results/spend.json` and result reports (p50 2054.5 ms, p95 2905.05 ms in the n=1172 report; ~$0.006/step is 7.0427 / 1172 arithmetic, not a stored figure). |
 | **EVAL-6** | Reports honesty on negatives suite and confidence calibration (AUROC, reliability bins). | M | **Verified** | `eval/results/2026-10-29-calibration-v2heldout/calibration.md` (AUROC 0.6225 matches `calibration.json`; reliability bins present; no ECE value is generated, so none is claimed; verifier off per MEMORY D23). |
 | **EVAL-7** | Every reported number links to `predictions.jsonl` with raw request/response per sample. | M | **Verified** | `eval/results/RESULTS.md` links predictions files per run (headline v2 row confirmed; other rows not individually re-checked). |
-| **EVAL-8** | 20-task E2E suite with success predicates; success rate and average steps; redacted trail saved. | M | **Partial** | `eval/results/2026-11-01-e2e-final/report.md` records 14/20 (3.7 avg steps), but 4 passes (e2e-10, 11, 12, 19) are suspect false positives from loose predicates. Predicates fixed in `eval/e2e/tasks.yaml` with offline tests in `eval/e2e/predicate.test.mjs`; re-run pending. |
-| **EVAL-9** | Prompt tuning only on dev split; headline numbers exclude it. | M | **Verified** | `eval/showme_eval/cli.py` rejects `--headline` with `--split dev` (EVAL-9 error); a plain dev run is allowed but is not marked headline. |
+| **EVAL-8** | 20-task E2E suite with success predicates; success rate and average steps; redacted trail saved. | M | **Verified recorded run** | `eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md`: 12/20, 4.45 avg steps, predicates fixed. Tasks were used during development, so not unseen. |
+| **EVAL-9** | Prompt tuning only on dev split; headline numbers exclude it. | M | **Partial** | `eval/showme_eval/cli.py` rejects `--headline` with `--split dev` (EVAL-9 error); a plain dev run is allowed but is not marked headline. |
 
 ---
 

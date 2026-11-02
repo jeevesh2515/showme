@@ -288,3 +288,18 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Reviewed D52/D53 source and tests; re-ran lint/unit/script and 60 browser tests; checked current CI and deployment source manifests; used synthetic data to reproduce production brush shrink and guide uncertainty styling; tested same-day publication ties, negative-suite overlap and real-make SIGTERM cleanup. Scanned representative client assets without printing secret values. Deleted the temporary production guide.
 - **Result / evidence:** docs/REVIEW-2026-11-02.md. Offline gates pass, but a 26% x 5% brush selection shrank to 5% x 1.375%; unsure SAM strokes have no dashes; same-day equal-n publication can remain stale; one exact negatives dev/reporting pair overlaps. Actual absent pairs are 151/200, while 161/210 also includes ten injection probes. Dependency audit needs applicability triage. A fresh production step was rate-limited; no new model result/spend.
 - **Decision:** Review only, no application repair or release approval. Reopened the all-M-green checklist. Preserve freeze scope; prioritize privacy/correctness and evidence wording, then human observation and submission. Conservative eval headroom is about $0.44 after D50's historical estimate.
+
+## 2026-11-02 · S38 · Final pre-submission audit
+
+- **Why:** Founder asked for a full audit before submission, with subagents verified and nothing degraded.
+- **What I did:** Ran four read-only audits, verified findings against code and raw predictions, fixed reachable bugs test-first, corrected stale public claims.
+- **Result / evidence:** D54 and its MEMORY entry. Rejected one wrong auditor finding (the 65% statistic is real).
+- **Decision:** Keep scope frozen: fixes and copy only. No paid runs; eval ledger is about $0.44 under its ceiling.
+
+## 2026-11-02 · S39 · Second review of the audit fixes
+
+- **Why:** A second reviewer found that the D54 client edit would fail CI and that two share races remained.
+- **What I did:** Verified each finding, reproduced them with failing tests, fixed the generator and both races, finished the claim sweep, refreshed the video kit, added the session protocol and blind rating kit.
+- **Result / evidence:** D55 and its MEMORY entry. Playwright 68/68, video provenance check PASS.
+- **Decision:** Hand-edited generated code was the root cause, so the generator is the fix. Human evidence stays "not run" until a person does it.
+

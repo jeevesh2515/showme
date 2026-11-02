@@ -1,6 +1,8 @@
 # ShowMe hackathon brief and submission plan
 
 Updated 2026-11-02, Europe/London. Repository snapshot: 4f974e4.
+
+**Superseded numbers:** sections 5 and 6 predate prompt v3. Current figures and spend: [README section 5](../README.md), [SUBMISSION section 5](SUBMISSION.md), [MEMORY](MEMORY.md) (ledger $36.2421 plus the D50 estimate of about $3.32, so about $0.44 under the $40 eval ceiling: no paid eval fits without founder approval). Rules, dates, rubric and form facts remain current.
 Scope: official event facts, current project evidence, independent product/engineering/evaluation reviews, and proposed work before submission. This document does not certify eligibility or predict a prize.
 
 Confidence: **[Certain]** directly observed official source, code or artifact; **[Likely]** engineering/product judgement; **[Guessing]** unresolved speculation. A proposed action is not a completed result.

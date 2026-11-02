@@ -50,7 +50,7 @@ A guided step costs about $0.0076. The consumer app is free and rate limited. My
 | Area | Status |
 | --- | --- |
 | Meta API access, model list, limits | Measured and read from official pages (SPIKES.md a) |
-| Grounding accuracy and honesty (prompt v3) | Measured on full held-out suites: v2 89.9%, Pro 62.0%, honesty 76.7% |
+| Grounding accuracy and honesty (prompt v3) | Measured on full held-out suites: v2 89.9%, Pro 62.0%, absent-target honesty 75.5% (151/200) |
 | SAM behaviour & agreement gate | Implemented in backend; SVG smoothing active; agreement gate required |
 | Redaction pipeline (client-side) | Built in `apps/web/lib/redaction/`: WASM Tesseract OCR, regex PII masking, manual brush, tap-to-blur |
 | Core web app & API | Built & deployed: Next.js 14 on Vercel, FastAPI backend on Vercel |

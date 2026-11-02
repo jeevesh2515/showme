@@ -22,7 +22,7 @@ Top 8 risks, reviewed at the end of every day (PHASES.md). Likelihood and impact
 ## Status at freeze (2026-11-02)
 
 - R1: closed — held-out v3 89.9% (v2 suite) / 62.0% (Pro), above kill thresholds; prompt v3 frozen (D52).
-- R2: response executed Day 3 (confidence out of UI); honesty improved 62.4% → 76.7% on v3, still below 90% target — published as limitation.
+- R2: response executed Day 3 (confidence out of UI); honesty improved 62.4% → 76.7% combined on v3 (absent pairs alone 151/200 = 75.5%, injection 10/10), still below 90% target — published as limitation.
 - R3: open by design — review remains the net; "Hide all text" one-tap shipped Day 7 (D53); human review time unmeasured (no sessions recorded).
 - R4: eval p50 ~2.1–2.7 s per suite reports; production p50/p95 from logs not run.
 - R5: open — IoU favours the model box (0.556 vs 0.514, v1 ablation); human ratings not run; no SAM quality claim made.

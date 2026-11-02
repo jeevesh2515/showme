@@ -76,7 +76,8 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 6 · Sun Nov 1 · Fix what the evidence says + landing page
 
-- [x] Full E2E run (20 tasks); human-rate highlight quality per step (CSV)
+- [x] Full E2E run (20 tasks); highlight CSV generated
+- [ ] Human-rate highlight quality per step (rating cells still empty: not run)
 - [ ] Usability test with 2 to 3 people (kit in `eval/usability/`); summary with counts and quotes, n stated
 - [x] Triage the top 3 failure modes from eval + E2E; fix with dev-split re-runs only (prompt version bump each time)
 - [x] Landing page (WEB-1) and `/eval` page (WEB-2) with numbers pulled from `RESULTS.md`

@@ -173,7 +173,7 @@ Done: tick, "You did it: subscription cancelled" (uses the goal), options: "Shar
 
 ### 4.6 Shared guide (`/g/[token]`)
 
-Read-only stepper of the same overlay view. Banner: "Shared guide. Deletes itself on Tuesday 10 November." No branding chrome beyond the logo, `noindex`.
+Read-only stepper of the same overlay view. Heading is the goal. Small line: "Shared guide. Deletes itself on Tuesday 10 November." Note above the step: "This is a picture of the screen, not your live screen. Tapping it does nothing. Find the same button on your own screen and tap it there." Note under the buttons: "Stuck on the next screen? Take a new screenshot and send it to the person who shared this." On phones the instruction stays pinned and a ring below the fold scrolls into view. No branding chrome beyond the logo, `noindex`.
 
 ### 4.7 Errors and limits (copy is direction, not apology)
 
@@ -201,7 +201,7 @@ One orchestrated moment: the hero **is** the product. A real (synthetic, clearly
 
 Outline, in order:
 
-1. **Hero.** Headline "Stuck on a screen? ShowMe points to the next tap." Sub: "Add a screenshot, say what you want to do, and see exactly where to press. Private details are hidden on your device before anything is sent." Primary button "Try it with a screenshot". Secondary "Watch the 2 minute demo".
+1. **Hero.** Headline "Stuck on a screen? ShowMe points to the next tap." Sub: "Add a screenshot, say what you want to do, and see exactly where to press. Private details are hidden on your device before anything is sent." Primary button "Try it with an example screenshot". Secondary "Watch the 2 minute demo".
 2. **How it works.** A real sequence, so numbered: 1 Add a screenshot and your goal. 2 Check the hidden details. 3 Follow one highlighted step at a time.
 3. **Private by design.** Three plain statements with the evidence link: the raw picture never leaves your device; nothing is kept unless you share; shared guides delete themselves after 7 days.
 4. **How often it is right.** Live numbers from `RESULTS.md` (accuracy on ScreenSpot-v2 and -Pro, E2E task success, honesty rate) with a link to `/eval` and the raw files. Includes the weakest number, not only the best.
@@ -212,15 +212,7 @@ Outline, in order:
 
 ## 7. Demo video script (2:30 target, 3:00 max)
 
-| Time | Picture | Voice-over |
-| --- | --- | --- |
-| 0:00 to 0:20 | WhatsApp chat snippet: parent asks "Where do I click to cancel this?"; screenshot attached; phone call caption | "When an older relative gets stuck on an app, they don't want a 20-minute phone call. And you can't see what they're looking at." |
-| 0:20 to 0:40 | Helper opens ShowMe on laptop; drags in the WhatsApp screenshot; goal typed: "Cancel subscription" | "ShowMe turns that screenshot into a step-by-step visual guide you can send right back." |
-| 0:40 to 1:05 | Mandatory review screen: OCR automatically puts ink-black blocks with lock icons over credit card & phone numbers; helper brushes out parent's home address | "Before anything leaves your browser, ShowMe hides credit cards, phone numbers, and emails on your device. You check it and brush out any private details. The raw picture never touches the network." |
-| 1:05 to 1:35 | Step 1 highlights 'Manage Subscriptions' with SAM 3.1 outline; helper clicks 'Share guide' to generate 7-day expiring link; copies link | "Meta's Muse Spark 1.3 pinpoints the next tap. SAM 3.1 draws a precise outline around the button. You can share the guide right from Step 1 with a private link that self-destructs after 7 days." |
-| 1:35 to 2:00 | Parent opens link on iPhone 16 (high-contrast mode on, 150% text size, yellow highlighter ring); taps button; next step appears | "On their phone, they get large clear instructions, high-contrast support, and one highlight at a time at their own pace. No app to install, and no accounts." |
-| 2:00 to 2:20 | Honest states: `not_visible` with scroll arrow; `caution` warning banner; `/eval` dashboard showing 89.9% and 76.7% | "When the button isn't visible, ShowMe tells you to scroll instead of guessing. We publish all our evaluation numbers—including the 76.7% on absent targets (151 of 200 absent pairs)." |
-| 2:20 to 2:30 | Competitive differentiation summary & closing title | "Private on your device. Works from any screenshot. Expiring guides for people you help. Built for the Meta AI Hackathon." |
+[video/script.md](video/script.md) is the authoritative script.
 
 All footage from the live product (RULES §2). Captions burned in for silent autoplay.
 

@@ -17,7 +17,7 @@
 
 ## 2. The Problem & Founder Story
 
-65% of US adults aged 65+ get tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://www.researchgate.net/publication/392981775_How_Older_Adult_Internet_Users_Stay_Online_When_Technical_Problems_Arise), Journal of Applied Gerontology, 2025, N=1173). That help often starts with a screenshot sent to a relative:
+65% of older internet users surveyed got tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://www.researchgate.net/publication/392981775_How_Older_Adult_Internet_Users_Stay_Online_When_Technical_Problems_Arise), Journal of Applied Gerontology, 2025, N=1173). That help often starts with a screenshot sent to a relative:
 
 - *"How do I cancel this gym membership?"*
 - *"Where is the renew button on the passport website?"*

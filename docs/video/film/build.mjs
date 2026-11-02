@@ -114,6 +114,15 @@ function phoneShot(name, dur, bgPng, from = 0) {
   return out;
 }
 
+// The recipient's highlight enlarged from the same phone recording, so it reads at feed size.
+function phoneZoom(name, dur) {
+  const out = join(SHOTS, `${name}.mp4`);
+  const n = Math.round(dur * FPS);
+  ff("-ss", String(raw("phone").marks.ring + 2), "-i", raw("phone").file, "-frames:v", "1", "-update", "1", join(TMP, `${name}.png`));
+  ff("-loop", "1", "-t", String(dur), "-i", join(TMP, `${name}.png`), "-vf", `crop=1178:663:0:300,scale=3840:2160:flags=lanczos,zoompan=z='1+0.1*on/${n}':x='iw*0.1*(on/${n})*0.32':y='ih*0.1*(on/${n})*0.74':d=1:s=1920x1080:fps=${FPS},setsar=1`, "-t", String(dur), ...ENC, out);
+  return out;
+}
+
 const box = step.target.box, sb = sam.box, pt = step.target.point;
 const inter = sb ? Math.max(0, Math.min(box.x2, sb.x2) - Math.max(box.x1, sb.x1)) * Math.max(0, Math.min(box.y2, sb.y2) - Math.max(box.y1, sb.y1)) : 0;
 const areaOf = (b) => (b.x2 - b.x1) * (b.y2 - b.y1);
@@ -127,10 +136,10 @@ async function assets() {
   const A = {};
   A.synth = await pill("p-synth", "Illustrative scenario · synthetic billing screen");
   A.live = await pill("p-live", `Live product · real model output · ${TAKE} recorded take`);
-  A.spark = await pill("p-spark", CUT_WAIT ? `muse-spark-1.3 · real call · ${(step.timings_ms.ground / 1000).toFixed(1)} s wait shortened` : "muse-spark-1.3 · real call, real time");
+  A.spark = await pill("p-spark", CUT_WAIT ? `muse-spark-1.3 · this call ${(step.timings_ms.ground / 1000).toFixed(1)} s, wait trimmed · median 2.8 s` : "muse-spark-1.3 · real call, real time");
   A.gate = await stamp("p-gate", gatePanel);
   A.share = await pill("p-share", "Second review, consent, then the link");
-  A.absent = await pill("p-absent", "Real call · goal: “Download my 2019 tax invoice”");
+  A.absent = await pill("p-absent", "Real call, goal “Download my 2019 tax invoice” · status: not_visible, action: scroll");
   A.title = await stamp("p-title", `<div class="f" style="position:absolute;left:0;right:0;bottom:190px;text-align:center"><span style="background:#fff;padding:18px 44px;border-radius:14px;font-size:64px;font-weight:800;box-shadow:0 8px 30px rgba(22,38,74,.3)">ShowMe: one clear next step</span></div>`);
   A.phoneBg = await (async () => { await setHtml(`<div class="card" style="background:#e9eef6;padding:0"><div style="position:absolute;left:284px;top:76px;width:494px;height:926px;background:#111827;border-radius:64px"></div><div style="position:absolute;left:860px;top:70px;width:940px"><div style="font-size:30px;font-weight:700;margin-bottom:18px">The original example</div><img src="${original}" style="width:900px;border-radius:12px;box-shadow:0 8px 30px rgba(22,38,74,.2)"><div style="margin-top:28px;font-size:44px;font-weight:800;line-height:1.15">A picture, not remote control.</div><div class="sub" style="margin-top:12px;font-size:30px">${realPhone ? "Actual iPhone 16 with a consenting recipient." : "Recipient view: phone-size browser, not a physical iPhone."}</div></div></div>`); const f = join(TMP, "phonebg.png"); await page.screenshot({ path: f }); return f; })();
   return A;
@@ -144,7 +153,7 @@ const row = (l, m, s, d) => `<div class="row a" style="animation-delay:${d}s"><d
 const n = ev.expectedNotVisible;
 const evidenceHtml = `<div class="card" style="padding:56px 110px"><h1 class="a" style="font-size:60px">Recorded evaluations</h1><div class="mark a" style="margin:12px 0 10px"></div><p class="a" style="font-size:26px;color:#42506e;margin-bottom:6px">Prompt v3 · November 2, 2026 · muse-spark-1.3 minimal · SAM off</p>
 ${row("ScreenSpot-v2 grounding", `Held-out split · ${ev.grounding.hits} of 1,172 examples`, `${ev.grounding.percent}%`, 0.2)}${row("ScreenSpot-Pro grounding", `Held-out split · ${ev.pro.hits} of ${ev.pro.n} examples`, `${ev.pro.percent}%`, 0.5)}${row("Says “not visible” on absent targets", `${n.absentHits} of ${n.absentPairs} probes · ${n.absentMissesHighlighted} of the other ${n.absentPairs - n.absentHits} still got a highlight`, `${n.absentPercent}%`, 0.8)}${row("Live-web development tasks", "Not an unseen task set", `${ev.e2e.passed} / ${ev.e2e.n}`, 1.1)}
-<p class="f" style="animation-delay:1.4s;font-size:23px;line-height:1.35;margin-top:14px;color:#42506e">Injection probes counted apart: 10 of 10. One dev/reporting image pair overlaps, so honesty is not independently held out. Demo footage is the ${TAKE} take. The first take's box sat low until the example was cropped; later takes fixed page bugs. Sources in the description.</p></div>`;
+<p class="f" style="animation-delay:1.4s;font-size:27px;line-height:1.35;margin-top:14px;color:#42506e">Injection probes counted apart: 10 of 10. One image pair overlaps dev and reporting. Footage: ${TAKE} take; the first take's box sat low until the example was cropped.</p></div>`;
 const endHtml = (synthetic) => `<div class="card" style="display:flex;flex-direction:column;justify-content:center"><div class="b" style="font-size:150px;font-weight:800">ShowMe</div><div class="mark a" style="animation-delay:.2s"></div><p class="a" style="animation-delay:.3s;font-size:52px">showme-web-delta.vercel.app</p><p class="a" style="animation-delay:.45s;font-size:52px;margin-top:10px">github.com/jeevesh2515/showme</p><p class="f" style="animation-delay:.7s;font-size:27px;margin-top:40px;color:#42506e">Built solo during the Meta Global AI Developer Hackathon · Indie Track · Build for Your World${synthetic ? "<br>Narration: synthetic voice" : ""}</p></div>`;
 
 const concat = (files, out) => { const l = join(TMP, `${Date.now()}-c.txt`); writeFileSync(l, files.map((f) => `file '${f}'`).join("\n")); ff("-f", "concat", "-safe", "0", "-i", l, "-c", "copy", out); };
@@ -172,6 +181,7 @@ const chunk = (text, max) => {
   const out = []; let cur = "";
   for (const w of text.split(/\s+/)) { if (cur && (cur + " " + w).length > max) { out.push(cur); cur = w; } else cur = cur ? `${cur} ${w}` : w; }
   if (cur) out.push(cur);
+  if (out.length > 1 && !out.at(-1).includes(" ")) { const prev = out[out.length - 2].split(" "); out[out.length - 1] = `${prev.pop()} ${out.at(-1)}`; out[out.length - 2] = prev.join(" "); } // no one-word widow
   const pairs = [];
   for (let i = 0; i < out.length; i += 2) pairs.push(out.slice(i, i + 2).join("\n"));
   return pairs;
@@ -198,7 +208,7 @@ async function finish(name, shots, scenes, voiceKey, outFile) {
         if (s.at?.[ri] !== undefined) t = scene0 + s.at[ri];
         const d = r[2];
         inputs.push("-i", join(here, "../../..", r[0])); delays.push(t);
-        const right = s.capRightAt !== undefined && t - scene0 >= s.capRightAt;
+        const right = !!s.capRight && t - scene0 >= s.capRight[0] && t - scene0 < s.capRight[1];
         const parts = chunk(r[1], right ? 40 : s.capWidth ?? 52);
         parts.forEach((p, i) => cues.push({ start: t + (i * d) / parts.length, end: t + ((i + 1) * d) / parts.length - 0.04, text: p, style: right ? "left:1330px" : "" }));
         t += d + 0.25;
@@ -231,30 +241,31 @@ async function film() {
   const A = await assets();
   const o = (png, from, to) => ({ png, from, to });
   const s = [];
-  s.push(await card("s1a", bubbleHtml + `<div class="pill">Illustrative scenario · synthetic billing screen</div>`, 6, 1.4));
-  s.push(await card("s1b", callHtml, 5, 1.8));
-  s.push(await card("s1c", statHtml, 5, 1.4));
-  s.push(clip("s1d", "main", m.refined + 0.4, m.refined + 2.4, [at(0, STEP), at(4, RING)], { hold: 2, overlays: [o(A.title, 0.2, 4)] }));
+  s.push(await card("s1a", bubbleHtml + `<div class="pill">Illustrative scenario · synthetic billing screen</div>`, 4.6, 1.4));
+  s.push(await card("s1b", callHtml, 3, 1.8));
+  s.push(await card("s1c", statHtml, 9.4, 1.4));
+  s.push(clip("s1d", "main", m.refined + 0.4, m.refined + 2.4, [at(0, STEP), at(2, RING)], { hold: 1, overlays: [o(A.title, 0.2, 3)] }));
   s.push(clip("s2a", "main", m.app, m.brush - 0.2, [at(0, FULL), at(4, FULL), at(6, REVIEW)], { hold: 5, overlays: [o(A.synth, 0, 12)] }));
   s.push(clip("s2b", "main", m.brush - 0.2, m.continue + 0.3, [at(0, REVIEW), at(1.4, NAME), at(3.8, NAME), at(5.2, LOWER), at(7.4, LOWER), at(8.6, AFTER)]));
-  s.push(await card("s2c", uploadHtml, 30 - 7.0 - 5 - (m.continue + 0.3 - (m.brush - 0.2)) - 0.0, 1.4));
+  s.push(await card("s2c", uploadHtml, 28 - (m.brush - 0.2 - m.app) - 5 - (m.continue + 0.3 - (m.brush - 0.2)), 1.4));
   const s3from = CUT_WAIT ? m.step - 0.2 : m.continue + 0.3, s3move = m.step - s3from;
   s.push(clip("s3a", "main", s3from, m.refined + 0.6, [at(0, CUT_WAIT ? STEP : FULL), at(Math.max(0.1, s3move - 0.6), CUT_WAIT ? STEP : FULL), at(s3move + 0.8, STEP)], { overlays: [o(A.spark, 0, 99)], hold: CUT_WAIT ? 3.2 : 1 }));
   const s3a = seconds(s.at(-1));
   s.push(await card("s3b", jsonHtml, 9.5, 1.1));
   s.push(clip("s3c", "main", m.refined + 1, m.refined + 3.5, [at(0, STEP), at(2.2, RING)], { hold: 30 - s3a - 9.5 - 2.5, overlays: [o(A.gate, 1.6, 99)] }));
-  s.push(clip("s4a", "main", m.share, m.end, [at(0, FULL), at(1.2, { x: 500, y: 300, w: 1560 })], { hold: 15 - (m.end - m.share), overlays: [o(A.share, 0, 99)] }));
-  s.push(phoneShot("s4b", 23, A.phoneBg));
+  s.push(clip("s4a", "main", m.share, m.end, [at(0, FULL), at(1.2, { x: 500, y: 300, w: 1560 })], { hold: Math.max(0, 14 - (m.end - m.share)), overlays: [o(A.share, 0, 99)] }));
+  s.push(phoneShot("s4b", 11, A.phoneBg));
+  s.push(realPhone ? phoneShot("s4c", 9, A.phoneBg, 11) : phoneZoom("s4c", 9));
   const code = (nm, f, d) => card(nm, `<img src="${png(join(here, "../assets", f))}" style="position:absolute;left:0;top:0;width:1920px">`, d, 0.2);
-  s.push(await code("s5a", "redaction-code.png", 9.5));
-  s.push(await code("s5b", "sam-gate-code.png", 9.5));
+  s.push(await code("s5a", "redaction-code.png", 11));
+  s.push(await code("s5b", "sam-gate-code.png", 10));
   const ab = raw("absent").marks;
-  s.push(clip("s6a", "absent", ab.result - 0.4, ab.result + 3, [at(0, STEP)], { hold: 3.6, overlays: [o(A.absent, 0, 99)] }));
-  s.push(await card("s6b", evidenceHtml, 25, 1.9));
-  s.push(await card("s7", endHtml(!founderVoice("film-0")), 11, 1.3));
+  s.push(clip("s6a", "absent", ab.result - 0.4, ab.result + 3, [at(0, STEP)], { hold: 4.6, overlays: [o(A.absent, 0, 99)] }));
+  s.push(await card("s6b", evidenceHtml, 26, 1.9));
+  s.push(await card("s7", endHtml(!founderVoice("film-0")), 13, 1.3));
   const scenes = [
-    { dur: 20 }, { dur: 30, at: { 2: 7.2, 3: 12.6, 4: 21.2 } }, { dur: 30, at: { 2: 16.5 } }, { dur: 38, at: { 2: 15.6 }, capRightAt: 15 }, { dur: 19 },
-    { dur: 32, at: { 1: 7.0 } }, { dur: 11, at: { 0: 0.8 } },
+    { dur: 20 }, { dur: 28, at: { 3: 12.6, 4: 21.2 } }, { dur: 30, at: { 2: 16.5 } }, { dur: 34, at: { 2: 15 }, capRight: [14, 26] }, { dur: 21, at: { 3: 11.2 } },
+    { dur: 34, at: { 1: 8.2 } }, { dur: 13, at: { 0: 0.8 } },
   ];
   await finish("film", s, scenes, "film", join(OUT, "ShowMe-3min-hackathon.mp4"));
 }

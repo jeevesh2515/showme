@@ -1,6 +1,6 @@
 {
   "durationSeconds": 180,
-  "narrationWords": 389,
+  "narrationWords": 394,
   "captionTiming": "DRAFT: align to recorded voice before publication",
   "scenes": [
     {
@@ -15,46 +15,46 @@
       "n": 2,
       "title": "Privacy review",
       "start": 20,
-      "end": 50,
+      "end": 48,
       "narration": "This is a made-up billing screen. I type the goal and add the picture. Before anything is uploaded, the browser reads it on this device and masks the email, card number, phone and postcode. Detection is partial: it missed the name, the expiry and the street, so I hide those myself. This review can't be skipped, and here is the exact image that left the browser.",
       "footageStatus": "required: genuine product/recipient capture"
     },
     {
       "n": 3,
       "title": "Meta models",
-      "start": 50,
-      "end": 80,
+      "start": 48,
+      "end": 78,
       "narration": "Muse Spark 1.3 reads the redacted screen and the goal, and returns one action in a strict JSON schema: which control, where, and one plain sentence. At prompt version three, that's about 2.8 seconds and under a cent. SAM 3.1 then tries to outline that control. ShowMe keeps the outline only if its bounding box agrees with Spark's. Otherwise the box stays, and the click point never moves.",
       "footageStatus": "required: genuine product/recipient capture"
     },
     {
       "n": 4,
       "title": "Recipient handoff",
-      "start": 80,
-      "end": 118,
+      "start": 78,
+      "end": 112,
       "narration": "To send it back, I review the picture again, consent, and create a link that expires in seven days. I keep a key that can delete it sooner. On a phone, the recipient gets one instruction and one highlight. It's a picture of the screen, not remote control: the guide shows which control to find on their own screen. No subscription is changed here, and another step needs another screenshot.",
       "footageStatus": "required: genuine product/recipient capture"
     },
     {
       "n": 5,
       "title": "Engineering",
-      "start": 118,
-      "end": 138,
-      "narration": "I built this during the hackathon. The browser re-encodes the reviewed image, and the API client only accepts that redacted result. Tests inspect the uploaded payload. The same core code runs in production and in the evaluation harness, so the evaluation runs the production path.",
+      "start": 112,
+      "end": 133,
+      "narration": "I built this during the hackathon. The browser re-encodes the reviewed image, and the API client only accepts that redacted result. Tests inspect the uploaded payload. This is the SAM gate, in plain code. The same core code also runs the evaluation, so grounding is measured on the production path.",
       "footageStatus": "presentation asset ready; founder voice still required"
     },
     {
       "n": 6,
       "title": "Recorded evidence",
-      "start": 138,
-      "end": 169,
+      "start": 133,
+      "end": 167,
       "narration": "When the control isn't on screen, it should say so, as it does here. On prompt version three, the click point hit the target on 89.9 percent of 1,172 held-out examples, and 62 percent on harder professional apps. With the target absent, it said not visible in 151 of 200 probes. Most of the rest still got a highlight. Live websites passed 12 of 20 development tasks, and the failures are public.",
       "footageStatus": "presentation asset ready; founder voice still required"
     },
     {
       "n": 7,
       "title": "Close",
-      "start": 169,
+      "start": 167,
       "end": 180,
       "narration": "Review on your device. Send one clear step. The person you help stays in control. Try ShowMe, and read the code.",
       "footageStatus": "presentation asset ready; founder voice still required"

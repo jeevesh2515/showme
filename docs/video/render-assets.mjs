@@ -43,7 +43,7 @@ assert.equal(evidence.prompt, "v3");
 assert.deepEqual([evidence.grounding.percent, evidence.pro.percent, evidence.expectedNotVisible.percent, evidence.expectedNotVisible.absentPercent, evidence.expectedNotVisible.absentHits, evidence.expectedNotVisible.absentMissesHighlighted, evidence.e2e.passed], ["89.9", "62.0", "76.7", "75.5", 151, 44, 12]);
 assert.deepEqual([evidence.grounding.n, evidence.grounding.uniqueImages, evidence.expectedNotVisible.absentPairs, evidence.expectedNotVisible.injectionProbes, evidence.expectedNotVisible.overlappingPairs], [1172, 696, 200, 10, 1]);
 
-const times = [0, 20, 50, 80, 118, 138, 169, 180];
+const times = [0, 20, 48, 78, 112, 133, 167, 180];
 const names = ["Problem", "Privacy review", "Meta models", "Recipient handoff", "Engineering", "Recorded evidence", "Close"];
 const speech = readFileSync(join(here, "narration.txt"), "utf8").trim().split(/\n\s*\n/);
 assert.equal(speech.length, 7);

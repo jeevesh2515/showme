@@ -1,0 +1,135 @@
+1
+00:00:00,000 --> 00:00:04,283
+Someone sends you a screenshot: “Where
+do I press?” On a call, neither of you
+
+2
+00:00:04,333 --> 00:00:08,617
+can see what the other means. ShowMe
+sends back one clear visual next step.
+
+3
+00:00:08,667 --> 00:00:12,950
+This example uses made-up billing
+details.
+
+4
+00:00:15,000 --> 00:00:20,830
+I add the screenshot and the goal:
+cancel my subscription. The browser
+
+5
+00:00:20,880 --> 00:00:26,710
+detects structured details such as
+emails and card numbers. Detection is
+
+6
+00:00:26,760 --> 00:00:32,590
+partial, so I review the picture and
+brush out this name myself. Only after
+
+7
+00:00:32,640 --> 00:00:38,470
+I continue does the reviewed, redacted
+image go to ShowMe and Meta.
+
+8
+00:00:45,000 --> 00:00:48,910
+Muse Spark identifies the next
+control. SAM can refine the highlight
+
+9
+00:00:48,960 --> 00:00:52,870
+when its bounding box agrees with
+Spark’s and contains Spark’s point.
+
+10
+00:00:52,920 --> 00:00:56,830
+Otherwise, ShowMe keeps the box.
+Refinement never changes the click
+
+11
+00:00:56,880 --> 00:01:00,790
+point.
+
+12
+00:01:08,000 --> 00:01:13,614
+I review the image again, consent to
+sharing, and create an expiring link.
+
+13
+00:01:13,664 --> 00:01:19,278
+On the iPhone, the recipient gets one
+instruction and a highlight. They use
+
+14
+00:01:19,328 --> 00:01:24,942
+it to find the matching control on the
+original example. This is a picture,
+
+15
+00:01:24,992 --> 00:01:30,606
+not remote control, and no
+subscription is changed. Another step
+
+16
+00:01:30,656 --> 00:01:36,270
+needs another screenshot. The link
+expires after seven days.
+
+17
+00:01:48,000 --> 00:01:52,150
+Here is the engineering I built during
+the hackathon. The browser re-encodes
+
+18
+00:01:52,200 --> 00:01:56,350
+the reviewed image, and the API client
+requires that redaction result. Tests
+
+19
+00:01:56,400 --> 00:02:00,550
+inspect the uploaded payload. The SAM
+agreement gate rejects inconsistent
+
+20
+00:02:00,600 --> 00:02:04,750
+refinement.
+
+21
+00:02:12,000 --> 00:02:16,654
+On prompt version three, the click
+point landed inside the labelled
+
+22
+00:02:16,704 --> 00:02:21,358
+target in 89.9 percent of 1,172
+held-out grounding examples. When the
+
+23
+00:02:21,408 --> 00:02:26,062
+target was absent, it said “not
+visible” in 151 of 200 probes, 75.5
+
+24
+00:02:26,112 --> 00:02:30,766
+percent. Most of the rest still got a
+highlight, and we publish those
+
+25
+00:02:30,816 --> 00:02:35,470
+failures.
+
+26
+00:02:42,000 --> 00:02:46,750
+ShowMe is for the person who receives
+the screenshot: review locally, send
+
+27
+00:02:46,800 --> 00:02:51,550
+one clear step, and let the recipient
+stay in control. Try the live app and
+
+28
+00:02:51,600 --> 00:02:56,350
+inspect the code.

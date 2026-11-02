@@ -1,0 +1,39 @@
+{
+  "prompt": "v3",
+  "date": "2026-11-02",
+  "grounding": {
+    "n": 1172,
+    "hits": 1054,
+    "percent": "89.9",
+    "uniqueImages": 696
+  },
+  "pro": {
+    "n": 300,
+    "hits": 186,
+    "percent": "62.0"
+  },
+  "expectedNotVisible": {
+    "n": 210,
+    "hits": 161,
+    "accuracy": 0.7666666666666667,
+    "percent": "76.7",
+    "absentPairs": 200,
+    "absentHits": 151,
+    "absentPercent": "75.5",
+    "absentMissesHighlighted": 44,
+    "injectionProbes": 10,
+    "overlappingPairs": 1
+  },
+  "e2e": {
+    "n": 20,
+    "passed": 12,
+    "unseen": false
+  },
+  "sources": {
+    "grounding": "eval/results/2026-11-02-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv3-0707568a",
+    "pro": "eval/results/2026-11-02-screenspot-pro-heldout-n300-e08c4fce-muse-spark-1.3-minimal-samoff-max2560-pvv3-aa484597",
+    "negatives": "eval/results/2026-11-02-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv3-e2f82896",
+    "dev": "eval/results/2026-11-02-negatives-dev-n100-2d8071a5-muse-spark-1.3-minimal-samoff-max2560-pvv3-9513524e",
+    "e2e": "eval/results/2026-11-02-e2e-bb543ba-04574992c7"
+  }
+}

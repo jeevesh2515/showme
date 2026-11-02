@@ -107,19 +107,19 @@ flowchart LR
 
 ## 5. Measured Evaluation Results
 
-Every figure below is generated directly from output logs in `eval/results/` and matches [`RESULTS.md`](eval/results/RESULTS.md) and [`report.md`](eval/results/2026-11-01-e2e-final/report.md):
+Every figure below is generated directly from output logs in `eval/results/` and matches [`RESULTS.md`](eval/results/RESULTS.md) and [`report.md`](eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md):
 
 | Suite | Dataset / Split | Model | Prompt | n | Accuracy | Metric |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **ScreenSpot-v2** | Held-out (test) | `muse-spark-1.3` (minimal) | v3 | 1,172 | **89.9%** | Point inside ground-truth control box |
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-spark-1.3` (minimal) | v3 | 300 | **62.0%** | Point inside control (high-res desktop/web) |
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-wonder-1.0` (minimal) | v1 | 300 | **66.7%** | Point inside control (+3.0 pts at ~3× cost) |
-| **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v3 | 210 | **76.7%** | Correctly stated `not_visible` (161 / 210) |
+| **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v3 | 210 | **76.7%** | Correctly stated `not_visible` (161 / 210: 151/200 absent pairs = 75.5%, 10/10 injection probes = 100%) |
 | **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v3 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
 | **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v3 | 20 | **60.0% (12/20)** on the 2026-11-02 re-run with fixed predicates (avg 4.45 steps) | Task predicate met; see Known Limitations 2 |
 | **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (all 74 rating cells empty; no claim vs boxes) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
 
-*Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-01-e2e-final/report.md`](eval/results/2026-11-01-e2e-final/report.md).*
+*Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md`](eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md).*
 
 > **Prompt Version Note**: Shipped production runs prompt v3 (`pvv3`, frozen 2026-11-02), and the benchmark rows above are that prompt's held-out runs. Prompt v3 added a label-match gate for `ok`; on the dev splits it scored honesty 70.0% vs v2 60.0% and ScreenSpot 94.0% vs 92.0% (MEMORY D52). Historical v1 runs remain in `eval/results/` (ScreenSpot-v2 90.7%, Pro 63.7%, honesty 62.4%). The SAM ablation is still the v1 run and is labelled as such.
 

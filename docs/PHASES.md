@@ -87,7 +87,7 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 ## Day 7 · Mon Nov 2 · Hardening · FEATURE FREEZE 23:59
 
 - [ ] Security pass: CSP and headers, secrets scan, no PII in logs (PRIV-3 test), rate limits from a second IP, spend cap trip test
-- [x] `docs/REQUIREMENTS_STATUS.md` generated: every M requirement green or cut with a D-number
+- [ ] `docs/REQUIREMENTS_STATUS.md` inventory exists; every M requirement green or cut with a D-number (reopened by November 2 independent review: brush coverage, unsure SAM styling, negatives split isolation and PRIV-11 evidence remain open; see REVIEW-2026-11-02.md)
 - [x] `docs/SECURITY.md` threat model
 - [x] Final eval re-run on held-out + Pro with the frozen prompt version; regenerate `RESULTS.md`
 - [ ] Performance: Lighthouse ≥ 90; step p50/p95 from production logs

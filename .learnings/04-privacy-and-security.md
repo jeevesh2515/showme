@@ -250,3 +250,11 @@ Purpose: answer every privacy, security and threat-model question with the exact
 - I would say "privacy by design" and not "GDPR compliant".
 
 **Evidence:** [MEMORY.md Q5](../docs/MEMORY.md), [ARCHITECTURE.md section 8](../docs/ARCHITECTURE.md), [PRD.md section 8](../docs/PRD.md)
+
+### Q: Did the November 2 hardening prove release privacy and security?
+
+**Short answer:** [Known limitation] No. An independent production check found that brush snapping can reduce the user's selected masking area. Preserve the drag area when expanding to OCR lines. Current CI and representative bundle scans pass, but production log checks, complete secret-exposure evidence and dependency-advisory triage remain open.
+
+**Detail:** [Measured] Synthetic production guide creation/read/view/deletion preserved caution/status and deletion returned a subsequent 404. Four local secret values were absent from 24 local client assets and ten production scripts. Those scans do not establish the contents of every production environment value or hosting log. The rate-limited live step did not produce a new model result. No real personal data was used.
+
+**Evidence:** [November 2 independent review](../docs/REVIEW-2026-11-02.md)

@@ -45,16 +45,19 @@ On Day 1 I ran four spikes. Muse Spark got 10 of 10 on a ten-sample ScreenSpot s
 
 A guided step costs about $0.0076. The consumer app is free and rate limited. My business hypothesis, and it is a hypothesis, is an embeddable 'ShowMe for your help centre' widget that companies pay for per guided step, to deflect support tickets. I will test that with a pilot, and I have written down the numbers that would make me stop."
 
-## Status ledger (as of 2026-10-27)
+## Status ledger (as of 2026-11-02, Day 7 Feature Freeze `v1.0.0-rc1`)
 
 | Area | Status |
 | --- | --- |
 | Meta API access, model list, limits | Measured and read from official pages (SPIKES.md a) |
-| Grounding accuracy and honesty | Measured on 10 samples and 5 probes only (SPIKES.md b) |
-| SAM behaviour | Measured on synthetic and 10 ScreenSpot samples (SPIKES.md c) |
-| Redaction regex layer | Measured on 3 synthetic fixtures (SPIKES.md d) |
-| Everything else (app, API, eval harness, sharing, accessibility, deploy) | Decided in docs, not built. Schedule in PHASES.md |
-| Business model | Hypothesis |
+| Grounding accuracy and honesty (prompt v3) | Measured on full held-out suites: v2 89.9%, Pro 62.0%, honesty 76.7% |
+| SAM behaviour & agreement gate | Implemented in backend; SVG smoothing active; agreement gate required |
+| Redaction pipeline (client-side) | Built in `apps/web/lib/redaction/`: WASM Tesseract OCR, regex PII masking, manual brush, tap-to-blur |
+| Core web app & API | Built & deployed: Next.js 14 on Vercel, FastAPI backend on Vercel |
+| Share flow & storage | Built: Supabase EU guides table + private bucket, 7-day TTL purge, noindex |
+| Accessibility & responsive UI | Built: WCAG 2.2 AA compliant, 0 axe violations, touch targets >= 44 px, iPhone 16 viewport tuned |
+| E2E Live Web Suite (20 tasks) | Built & measured: 12/20 (60.0%) on production with audited predicates |
+| Business model | Hypothesis (widget deflection for support centres) |
 
 ## Numbers to remember
 
@@ -62,6 +65,13 @@ Say them exactly. n is the sample size. "est." means arithmetic on measured usag
 
 | Number | What it is | Source |
 | --- | --- | --- |
+| 89.9% (1,054/1,172) | ScreenSpot-v2 held-out click accuracy (`muse-spark-1.3`, prompt v3 minimal) | [RESULTS.md](../eval/results/RESULTS.md) |
+| 62.0% (186/300) | ScreenSpot-Pro held-out click accuracy (`muse-spark-1.3`, prompt v3 minimal) | [RESULTS.md](../eval/results/RESULTS.md) |
+| 66.7% (200/300) | ScreenSpot-Pro held-out click accuracy (`muse-wonder-1.0`, prompt v1 minimal; +3.0 pts at ~3x cost) | [RESULTS.md](../eval/results/RESULTS.md) |
+| 76.7% (161/210) | Negatives honesty: correctly answered `not_visible` (151/200 absent pairs = 75.5% + 10/10 injection probes = 100%) | [RESULTS.md](../eval/results/RESULTS.md) |
+| 100.0% (12/12) | Safety probes: correctly refused credential harvesting or dangerous actions | [RESULTS.md](../eval/results/RESULTS.md) |
+| 60.0% (12/20) | 20-task E2E live web suite pass rate on real public sites (avg 4.45 steps, prompt v3, audited predicates) | [2026-11-02-e2e report](../eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md) |
+| $36.24 | Total harness eval spend in ledger (under $40 eval ceiling) | [spend.json](../eval/results/spend.json) |
 | 10/10 | Muse Spark 1.3 point-in-box on 10 ScreenSpot v1 samples (default and low and minimal effort). n = 10, v1 is near-saturated | [SPIKES.md (b)](../docs/SPIKES.md) |
 | 5/5 | Honest "not visible" on 5 absent-target probes (low, minimal and Wonder; not run at default effort) | [SPIKES.md (b)](../docs/SPIKES.md) |
 | 15/16 | Point-in-box across 10 ScreenSpot samples plus 6 synthetic targets | [SPIKES.md (b)](../docs/SPIKES.md) |

@@ -229,3 +229,11 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 - Remaining failures (6): cookie-banner click loops (IKEA, NHM), bot wall (Royal Mail Access Denied, honest), wrong navigation choice (Python download button), link-click no-navigation (bank holidays in final run), Firefox App Store loop.
 
 **Evidence:** [eval/results/2026-11-01-e2e-final/report.md](../eval/results/2026-11-01-e2e-final/report.md), [MEMORY.md D36, D37](../docs/MEMORY.md)
+
+### Q: What qualifications apply to the frozen v3 numbers? (November 2 audit)
+
+**Short answer:** [Measured] Current recorded v3 results are v2 1054/1172 (89.9%), Pro 186/300 (62.0%) and live E2E 12/20 (4.45 mean steps). The older 14/20 figure above is historical and had suspect predicates. Honesty's 161/210 aggregate consists of 151/200 mismatched absent pairs plus 10/10 injection probes; refusals are separately 12/12.
+
+**Detail:** [Known limitation] Negative dev/reporting files share one identical image/goal pair and 63 image hashes. Held-out negative generation does not exclude dev sources. The record cannot be described as fully independent held-out evidence. Benchmark summaries label prompt v3 but name SHA 4f974e4, whose committed prompt is v2; dirty-source fingerprints were not recorded. Same-date equal-size publication remains ambiguous. Keep the generated files intact, disclose the limits, repair the split/selection/provenance code and reconcile budget before any paid rerun.
+
+**Evidence:** [November 2 independent review](../docs/REVIEW-2026-11-02.md), [current E2E report](../eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md)

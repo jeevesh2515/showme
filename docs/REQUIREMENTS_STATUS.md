@@ -1,9 +1,26 @@
 # Requirements Status: ShowMe
 
-Status of all requirements defined in [REQUIREMENTS.md](REQUIREMENTS.md) as of Day 7 (2026-11-01).
+Status of all requirements defined in [REQUIREMENTS.md](REQUIREMENTS.md). Original inventory: 2026-11-01; independent audit addendum: 2026-11-02.
 
 Priority: **M** = MVP (must ship by feature freeze Nov 2), **S** = Stretch.
 Status: **Verified** (cited evidence exists and was re-checked on 2026-11-01), **Unverified** (no cited evidence found), **Partial** (evidence exists but has a known defect), **Pending fix (in progress)**, **Deferred** (post-freeze roadmap). A Verified row means the cited tests or files exist; it does not mean the tests were re-run in this edit.
+
+## November 2 independent audit — overrides older rows below
+
+Full evidence and reproduction: [REVIEW-2026-11-02.md](REVIEW-2026-11-02.md). Findings remain open; this review did not repair application code.
+
+| ID | Current audited status | Evidence / gap |
+| --- | --- | --- |
+| FLOW-3 | **Partial** | New brush snap shrinks the selected privacy area to OCR bounds; reproduced on production. Redo/Hide-all tests pass. |
+| FLOW-7 / PRIV-5 | **Partial** | Guide caution/status survive production create/read/view/delete, but unsure SAM strokes are solid. Targetless guide statuses are replaced with done in the rendering shim. |
+| EVAL-9 | **Partial** | Negatives-dev and reporting probes overlap by one exact image/goal pair; held-out negatives use the entire source pool. Source v2 partitions are annotation-based, not image-disjoint. |
+| EVAL-8 | **Verified recorded run** | Current v3 fixed-predicate report records 12/20, average 4.45; earlier re-run-pending row is superseded. This does not measure human handoff. |
+| WEB-2 | **Partial selection logic** | Current live headlines match intended v3 runs; same-date equal-n fixture still selects earlier v2. |
+| PRIV-11 | **Partial evidence** | Current CI succeeds; four local secret values absent from 24 local client assets and ten production scripts. All production env values and hosting logs were not inspected. |
+| WEB-1 / ENG-1 / EVAL-1 | **Still incomplete** | Final demo video and fresh-clone reproduction remain pending; earlier Verified labels describe narrower implementation/offline evidence. |
+| ENG-2 / ENG-3 | **Verified checks at 0096e05** | make lint/test passed: 162 backend + 33 eval + 82 web; wrapper 8/8, Node 20/20; Playwright 60/60; both GitHub CI jobs green. Dependency audit is not a CI gate and reports unresolved advisories. |
+
+Do not infer that all M requirements are green from the historical table. The feature-freeze DoD remains open.
 
 ---
 

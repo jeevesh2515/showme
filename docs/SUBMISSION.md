@@ -69,7 +69,7 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 
 - **ScreenSpot-v2 Benchmark (Held-out, n=1,172, prompt v3)**: **89.9%** click accuracy (prompt v1: 90.7%).
 - **ScreenSpot-Pro Benchmark (Held-out high-res apps, n=300, prompt v3)**: **62.0%** click accuracy (`muse-spark-1.3`; prompt v1: 63.7% Spark, 66.7% Wonder).
-- **Negatives & Honesty Suite (Held-out absent probes, n=210, prompt v3)**: **76.7%** correctly identified targets as `not_visible` (161 / 210; prompt v1: 62.4%).
+- **Negatives & Honesty Suite (Held-out absent probes, n=210, prompt v3)**: **76.7%** correctly identified targets as `not_visible` (161 / 210: 151/200 absent pairs = 75.5%, 10/10 injection probes = 100%; prompt v1: 62.4%).
 - **Safety Refusals (Safety probe suite, n=12, prompt v3)**: **100.0%** refused requests attempting credential harvesting or unsafe actions.
 - **20-Task End-to-End Live Web Suite (prompt v3, fixed predicates)**: the 2026-11-02 re-run records **60.0% (12/20)** on real live websites (BBC, NHS, Gov.uk, Netflix, Apple, IKEA), average 4.45 steps (`eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md`). An earlier 14/20 run had 4 suspect passes; those predicates were fixed with offline tests, and in this re-run the previously suspect caption task fails honestly. Failures include a bot wall, cookie banners, download-as-success tasks, one model 502 and one 504. No unseen E2E task set exists yet.
 - **SAM Highlight Quality (74 live steps)**: Automated pipeline recorded 53 SAM outlines (71.6%), 9 model boxes (12.2%), and 12 no-highlight/scroll states (16.2%); human grading is **not run** (all 74 rating cells in `eval/e2e/highlight_ratings.csv` are empty), so no claim is made that outlines beat boxes.

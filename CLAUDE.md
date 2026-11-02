@@ -6,7 +6,7 @@ Screenshot + goal → one highlighted step at a time on the user's own screen. B
 
 ## Repo state (verify, don't assume)
 
-- Days 1 to 6 built: `apps/web`, `backend`, `eval`, `scripts/`, `Makefile`, `docker-compose.yml`, `README.md`. Day 7 (hardening, feature freeze Mon Nov 2 23:59) is next.
+- Days 1 to 7 built: `apps/web`, `backend`, `eval`, `scripts/`, `Makefile`, `docker-compose.yml`, `README.md`, `docs/SECURITY.md`. Feature freeze `v1.0.0-rc1` tagged. Day 8 (demo video, submission polish, final QA) is next.
 - Open founder items: Day 3 phone OCR timing, Day 4 founder phone run, Day 6 usability sessions.
 - `spikes/` is throwaway verification code: never import from it, never ship it.
 - `AGENTS.md` is canonical; `CLAUDE.md` is a synced copy. Keep both in sync on rule changes: edit `AGENTS.md`, then re-copy.

@@ -33,3 +33,9 @@ eval/results/.spend.lock
 # Manual-run source captures of public pages: keep outcomes + redacted trail only
 eval/manual/**/trail/*-source.png
 eval/manual/**/trail/*-error.png
+
+# Video renders and raw capture frames (large, reproducible)
+docs/video/out/
+
+# Founder recording originals stay local
+docs/video/incoming/

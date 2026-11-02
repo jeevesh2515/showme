@@ -1,135 +1,160 @@
 1
-00:00:00,000 --> 00:00:04,283
-Someone sends you a screenshot: “Where
-do I press?” On a call, neither of you
+00:00:00,000 --> 00:00:04,450
+Someone you help sends a screenshot:
+“Where do I press?” So you call, and
 
 2
-00:00:04,333 --> 00:00:08,617
-can see what the other means. ShowMe
-sends back one clear visual next step.
+00:00:04,500 --> 00:00:08,950
+neither of you can see what the other
+means. In a 2025 study of 1,173 older
 
 3
-00:00:08,667 --> 00:00:12,950
-This example uses made-up billing
-details.
+00:00:09,000 --> 00:00:13,450
+internet users, 65 percent got tech
+help from family at least sometimes.
 
 4
-00:00:15,000 --> 00:00:20,830
-I add the screenshot and the goal:
-cancel my subscription. The browser
+00:00:13,500 --> 00:00:17,950
+ShowMe is for that helper.
 
 5
-00:00:20,880 --> 00:00:26,710
-detects structured details such as
-emails and card numbers. Detection is
+00:00:20,000 --> 00:00:25,550
+This is a made-up billing screen. I
+type the goal and add the picture.
 
 6
-00:00:26,760 --> 00:00:32,590
-partial, so I review the picture and
-brush out this name myself. Only after
+00:00:25,600 --> 00:00:31,150
+Before anything is uploaded, the
+browser reads it on this device and
 
 7
-00:00:32,640 --> 00:00:38,470
-I continue does the reviewed, redacted
-image go to ShowMe and Meta.
+00:00:31,200 --> 00:00:36,750
+masks the email, card number, phone
+and postcode. Detection is partial: it
 
 8
-00:00:45,000 --> 00:00:48,910
-Muse Spark identifies the next
-control. SAM can refine the highlight
+00:00:36,800 --> 00:00:42,350
+missed the name, the expiry and the
+street, so I hide those myself. This
 
 9
-00:00:48,960 --> 00:00:52,870
-when its bounding box agrees with
-Spark’s and contains Spark’s point.
+00:00:42,400 --> 00:00:47,950
+review can't be skipped, and here is
+the exact image that left the browser.
 
 10
-00:00:52,920 --> 00:00:56,830
-Otherwise, ShowMe keeps the box.
-Refinement never changes the click
+00:00:50,000 --> 00:00:54,617
+Muse Spark 1.3 reads the redacted
+screen and the goal, and returns one
 
 11
-00:00:56,880 --> 00:01:00,790
-point.
+00:00:54,667 --> 00:00:59,283
+action in a strict JSON schema: which
+control, where, and one plain
 
 12
-00:01:08,000 --> 00:01:13,614
-I review the image again, consent to
-sharing, and create an expiring link.
+00:00:59,333 --> 00:01:03,950
+sentence. At prompt version three,
+that's about 2.8 seconds and under a
 
 13
-00:01:13,664 --> 00:01:19,278
-On the iPhone, the recipient gets one
-instruction and a highlight. They use
+00:01:04,000 --> 00:01:08,617
+cent. SAM 3.1 then tries to outline
+that control. ShowMe keeps the outline
 
 14
-00:01:19,328 --> 00:01:24,942
-it to find the matching control on the
-original example. This is a picture,
+00:01:08,667 --> 00:01:13,283
+only if its bounding box agrees with
+Spark's. Otherwise the box stays, and
 
 15
-00:01:24,992 --> 00:01:30,606
-not remote control, and no
-subscription is changed. Another step
+00:01:13,333 --> 00:01:17,950
+the click point never moves.
 
 16
-00:01:30,656 --> 00:01:36,270
-needs another screenshot. The link
-expires after seven days.
+00:01:20,000 --> 00:01:25,550
+To send it back, I review the picture
+again, consent, and create a link that
 
 17
-00:01:48,000 --> 00:01:52,150
-Here is the engineering I built during
-the hackathon. The browser re-encodes
+00:01:25,600 --> 00:01:31,150
+expires in seven days. I keep a key
+that can delete it sooner. On a phone,
 
 18
-00:01:52,200 --> 00:01:56,350
-the reviewed image, and the API client
-requires that redaction result. Tests
+00:01:31,200 --> 00:01:36,750
+the recipient gets one instruction and
+one highlight. It's a picture of the
 
 19
-00:01:56,400 --> 00:02:00,550
-inspect the uploaded payload. The SAM
-agreement gate rejects inconsistent
+00:01:36,800 --> 00:01:42,350
+screen, not remote control: the guide
+shows which control to find on their
 
 20
-00:02:00,600 --> 00:02:04,750
-refinement.
+00:01:42,400 --> 00:01:47,950
+own screen. No subscription is changed
+here, and another step needs another
 
 21
-00:02:12,000 --> 00:02:16,654
-On prompt version three, the click
-point landed inside the labelled
+00:01:48,000 --> 00:01:53,550
+screenshot.
 
 22
-00:02:16,704 --> 00:02:21,358
-target in 89.9 percent of 1,172
-held-out grounding examples. When the
+00:01:58,000 --> 00:02:02,450
+I built this during the hackathon. The
+browser re-encodes the reviewed image,
 
 23
-00:02:21,408 --> 00:02:26,062
-target was absent, it said “not
-visible” in 151 of 200 probes, 75.5
+00:02:02,500 --> 00:02:06,950
+and the API client only accepts that
+redacted result. Tests inspect the
 
 24
-00:02:26,112 --> 00:02:30,766
-percent. Most of the rest still got a
-highlight, and we publish those
+00:02:07,000 --> 00:02:11,450
+uploaded payload. The same core code
+runs in production and in the
 
 25
-00:02:30,816 --> 00:02:35,470
-failures.
+00:02:11,500 --> 00:02:15,950
+evaluation harness, so the evaluation
+runs the production path.
 
 26
-00:02:42,000 --> 00:02:46,750
-ShowMe is for the person who receives
-the screenshot: review locally, send
+00:02:18,000 --> 00:02:22,783
+When the control isn't on screen, it
+should say so, as it does here. On
 
 27
-00:02:46,800 --> 00:02:51,550
-one clear step, and let the recipient
-stay in control. Try the live app and
+00:02:22,833 --> 00:02:27,617
+prompt version three, the click point
+hit the target on 89.9 percent of
 
 28
-00:02:51,600 --> 00:02:56,350
-inspect the code.
+00:02:27,667 --> 00:02:32,450
+1,172 held-out examples, and 62
+percent on harder professional apps.
+
+29
+00:02:32,500 --> 00:02:37,283
+With the target absent, it said not
+visible in 151 of 200 probes. Most of
+
+30
+00:02:37,333 --> 00:02:42,117
+the rest still got a highlight. Live
+websites passed 12 of 20 development
+
+31
+00:02:42,167 --> 00:02:46,950
+tasks, and the failures are public.
+
+32
+00:02:49,000 --> 00:02:53,450
+Review on your device. Send one clear
+step. The person you help stays in
+
+33
+00:02:53,500 --> 00:02:57,950
+control. Try ShowMe, and read the
+code.

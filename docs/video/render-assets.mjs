@@ -43,7 +43,7 @@ assert.equal(evidence.prompt, "v3");
 assert.deepEqual([evidence.grounding.percent, evidence.pro.percent, evidence.expectedNotVisible.percent, evidence.expectedNotVisible.absentPercent, evidence.expectedNotVisible.absentHits, evidence.expectedNotVisible.absentMissesHighlighted, evidence.e2e.passed], ["89.9", "62.0", "76.7", "75.5", 151, 44, 12]);
 assert.deepEqual([evidence.grounding.n, evidence.grounding.uniqueImages, evidence.expectedNotVisible.absentPairs, evidence.expectedNotVisible.injectionProbes, evidence.expectedNotVisible.overlappingPairs], [1172, 696, 200, 10, 1]);
 
-const times = [0, 15, 45, 68, 108, 132, 162, 180];
+const times = [0, 20, 50, 80, 118, 138, 169, 180];
 const names = ["Problem", "Privacy review", "Meta models", "Recipient handoff", "Engineering", "Recorded evidence", "Close"];
 const speech = readFileSync(join(here, "narration.txt"), "utf8").trim().split(/\n\s*\n/);
 assert.equal(speech.length, 7);
@@ -62,7 +62,7 @@ if (process.argv.includes("--check")) {
   const manifest = json("docs/video/assets/manifest.json");
   assert.deepEqual(manifest.sourceHashes, sourceHashes, "source changed: rerender the kit");
   assert.equal(manifest.finalVideoComplete, false);
-  for (const [name, seconds] of [["05-code.mp4", 24], ["06-evidence.mp4", 30], ["07-end.mp4", 18]]) {
+  for (const [name, seconds] of [["05-code.mp4", 20], ["06-evidence.mp4", 24], ["07-end.mp4", 11]]) {
     const media = probeMedia(name);
     assert.equal(Number(media.format.duration), seconds);
     assert.deepEqual([media.streams[0].width, media.streams[0].height], [1920, 1080]);
@@ -70,7 +70,7 @@ if (process.argv.includes("--check")) {
   const captions = readFileSync(join(here, "captions.draft.srt"), "utf8");
   assert.equal(captions.includes("NaN"), false);
   assert.equal(readFileSync(join(out, "billing.png")).equals(readFileSync(join(root, "apps/web/public/examples/billing.png"))), true);
-  console.log("PASS: source provenance, four metrics, caption file, synthetic fixture, and 24/30/18-second 1080p clips; final film remains pending.");
+  console.log("PASS: source provenance, four metrics, caption file, synthetic fixture, and 20/24/11-second 1080p clips; final film remains pending.");
   process.exit(0);
 }
 
@@ -102,7 +102,7 @@ for (const s of scenes) {
 }
 assert.equal(cues.map((c) => c.text).join(" ").replace(/\s+/g, " "), speech.join(" ").replace(/\s+/g, " "));
 for (let i = 0; i < cues.length; i++) {
-  assert.ok(cues[i].end > cues[i].start && cues[i].end <= 177000);
+  assert.ok(cues[i].end > cues[i].start && cues[i].end <= 178500);
   assert.ok(!i || cues[i].start >= cues[i - 1].end);
 }
 writeFileSync(join(here, "captions.draft.srt"), cues.map((c, i) => (i + 1) + "\n" + stamp(c.start) + " --> " + stamp(c.end) + "\n" + c.text).join("\n\n") + "\n");
@@ -156,11 +156,11 @@ try {
 }
 const ff = (args) => execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", ...args], { timeout: 120000 });
 const encoding = ["-an", "-r", "30", "-c:v", "libx264", "-preset", "ultrafast", "-tune", "stillimage", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart"];
-ff(["-loop", "1", "-t", "12", "-i", join(out, "redaction-code.png"), "-loop", "1", "-t", "12", "-i", join(out, "sam-gate-code.png"), "-filter_complex", "[0:v][1:v]concat=n=2:v=1:a=0[v]", "-map", "[v]", "-t", "24", ...encoding, join(out, "05-code.mp4")]);
-console.log("rendered 05-code.mp4 (24 seconds, silent)");
-for (const [image, name, seconds] of [["evidence-card.png", "06-evidence.mp4", 30], ["end-card.png", "07-end.mp4", 18]]) {
+ff(["-loop", "1", "-t", "10", "-i", join(out, "redaction-code.png"), "-loop", "1", "-t", "10", "-i", join(out, "sam-gate-code.png"), "-filter_complex", "[0:v][1:v]concat=n=2:v=1:a=0[v]", "-map", "[v]", "-t", "20", ...encoding, join(out, "05-code.mp4")]);
+console.log("rendered 05-code.mp4 (20 seconds, silent)");
+for (const [image, name, seconds] of [["evidence-card.png", "06-evidence.mp4", 24], ["end-card.png", "07-end.mp4", 11]]) {
   ff(["-loop", "1", "-i", join(out, image), "-t", String(seconds), ...encoding, join(out, name)]);
   console.log("rendered " + name + " (" + seconds + " seconds, silent)");
 }
-writeFileSync(join(out, "manifest.json"), JSON.stringify({ format: "1920x1080 / 30 fps", totalTimelineSeconds: 180, generatedPresentationSeconds: 72, missingGenuineFootageSeconds: 108, narrationWords: words, captionTiming: "draft; not aligned to actual speech", finalVideoComplete: false, sourceHashes, clips: ["05-code.mp4", "06-evidence.mp4", "07-end.mp4"] }, null, 2) + "\n");
+writeFileSync(join(out, "manifest.json"), JSON.stringify({ format: "1920x1080 / 30 fps", totalTimelineSeconds: 180, generatedPresentationSeconds: 55, missingGenuineFootageSeconds: 125, narrationWords: words, captionTiming: "draft; not aligned to actual speech", finalVideoComplete: false, sourceHashes, clips: ["05-code.mp4", "06-evidence.mp4", "07-end.mp4"] }, null, 2) + "\n");
 console.log("Kit assets ready. No genuine product/recipient footage or voice has been fabricated.");

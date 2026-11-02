@@ -1,5 +1,5 @@
 {
-  "total_usd": 36.3934,
+  "total_usd": 36.4092,
   "runs": [
     {
       "date": "2026-10-28",
@@ -167,6 +167,26 @@
       "date": "2026-11-02",
       "label": "2026-11-02-video-take-2",
       "cost_usd": 0.006
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-take-3",
+      "cost_usd": 0.0061
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-absent-take",
+      "cost_usd": 0.0036
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-take-4",
+      "cost_usd": 0
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-take-4-failed-share",
+      "cost_usd": 0.0061
     }
   ]
 }

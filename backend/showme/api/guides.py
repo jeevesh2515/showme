@@ -15,6 +15,8 @@ from showme.core.schema import PointPx, Target
 class GuideStepIn(BaseModel):
     n: int
     instruction: str = Field(max_length=200)
+    status: str = Field(default="ok", max_length=20)
+    caution: str = Field(default="", max_length=300)
     image: str
     target: Target | None = None
     svg_path: str | None = Field(default=None, max_length=20_000)  # rendered into <path d>; cap pathological paths
@@ -38,6 +40,8 @@ class CreateGuideResponse(BaseModel):
 class GuideStepOut(BaseModel):
     n: int
     instruction: str
+    status: str = "ok"
+    caution: str = ""
     image_url: str
     target: Target | None = None
     svg_path: str | None = None

@@ -132,11 +132,17 @@ def _run_suite(args: argparse.Namespace) -> int:
             )
         elif args.suite == "negatives":
             v2 = load_v2_local(DATA_ROOT / "screenspot-v2")
-            samples = build_negatives(v2, 200, seed=0) + ensure_fixtures(
-                DATA_ROOT / "negatives"
-            )
-            if args.n is not None:
-                samples = samples[: args.n]
+            if args.split == "dev":
+                # EVAL-9: tuning signal only from the dev partition; held-out negatives stay untouched.
+                samples = build_negatives(
+                    select_partition(v2, "dev", n=100, seed=0), 100, seed=0
+                )
+            else:
+                samples = build_negatives(v2, 200, seed=0) + ensure_fixtures(
+                    DATA_ROOT / "negatives"
+                )
+                if args.n is not None:
+                    samples = samples[: args.n]
         else:
             all_pro = load_pro_local(data_dir)
             samples = stratified_sample(all_pro, args.n or 300, seed=0)
@@ -200,7 +206,7 @@ def _run_suite(args: argparse.Namespace) -> int:
         "effort": args.effort,
         "sam_on": sam_on,
         "max_side": args.max_side if args.max_side > 0 else 100000,
-        "split": args.split if args.suite == "screenspot-v2" else "heldout",
+        "split": args.split if args.suite in ("screenspot-v2", "negatives") else "heldout",
         "is_headline": args.headline and args.split != "dev",
     }
     result = write_run(out_dir, predictions, meta)

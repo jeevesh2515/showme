@@ -98,4 +98,24 @@ test.describe("FLOW-3 review tools: brush, undo, zoom", () => {
     // Review still usable after the tools were used.
     await expect(page.getByTestId("review-continue")).toBeEnabled();
   });
+
+  test("FLOW-3 undo can be redone and Hide all text covers every OCR line", async ({ page }) => {
+    test.setTimeout(90_000);
+    await mockApi(page);
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill("cancel my subscription");
+    await page.getByTestId("file-input").setInputFiles(path.join(__dirname, "assets", "ocr-a.png"));
+    await expect(page.getByTestId("ocr-line").first()).toBeAttached({ timeout: 30_000 });
+
+    const hidden = page.getByTestId("hidden-region");
+    const before = await hidden.count();
+    await page.getByTestId("hide-all-btn").click();
+    const afterHideAll = await hidden.count();
+    expect(afterHideAll).toBeGreaterThan(before);
+
+    await page.getByTestId("undo-btn").click();
+    await expect(hidden).toHaveCount(afterHideAll - 1);
+    await page.getByTestId("redo-btn").click();
+    await expect(hidden).toHaveCount(afterHideAll);
+  });
 });

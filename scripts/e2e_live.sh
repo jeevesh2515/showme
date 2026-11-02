@@ -24,6 +24,8 @@ restore() {
   local rc=$? failed=""
   trap - EXIT
   set +e
+  # Stop the run first: a surviving child would keep spending against the limits being restored.
+  [ -n "${MAKE_PID:-}" ] && kill "$MAKE_PID" 2>/dev/null
   # rm may fail with "not found" (var never added); absence is verified by listing instead.
   api env rm RATE_PER_HOUR production --yes >/dev/null 2>&1
   api env rm RATE_PER_DAY production --yes >/dev/null 2>&1
@@ -50,8 +52,14 @@ restore() {
 }
 # Installed before the first env add so a partial raise is still restored.
 trap restore EXIT
+# Bash skips the EXIT trap on SIGTERM by default; route signals through exit so restoration always runs.
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 printf 500 | api env add RATE_PER_HOUR production >/dev/null
 printf 500 | api env add RATE_PER_DAY production >/dev/null
 api deploy --prod >/dev/null
-make e2e E2E_LIMIT=20 E2E_BUDGET_USD="$BUDGET"
+# Background + wait: bash defers a TERM trap until a foreground child exits, but wait returns at once.
+make e2e E2E_LIMIT=20 E2E_BUDGET_USD="$BUDGET" &
+MAKE_PID=$!
+wait "$MAKE_PID"

@@ -31,6 +31,8 @@ export interface GetGuideResponse {
 export interface GuideStepIn {
   n: number;
   instruction: string;
+  status?: string;
+  caution?: string;
   image: string;
   target?: Target | null;
   svg_path?: string | null;
@@ -42,6 +44,8 @@ export interface GuideStepIn {
 export interface GuideStepOut {
   n: number;
   instruction: string;
+  status?: string;
+  caution?: string;
   image_url: string;
   target?: Target | null;
   svg_path?: string | null;

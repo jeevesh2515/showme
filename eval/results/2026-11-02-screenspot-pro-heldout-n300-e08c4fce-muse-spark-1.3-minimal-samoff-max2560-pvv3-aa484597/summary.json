@@ -1,0 +1,113 @@
+{
+  "suite": "screenspot-pro",
+  "model": "muse-spark-1.3",
+  "effort": "minimal",
+  "sam_on": false,
+  "max_side": 2560,
+  "split": "heldout",
+  "is_headline": false,
+  "n": 300,
+  "hits": 186,
+  "accuracy": 0.62,
+  "by_platform": {
+    "linux": {
+      "n": 14,
+      "hits": 9,
+      "accuracy": 0.6428571428571429
+    },
+    "macos": {
+      "n": 123,
+      "hits": 88,
+      "accuracy": 0.7154471544715447
+    },
+    "windows": {
+      "n": 163,
+      "hits": 89,
+      "accuracy": 0.5460122699386503
+    }
+  },
+  "by_element_type": {
+    "icon": {
+      "n": 115,
+      "hits": 47,
+      "accuracy": 0.40869565217391307
+    },
+    "text": {
+      "n": 185,
+      "hits": 139,
+      "accuracy": 0.7513513513513513
+    }
+  },
+  "by_group": {
+    "CAD": {
+      "n": 49,
+      "hits": 19,
+      "accuracy": 0.3877551020408163
+    },
+    "Creative": {
+      "n": 65,
+      "hits": 45,
+      "accuracy": 0.6923076923076923
+    },
+    "Dev": {
+      "n": 57,
+      "hits": 35,
+      "accuracy": 0.6140350877192983
+    },
+    "OS": {
+      "n": 37,
+      "hits": 23,
+      "accuracy": 0.6216216216216216
+    },
+    "Office": {
+      "n": 44,
+      "hits": 36,
+      "accuracy": 0.8181818181818182
+    },
+    "Scientific": {
+      "n": 48,
+      "hits": 28,
+      "accuracy": 0.5833333333333334
+    }
+  },
+  "by_status": {
+    "done": {
+      "n": 11,
+      "hits": 0,
+      "accuracy": 0.0
+    },
+    "error": {
+      "n": 1,
+      "hits": 0,
+      "accuracy": 0.0
+    },
+    "not_visible": {
+      "n": 5,
+      "hits": 0,
+      "accuracy": 0.0
+    },
+    "ok": {
+      "n": 255,
+      "hits": 180,
+      "accuracy": 0.7058823529411765
+    },
+    "unsure": {
+      "n": 28,
+      "hits": 6,
+      "accuracy": 0.21428571428571427
+    }
+  },
+  "by_expected_status": {
+    "": {
+      "n": 300,
+      "hits": 186,
+      "accuracy": 0.62
+    }
+  },
+  "latency_p50_ms": 4131.5,
+  "latency_p95_ms": 8155.300000000002,
+  "total_cost_usd": 2.3115,
+  "prompt_version": "v3",
+  "date": "2026-11-02",
+  "git_sha": "4f974e4"
+}

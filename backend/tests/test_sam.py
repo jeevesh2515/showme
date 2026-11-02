@@ -90,3 +90,23 @@ def test_api_4_rejects_sam_box_missing_point_or_too_large():
     respx.post(URL).mock(return_value=sam_reply(text))
     r = asyncio.run(refine(img_url(), BoxPx(x1=10, y1=10, x2=50, y2=50), PointPx(x=90, y=90), SETTINGS))
     assert r.mode == "box"
+
+
+def test_api_4_svg_path_smoothed_below_pixel_staircase():
+    import json
+    import re
+    from pathlib import Path
+
+    from meta_sam_parser import SegmentationMask, decode_mask_to_svg_path
+
+    from showme.core.sam import _smooth_svg_path
+
+    text = json.loads((Path(__file__).parent / "fixtures/sam_billing.json").read_text())["output_text"]
+    m = re.search(r"data=(\d+),(\d+),(.+)\|>", text, re.DOTALL)
+    assert m
+    raw = decode_mask_to_svg_path(
+        SegmentationMask(encoding="one_bit", payload=m.group(3), width=int(m.group(2)), height=int(m.group(1)))
+    )
+    smooth = _smooth_svg_path(raw)
+    assert smooth.startswith("M") and smooth.endswith("Z")
+    assert 0 < smooth.count("L") < raw.count("L")

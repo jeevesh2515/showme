@@ -266,3 +266,33 @@ def test_api_9_purge_rejects_wrong_secret_and_deletes_nothing() -> None:
     assert res.status_code == 200
     assert res.json()["purged_guides"] == 1
     assert client.get(f"/v1/guides/{token}").status_code == 404
+
+
+def test_priv_5_guide_preserves_status_and_caution() -> None:
+    client = _client(cron_secret="s3cret")
+    res = client.post(
+        "/v1/guides",
+        json={
+            "goal": "cancel my subscription",
+            "consent": True,
+            "steps": [
+                {
+                    "n": 1,
+                    "instruction": "Tap Cancel",
+                    "status": "unsure",
+                    "caution": "Careful: this asks for payment.",
+                    "image": _img(),
+                    "target": None,
+                    "svg_path": None,
+                    "svg_origin": None,
+                    "width": 8,
+                    "height": 8,
+                }
+            ],
+        },
+    )
+    assert res.status_code == 200, res.text
+    token = res.json()["url"].rsplit("/", 1)[-1]
+    step = client.get(f"/v1/guides/{token}").json()["steps"][0]
+    assert step["status"] == "unsure"
+    assert step["caution"] == "Careful: this asks for payment."

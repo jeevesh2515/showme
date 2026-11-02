@@ -333,6 +333,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 {
                     "n": step_in.n,
                     "instruction": mask_pii(step_in.instruction),
+                    "status": step_in.status,
+                    "caution": mask_pii(step_in.caution),
                     "target": step_in.target.model_dump() if step_in.target else None,
                     "svg_path": step_in.svg_path,
                     "svg_origin": step_in.svg_origin.model_dump() if step_in.svg_origin else None,
@@ -380,6 +382,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             GuideStepOut(
                 n=int(s["n"]),
                 instruction=str(s["instruction"]),
+                status=str(s.get("status", "ok")),
+                caution=str(s.get("caution", "")),
                 image_url=await request.app.state.guide_store.signed_url(str(s["image_path"]), record.expires_at, now),
                 target=s["target"],
                 svg_path=s["svg_path"],

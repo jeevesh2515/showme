@@ -31,6 +31,24 @@ def _iou(a: BoxPx, b: BoxPx) -> float:
     return inter / union if union else 0.0
 
 
+def _smooth_svg_path(path: str) -> str:
+    """Mask contours are pixel staircases (600+ points, reads as scribble on a phone).
+    Drop collinear points, then Chaikin-cut corners twice. Presentation only: the click point never moves."""
+    out: list[str] = []
+    for sub in path.split("M"):
+        nums = [float(v) for v in re.findall(r"-?\d+(?:\.\d+)?", sub)]
+        pts = list(zip(nums[::2], nums[1::2], strict=False))
+        if len(pts) < 3:
+            continue
+        slim = [p for i, p in enumerate(pts) if (pts[i - 1][0] - p[0]) * (pts[(i + 1) % len(pts)][1] - p[1]) != (pts[i - 1][1] - p[1]) * (pts[(i + 1) % len(pts)][0] - p[0])]
+        pts = slim or pts
+        for _ in range(2):
+            pts = [q for i, p in enumerate(pts) for q in ((0.75 * p[0] + 0.25 * pts[(i + 1) % len(pts)][0], 0.75 * p[1] + 0.25 * pts[(i + 1) % len(pts)][1]), (0.25 * p[0] + 0.75 * pts[(i + 1) % len(pts)][0], 0.25 * p[1] + 0.75 * pts[(i + 1) % len(pts)][1]))]
+        pts = pts[::2]  # Chaikin quadruples points; stride back below the raw staircase count
+        out.append("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + "Z")
+    return "".join(out) or path
+
+
 def _box_result(latency_ms: int) -> Refinement:
     return Refinement(mode="box", latency_ms=latency_ms, cost_usd=cost_sam())
 
@@ -101,7 +119,7 @@ async def refine(image_data_url: str, box: BoxPx, point: PointPx, settings: Sett
             width=int(mm.group(2)),
             height=int(mm.group(1)),
         )
-        svg_path = decode_mask_to_svg_path(mask)
+        svg_path = _smooth_svg_path(decode_mask_to_svg_path(mask))
         return Refinement(
             mode="outline",
             svg_path=svg_path,

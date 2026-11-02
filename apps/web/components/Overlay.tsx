@@ -28,9 +28,9 @@ export default function Overlay({ imageUrl, width, height, step, refinement, ste
           {!outline && <>{ring("var(--ink)", 2, 5)}{ring("var(--highlighter)", 6, 1)}{ring("var(--paper)", 2, -3)}</>}
           {outline && refinement?.origin && (
             <g style={{ transition: "opacity 200ms", opacity: 1 }} className="refine-fade">
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--ink)" strokeWidth={10} />
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--highlighter)" strokeWidth={6} />
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--paper)" strokeWidth={2} />
+              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--ink)" strokeWidth={10} strokeLinejoin="round" strokeLinecap="round" />
+              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--highlighter)" strokeWidth={6} strokeLinejoin="round" strokeLinecap="round" />
+              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--paper)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
             </g>
           )}
           <g data-testid="step-badge">

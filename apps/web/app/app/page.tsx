@@ -11,7 +11,7 @@ import type { Region } from "../../lib/redaction/types";
 import { maskPii } from "../../lib/redaction/patterns";
 
 type Phase = "start" | "review" | "looking" | "step" | "share";
-type TrailStep = { n: number; instruction: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
+type TrailStep = { n: number; instruction: string; status: string; caution: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
 const BTN_PRIMARY = "type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50";
 const BTN_SECONDARY = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-5 py-2 font-bold text-ink hover:bg-mist";
 const BTN_TOOLBAR = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-2 sm:px-5 py-2 font-bold text-ink hover:bg-mist";
@@ -33,6 +33,7 @@ export default function AppPage() {
   const [error, setError] = useState("");
   const [lines, setLines] = useState<readonly OcrLine[]>([]);
   const [entries, setEntries] = useState<{ r: Region; manual: boolean }[]>([]);
+  const [undone, setUndone] = useState<{ r: Region; manual: boolean }[]>([]);
   const [ocrFailed, setOcrFailed] = useState(false);
   const regions = entries.map((e) => e.r);
   const manualCount = entries.filter((e) => e.manual).length;
@@ -85,7 +86,7 @@ export default function AppPage() {
     if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { setError(ERROR_COPY.invalid_image ?? ""); return; }
     if (file.size > 20 * 1024 * 1024) { setError(ERROR_COPY.invalid_image ?? ""); return; }
     // PRIV-2: drop the previous screenshot's review now, so Continue cannot redact this image with the old regions while OCR runs.
-    bitmapRef.current = null; setEntries([]); setLines([]); setPhase("start");
+    bitmapRef.current = null; setEntries([]); setUndone([]); setLines([]); setPhase("start");
     try {
       const bitmap = await createImageBitmap(file);
       if (gen !== genRef.current) return;
@@ -111,7 +112,20 @@ export default function AppPage() {
   }, [loadImage]);
 
   function hideLine(line: OcrLine) {
+    setUndone([]);
     setEntries((prev) => [...prev, { r: { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 }, manual: true }]);
+  }
+
+  // R3 safety net: one tap hides every line OCR could read, for when pattern matching missed private text.
+  function hideAllLines() {
+    setUndone([]);
+    setEntries((prev) => {
+      const seen = new Set(prev.map(({ r }) => `${r.x},${r.y},${r.width},${r.height}`));
+      const add = lines
+        .map((l) => ({ r: { x: l.bbox.x0, y: l.bbox.y0, width: l.bbox.x1 - l.bbox.x0, height: l.bbox.y1 - l.bbox.y0 }, manual: true }))
+        .filter(({ r }) => !seen.has(`${r.x},${r.y},${r.width},${r.height}`));
+      return [...prev, ...add];
+    });
   }
 
   // FLOW-1: one-tap demo with a made-up billing screen (synthetic data); it goes through the same review as any upload.
@@ -136,7 +150,7 @@ export default function AppPage() {
       if (gen !== genRef.current) return;
       setCurrent(result); setRefinement(null); setPhase("step");
       // PRIV-5: trail of redacted step images, tab memory only, for the opt-in share second review.
-      setTrail((t) => [...t, { n: t.length + 1, instruction: result.instruction, image: redacted, target: result.target, svgPath: null, svgOrigin: null }]);
+      setTrail((t) => [...t, { n: t.length + 1, instruction: result.instruction, status: result.status, caution: result.caution, image: redacted, target: result.target, svgPath: null, svgOrigin: null }]);
       if (result.target) {
         try { const r = await refine(redacted, result.target.box, result.target.point); if (gen === genRef.current) { setRefinement(r); const svg = r.svg_path; if (svg) setTrail((t) => t.map((s, i) => (i === t.length - 1 ? { ...s, svgPath: svg, svgOrigin: r.origin ?? null } : s))); } } catch { setRefinement(null); }
       }
@@ -243,7 +257,9 @@ export default function AppPage() {
           {ocrFailed ? <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
           <div className="mt-2 flex flex-wrap gap-1 sm:mt-6 sm:gap-3">
             <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_TOOLBAR} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
-            <button data-testid="undo-btn" onClick={() => { setEntries((r) => r.slice(0, -1)); }} className={BTN_TOOLBAR}>Undo</button>
+            <button data-testid="undo-btn" disabled={entries.length === 0} onClick={() => { const last = entries.at(-1); if (!last) return; setEntries((r) => r.slice(0, -1)); setUndone((u) => [...u, last]); }} className={`${BTN_TOOLBAR} disabled:opacity-50`}>Undo</button>
+            <button data-testid="redo-btn" disabled={undone.length === 0} onClick={() => { const next = undone.at(-1); if (!next) return; setUndone((u) => u.slice(0, -1)); setEntries((r) => [...r, next]); }} className={`${BTN_TOOLBAR} disabled:opacity-50`}>Redo</button>
+            {lines.length > 0 && <button data-testid="hide-all-btn" onClick={hideAllLines} className={BTN_TOOLBAR}>Hide all text</button>}
             <button data-testid="zoom-in" onClick={() => setZoom((z) => Math.min(2, z + 0.25))} className={BTN_TOOLBAR}>Zoom in</button>
             <button data-testid="zoom-out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className={BTN_TOOLBAR}>Zoom out</button>
           </div>
@@ -271,7 +287,14 @@ export default function AppPage() {
                   if (!brush || !d || !bitmapRef.current) return;
                   const w = bitmapRef.current.width, h = bitmapRef.current.height, p = frac(e);
                   const nr = { x: Math.min(d.x, p.x) * w, y: Math.min(d.y, p.y) * h, width: Math.abs(p.x - d.x) * w, height: Math.abs(p.y - d.y) * h };
-                  if (nr.width > 2 && nr.height > 2) setEntries((prev) => [...prev, { r: nr, manual: true }]);
+                  if (nr.width <= 2 || nr.height <= 2) return;
+                  // Snap to OCR lines the drag touched: a rough finger drag over text hides exactly that text, not a near miss.
+                  const hit = lines.filter((l) => l.bbox.x0 < nr.x + nr.width && l.bbox.x1 > nr.x && l.bbox.y0 < nr.y + nr.height && l.bbox.y1 > nr.y);
+                  const r = hit.length
+                    ? { x: Math.min(...hit.map((l) => l.bbox.x0)), y: Math.min(...hit.map((l) => l.bbox.y0)), width: Math.max(...hit.map((l) => l.bbox.x1)) - Math.min(...hit.map((l) => l.bbox.x0)), height: Math.max(...hit.map((l) => l.bbox.y1)) - Math.min(...hit.map((l) => l.bbox.y0)) }
+                    : nr;
+                  setUndone([]);
+                  setEntries((prev) => [...prev, { r, manual: true }]);
                 }} />
               {lines.map((line, i) => (
                 <button key={i} data-testid="ocr-line" aria-label={`Hide: ${line.text}`}
@@ -358,8 +381,9 @@ export default function AppPage() {
             I understand anyone with the link can see these pictures for 7 days
           </label>
           {shareError && <p role="alert" className="type-body mt-4 rounded-panel bg-blush p-4 text-caution">{shareError}</p>}
+          {trail.length > 15 && <p data-testid="guide-too-long" className="type-body mt-4 rounded-panel bg-sun p-4">Guides hold up to 15 steps. Finish this guide at step 15 or start over and split the task into two guides.</p>}
           {!created && (
-            <button data-testid="create-link" disabled={trail.length === 0 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className={`${BTN_PRIMARY} mt-6 w-full`}>Create link</button>
+            <button data-testid="create-link" disabled={trail.length === 0 || trail.length > 15 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className={`${BTN_PRIMARY} mt-6 w-full`}>Create link</button>
           )}
           {created && !guideDeleted && (
             <div className="mt-8 rounded-panel bg-mist p-6">

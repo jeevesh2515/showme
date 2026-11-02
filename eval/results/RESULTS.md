@@ -13,6 +13,12 @@
 | 2026-10-29 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 100 | 91.0% | `2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-9dd53b24/predictions.jsonl` |
 | 2026-10-29 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 1172 | 90.7% | `2026-10-29-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv1-26831bd6/predictions.jsonl` |
 | 2026-10-31 | screenspot-v2 | dev | muse-spark-1.3 | minimal | 100 | 92.0% | `2026-10-31-screenspot-v2-dev-n100-423a3241-muse-spark-1.3-minimal-samoff-max2560-pvv2-f1a0f843/predictions.jsonl` |
+| 2026-11-02 | negatives | dev | muse-spark-1.3 | minimal | 100 | 60.0% | `2026-11-02-negatives-dev-n100-2d8071a5-muse-spark-1.3-minimal-samoff-max2560-pvv2-3370dbd3/predictions.jsonl` |
+| 2026-11-02 | negatives | dev | muse-spark-1.3 | minimal | 100 | 70.0% | `2026-11-02-negatives-dev-n100-2d8071a5-muse-spark-1.3-minimal-samoff-max2560-pvv3-9513524e/predictions.jsonl` |
+| 2026-11-02 | negatives | heldout | muse-spark-1.3 | minimal | 222 | 77.9% | `2026-11-02-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv3-e2f82896/predictions.jsonl` |
+| 2026-11-02 | screenspot-pro | heldout | muse-spark-1.3 | minimal | 300 | 62.0% | `2026-11-02-screenspot-pro-heldout-n300-e08c4fce-muse-spark-1.3-minimal-samoff-max2560-pvv3-aa484597/predictions.jsonl` |
+| 2026-11-02 | screenspot-v2 | dev | muse-spark-1.3 | minimal | 100 | 94.0% | `2026-11-02-screenspot-v2-dev-n100-423a3241-muse-spark-1.3-minimal-samoff-max2560-pvv3-eb462581/predictions.jsonl` |
+| 2026-11-02 | screenspot-v2 | heldout | muse-spark-1.3 | minimal | 1172 | 89.9% | `2026-11-02-screenspot-v2-heldout-n1172-99e1c829-muse-spark-1.3-minimal-samoff-max2560-pvv3-0707568a/predictions.jsonl` |
 
 ## Calibration and verifier (generated)
 

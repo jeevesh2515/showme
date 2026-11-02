@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Highlight rating</title>
+<style>
+body{margin:0;font:15px system-ui,sans-serif;background:#111;color:#eee}
+header{padding:10px 16px;display:flex;justify-content:space-between;gap:16px}
+.goal{font-size:17px}
+.pair{display:flex;gap:12px;padding:0 12px}
+.side{flex:1;min-width:0}.side b{display:block;margin:4px 0}
+svg{width:100%;height:auto;max-height:62vh;background:#222;display:block}
+path{fill:none;stroke:#ff2d6f;stroke-width:3;vector-effect:non-scaling-stroke}
+nav{display:flex;gap:10px;padding:12px;justify-content:center}
+button{font:inherit;padding:10px 16px;border:1px solid #666;background:#222;color:#eee;border-radius:6px;cursor:pointer}
+button.on{background:#2d5bff;border-color:#2d5bff}
+</style></head><body>
+<header><div class="goal" id="goal"></div><div id="prog"></div></header>
+<main id="main"></main>
+<script>
+const ITEMS=/*DATA*/[];
+const CH=[["A","A better"],["B","B better"],["same","About the same"],["both_wrong","Both wrong"]];
+const KEY="highlight-rating:"+ITEMS.map(i=>i.id).join(",");
+let R={};try{R=JSON.parse(localStorage.getItem(KEY)||"{}")}catch{}
+let i=0;while(i<ITEMS.length&&R[ITEMS[i].id])i++;
+const $=id=>document.getElementById(id);
+const side=(it,s,l)=>`<div class="side"><b>${l}</b><svg viewBox="0 0 ${it.w} ${it.h}"><image href="${it.img}" width="${it.w}" height="${it.h}"/><path d="${s.d}" transform="translate(${s.tx} ${s.ty})"/></svg></div>`;
+function csv(){return "item_id,choice,rated_at\n"+ITEMS.filter(x=>R[x.id]).map(x=>[x.id,R[x.id].choice,R[x.id].at].join(",")).join("\n")+"\n"}
+function dl(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv()],{type:"text/csv"}));a.download="ratings.csv";a.click()}
+function render(){
+  const n=Object.keys(R).length;
+  $("prog").textContent=`${Math.min(i+1,ITEMS.length)} / ${ITEMS.length} (rated ${n})`;
+  if(!ITEMS.length){$("main").innerHTML="<p style='padding:16px'>No items in this sample.</p>";return}
+  if(i>=ITEMS.length){$("goal").textContent="Done";$("main").innerHTML=`<nav><button id="dl">Download ratings.csv</button><button id="back">Back</button></nav>`;$("dl").onclick=dl;$("back").onclick=()=>{i=ITEMS.length-1;render()};return}
+  const it=ITEMS[i],cur=R[it.id]?.choice;
+  $("goal").textContent=it.goal?`Goal: ${it.goal}`:"";
+  $("main").innerHTML=`<div class="pair">${side(it,it.a,"A")}${side(it,it.b,"B")}</div><nav>${CH.map(([v,t],k)=>`<button data-v="${v}" class="${cur===v?"on":""}">${k+1}. ${t}</button>`).join("")}<button id="prev">Back</button></nav>`;
+  document.querySelectorAll("button[data-v]").forEach(b=>b.onclick=()=>pick(b.dataset.v));
+  $("prev").onclick=()=>{if(i>0){i--;render()}};
+}
+function pick(v){R[ITEMS[i].id]={choice:v,at:new Date().toISOString()};try{localStorage.setItem(KEY,JSON.stringify(R))}catch{}i++;render()}
+addEventListener("keydown",e=>{const k=+e.key;if(k>=1&&k<=4&&i<ITEMS.length)pick(CH[k-1][0])});
+render();
+</script></body></html>

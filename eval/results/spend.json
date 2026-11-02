@@ -1,5 +1,5 @@
 {
-  "total_usd": 36.2421,
+  "total_usd": 36.3046,
   "runs": [
     {
       "date": "2026-10-28",
@@ -122,6 +122,11 @@
       "cost_usd": 0.5885,
       "known_usd": 0.5085,
       "unknown_cost_responses": 2
+    },
+    {
+      "date": "2026-11-02",
+      "label": "highlight-rating-refine-pairs",
+      "cost_usd": 0.0625
     }
   ]
 }

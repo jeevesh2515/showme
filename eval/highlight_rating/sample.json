@@ -1,0 +1,213 @@
+{
+  "seed": "showme-rating-2026-11-02",
+  "rule": "Eligible: an e2e step with a model target.box whose production SAM refine (pairs.jsonl, called in this same hash order, stopping at 20 outlines) passed the agreement gate. Order eligible steps by sha256(\"showme-rating-2026-11-02:<task>:<step>\") ascending, take the first 20 (all if fewer). Side of the SAM outline: lowest bit of sha256(\"showme-rating-2026-11-02:side:<task>:<step>\").",
+  "source_results": "../results/2026-11-02-e2e-bb543ba-04574992c7",
+  "steps_total": 89,
+  "steps_with_model_box": 75,
+  "sam_calls": 25,
+  "gate_rejected": 5,
+  "eligible": 20,
+  "selected": 20,
+  "items": [
+    {
+      "item_id": "i01",
+      "task": "e2e-02-govuk-passport",
+      "step": 6,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-02-govuk-passport/step-6.jpg",
+      "goal": "Renew my adult passport",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i02",
+      "task": "e2e-15-python-macos",
+      "step": 1,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-15-python-macos/step-1.jpg",
+      "goal": "Download Python for macOS",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i03",
+      "task": "e2e-05-nhs-111",
+      "step": 2,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-05-nhs-111/step-2.jpg",
+      "goal": "Get help from NHS 111 online",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i04",
+      "task": "e2e-13-wikipedia-spanish",
+      "step": 1,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-13-wikipedia-spanish/step-1.jpg",
+      "goal": "Switch this article to Spanish",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "item_id": "i05",
+      "task": "e2e-09-ikea-returns",
+      "step": 1,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-09-ikea-returns/step-1.jpg",
+      "goal": "Find IKEA UK's returns policy",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i06",
+      "task": "e2e-18-leeds-council-contact",
+      "step": 1,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-18-leeds-council-contact/step-1.jpg",
+      "goal": "Find the contact page for Leeds City Council",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i07",
+      "task": "e2e-11-netflix-cancel",
+      "step": 9,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-11-netflix-cancel/step-9.jpg",
+      "goal": "How do I cancel Netflix?",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i08",
+      "task": "e2e-11-netflix-cancel",
+      "step": 1,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-11-netflix-cancel/step-1.jpg",
+      "goal": "How do I cancel Netflix?",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i09",
+      "task": "e2e-13-wikipedia-spanish",
+      "step": 5,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-13-wikipedia-spanish/step-5.jpg",
+      "goal": "Switch this article to Spanish",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "item_id": "i10",
+      "task": "e2e-17-firefox-download",
+      "step": 1,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-17-firefox-download/step-1.jpg",
+      "goal": "Download Firefox",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "item_id": "i11",
+      "task": "e2e-11-netflix-cancel",
+      "step": 2,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-11-netflix-cancel/step-2.jpg",
+      "goal": "How do I cancel Netflix?",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i12",
+      "task": "e2e-17-firefox-download",
+      "step": 9,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-17-firefox-download/step-9.jpg",
+      "goal": "Download Firefox",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "item_id": "i13",
+      "task": "e2e-04-nhs-find-gp",
+      "step": 2,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-04-nhs-find-gp/step-2.jpg",
+      "goal": "Find a GP near me",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i14",
+      "task": "e2e-07-nationalrail-plan",
+      "step": 4,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-07-nationalrail-plan/step-4.jpg",
+      "goal": "Plan a train journey from London to Manchester",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i15",
+      "task": "e2e-02-govuk-passport",
+      "step": 4,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-02-govuk-passport/step-4.jpg",
+      "goal": "Renew my adult passport",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i16",
+      "task": "e2e-12-gmail-password",
+      "step": 1,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-12-gmail-password/step-1.jpg",
+      "goal": "Change my Gmail password",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i17",
+      "task": "e2e-06-bbc-weather-london",
+      "step": 2,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-06-bbc-weather-london/step-2.jpg",
+      "goal": "Show me the weather forecast for London",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i18",
+      "task": "e2e-09-ikea-returns",
+      "step": 3,
+      "sam_side": "B",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-09-ikea-returns/step-3.jpg",
+      "goal": "Find IKEA UK's returns policy",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "item_id": "i19",
+      "task": "e2e-10-apple-cancel-subscription",
+      "step": 1,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-10-apple-cancel-subscription/step-1.jpg",
+      "goal": "How do I cancel a subscription from Apple?",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "item_id": "i20",
+      "task": "e2e-02-govuk-passport",
+      "step": 1,
+      "sam_side": "A",
+      "screenshot": "../results/2026-11-02-e2e-bb543ba-04574992c7/trail/e2e-02-govuk-passport/step-1.jpg",
+      "goal": "Renew my adult passport",
+      "width": 1280,
+      "height": 800
+    }
+  ]
+}

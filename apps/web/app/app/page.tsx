@@ -161,6 +161,7 @@ export default function AppPage() {
       const redacted = redact(bitmap, regions, manualCount);
       redactedRef.current = redacted;
       setPhase("looking"); startedRef.current = Date.now(); setElapsed(0);
+      window.scrollTo({ top: 0 }); // the review page is taller than this one, so the progress text would sit off-screen
       const result = await apiStep(redacted, maskPii(goal.trim()).slice(0, 300), history);
       if (gen !== genRef.current) return;
       setCurrent(result); setRefinement(null); setPhase("step");

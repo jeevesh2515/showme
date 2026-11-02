@@ -13,6 +13,15 @@ test("FLOW-4 on a laptop-height window the step opens with the ring in view", as
   await expect(page.getByTestId("step-badge")).toBeInViewport();
 });
 
+test("FLOW-4 on a laptop-height window the progress text stays in view while the model looks", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await mockApi(page, { delayMs: 3000 });
+  await openReview(page);
+  await page.getByTestId("review-continue").click();
+  await expect(page.getByTestId("progress-text")).toBeInViewport();
+});
+
 test.describe("FLOW-5 SAM outline replaces the box", () => {
   test("FLOW-5 the refine outline appears with no layout shift", async ({ page }) => {
     test.setTimeout(90_000);

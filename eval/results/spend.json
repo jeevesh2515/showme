@@ -1,5 +1,5 @@
 {
-  "total_usd": 36.3046,
+  "total_usd": 36.3111,
   "runs": [
     {
       "date": "2026-10-28",
@@ -127,6 +127,11 @@
       "date": "2026-11-02",
       "label": "highlight-rating-refine-pairs",
       "cost_usd": 0.0625
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-prod-smoke-test",
+      "cost_usd": 0.0065
     }
   ]
 }

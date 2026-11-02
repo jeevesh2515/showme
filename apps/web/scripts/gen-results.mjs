@@ -21,8 +21,8 @@ const rows = readFileSync(join(resultsDir, "RESULTS.md"), "utf8")
     return { date: c[1], suite: c[2], split: c[3], model: c[4], effort: c[5], n: Number(c[6]), accuracyPct: Number(c[7].replace("%", "")), predictions: c[8].replaceAll("`", ""), promptVersion: /pvv(\d+)/.exec(c[8])?.[1] ?? null };
   });
 
-// Largest n wins; on a tie the newest run wins, so a frozen-prompt re-run replaces its older equal-size row.
-const pick = (fn) => rows.filter(fn).sort((a, b) => b.n - a.n || b.date.localeCompare(a.date))[0] ?? null;
+// Largest n wins; on a tie the newest run, then the newest prompt, wins, so a frozen-prompt re-run replaces its older equal-size row.
+const pick = (fn) => rows.filter(fn).sort((a, b) => b.n - a.n || b.date.localeCompare(a.date) || Number(b.promptVersion ?? 0) - Number(a.promptVersion ?? 0))[0] ?? null;
 let e2e = null;
 for (const dir of readdirSync(resultsDir).filter((d) => d.includes("-e2e")).sort()) {
   const p = join(resultsDir, dir, "results.json");
@@ -38,13 +38,16 @@ for (const dir of readdirSync(resultsDir).filter((d) => d.includes("-e2e")).sort
 
 // Honesty split (never blended): strict not_visible on absent targets, and refusals, from the negatives summary.
 let honesty = null;
-const neg = pick((r) => r.suite === "negatives");
+const neg = pick((r) => r.suite === "negatives" && r.split === "heldout");
 if (neg) {
   const summaryPath = join(resultsDir, neg.predictions.replace("predictions.jsonl", "summary.json"));
   if (existsSync(summaryPath)) {
     const s = JSON.parse(readFileSync(summaryPath, "utf8"));
     const nv = s.by_expected_status?.not_visible, rf = s.by_expected_status?.refuse;
-    if (nv && rf) honesty = { notVisiblePct: Math.round(nv.accuracy * 1000) / 10, notVisibleHits: nv.hits, notVisibleN: nv.n, refuseHits: rf.hits, refuseN: rf.n, promptVersion: neg.promptVersion, predictions: neg.predictions };
+    // not_visible blends real absent pairs with synthetic injection probes; publish them apart.
+    const inj = s.by_group?.["synthetic-injection"] ?? { n: 0, hits: 0 };
+    const absentHits = nv?.hits - inj.hits, absentN = nv?.n - inj.n;
+    if (nv && rf) honesty = { notVisiblePct: Math.round(nv.accuracy * 1000) / 10, notVisibleHits: nv.hits, notVisibleN: nv.n, absentPct: Math.round((absentHits / absentN) * 1000) / 10, absentHits, absentN, injectionHits: inj.hits, injectionN: inj.n, refusePct: Math.round((rf.hits / rf.n) * 1000) / 10, refuseHits: rf.hits, refuseN: rf.n, promptVersion: neg.promptVersion, predictions: neg.predictions };
   }
 }
 

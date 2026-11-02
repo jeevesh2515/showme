@@ -296,3 +296,17 @@ def test_priv_5_guide_preserves_status_and_caution() -> None:
     step = client.get(f"/v1/guides/{token}").json()["steps"][0]
     assert step["status"] == "unsure"
     assert step["caution"] == "Careful: this asks for payment."
+
+
+def test_priv_5_guide_target_label_is_masked_and_bounded() -> None:
+    client = _client()
+    step = _step_body(_img())
+    step["target"] = {
+        "label": "jane@example.com " + "x" * 500,
+        "point": {"x": 1, "y": 1},
+        "box": {"x1": 0, "y1": 0, "x2": 2, "y2": 2},
+    }
+    created = client.post("/v1/guides", json={"goal": "x", "consent": True, "steps": [step]})
+    assert created.status_code == 200
+    label = client.get("/v1/guides/" + created.json()["url"].rsplit("/", 1)[1]).json()["steps"][0]["target"]["label"]
+    assert "jane@example.com" not in label and len(label) <= 300

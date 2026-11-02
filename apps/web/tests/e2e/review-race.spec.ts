@@ -46,6 +46,16 @@ test.describe("Review race regressions (2026-10-30 review)", () => {
     expect(labels.join(" ")).not.toContain("alice");
   });
 
+  test("FLOW-1 adding a screenshot shows progress while the private-detail check runs", async ({ page }) => {
+    await page.route("**/tesseract/**", async (route) => { await new Promise((r) => setTimeout(r, 1_000)); await route.fallback(); });
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill(GOAL);
+    await page.getByTestId("file-input").setInputFiles(OCR_A);
+    await expect(page.getByTestId("ocr-checking")).toBeVisible();
+    await expect(page.getByTestId("review-continue")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("ocr-checking")).toHaveCount(0);
+  });
+
   test("FLOW-5 late SAM outline for a previous step never replaces the newer step", async ({ page }) => {
     await mockApi(page, { steps: [stepOk(), stepOkSecond()], refines: [refineOutline(), refineBox()], refineDelayMs: 2_500 });
     await page.goto("/app");

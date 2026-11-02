@@ -6,12 +6,12 @@ import Overlay from "../../components/Overlay";
 import { createGuide, deleteGuide, refine, step as apiStep, ApiClientError, type HistoryItem, type PointPx, type RefineResponse, type StepResponse, type Target } from "../../lib/api/client";
 import { appendHistory, progressText } from "../../lib/flow";
 import { redact, type RedactedImage } from "../../lib/redaction/redact";
-import { piiRegions, type OcrLine } from "../../lib/redaction/regions";
+import { brushRegion, piiRegions, type OcrLine } from "../../lib/redaction/regions";
 import type { Region } from "../../lib/redaction/types";
 import { maskPii } from "../../lib/redaction/patterns";
 
 type Phase = "start" | "review" | "looking" | "step" | "share";
-type TrailStep = { n: number; instruction: string; status: string; caution: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
+type TrailStep = { id: number; n: number; instruction: string; status: StepResponse["status"]; caution: string; image: RedactedImage; target: Target | null; svgPath: string | null; svgOrigin: PointPx | null };
 const BTN_PRIMARY = "type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50";
 const BTN_SECONDARY = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-5 py-2 font-bold text-ink hover:bg-mist";
 const BTN_TOOLBAR = "type-body min-h-12 rounded-control border-2 border-ink bg-paper px-2 sm:px-5 py-2 font-bold text-ink hover:bg-mist";
@@ -20,17 +20,25 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // Pointer position as a 0-1 fraction of the element; clamped because pointer capture reports points outside it.
 const frac = (e: React.PointerEvent<HTMLElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: clamp01((e.clientX - r.left) / r.width), y: clamp01((e.clientY - r.top) / r.height) }; };
 const ERROR_COPY: Record<string, string> = {
-  rate_limited: "You have used ShowMe a lot this hour. Try again later.",
+  rate_limited: "ShowMe has had a lot of requests from this connection. Try again later.",
   spend_cap_reached: "ShowMe is resting until tomorrow so it stays free. Your screenshot was not sent.",
   invalid_image: "This file is not a picture we can read. Use a PNG or JPG screenshot.",
   image_too_large: "This file is not a picture we can read. Use a PNG or JPG screenshot.",
 };
+
+function errorCopy(err: unknown): string {
+  const fallback = "That did not work on our side. Your screenshot was not saved. Try again.";
+  if (!(err instanceof ApiClientError)) return fallback;
+  if (err.code === "rate_limited" && err.retryAfterS) return `ShowMe has had a lot of requests from this connection. Try again in about ${Math.ceil(err.retryAfterS / 60)} minutes.`;
+  return ERROR_COPY[err.code] ?? fallback;
+}
 
 export default function AppPage() {
   const [phase, setPhase] = useState<Phase>("start");
   const [dragging, setDragging] = useState(false);
   const [goal, setGoal] = useState("");
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
   const [lines, setLines] = useState<readonly OcrLine[]>([]);
   const [entries, setEntries] = useState<{ r: Region; manual: boolean }[]>([]);
   const [undone, setUndone] = useState<{ r: Region; manual: boolean }[]>([]);
@@ -44,8 +52,9 @@ export default function AppPage() {
   const [trail, setTrail] = useState<TrailStep[]>([]);
   const [checked, setChecked] = useState<boolean[]>([]);
   const [consent, setConsent] = useState(false);
-  const [created, setCreated] = useState<{ url: string; delete_key: string; expires_at: string } | null>(null);
+  const [created, setCreated] = useState<{ url: string; delete_key: string; expires_at: string; steps: number } | null>(null);
   const [shareError, setShareError] = useState("");
+  const [shareBusy, setShareBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [guideDeleted, setGuideDeleted] = useState(false);
   const [current, setCurrent] = useState<StepResponse | null>(null);
@@ -57,6 +66,8 @@ export default function AppPage() {
   const dragRef = useRef<{ x: number; y: number } | null>(null);
   const startedRef = useRef(0);
   const genRef = useRef(0); // B3: stale async results must never land on a newer screenshot
+  const stepIdRef = useRef(0); // n is reused after a rejected step, so late outlines match on this id
+  const shareBusyRef = useRef(false); // synchronous: two taps can land before a re-render disables the button
 
   // DESIGN §4.4: on phones, scroll the ring into the upper part of the view, above the docked card.
   useEffect(() => {
@@ -86,7 +97,7 @@ export default function AppPage() {
     if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { setError(ERROR_COPY.invalid_image ?? ""); return; }
     if (file.size > 20 * 1024 * 1024) { setError(ERROR_COPY.invalid_image ?? ""); return; }
     // PRIV-2: drop the previous screenshot's review now, so Continue cannot redact this image with the old regions while OCR runs.
-    bitmapRef.current = null; setEntries([]); setUndone([]); setLines([]); setPhase("start");
+    bitmapRef.current = null; setEntries([]); setUndone([]); setLines([]); setPhase("start"); setChecking(true);
     try {
       const bitmap = await createImageBitmap(file);
       if (gen !== genRef.current) return;
@@ -102,7 +113,8 @@ export default function AppPage() {
       setLines(ocrLines);
       setEntries(piiRegions(ocrLines).map((r) => ({ r, manual: false })));
       setPhase("review");
-    } catch { if (gen === genRef.current) setError(ERROR_COPY.invalid_image ?? ""); }
+      setChecking(false);
+    } catch { if (gen === genRef.current) { setError(ERROR_COPY.invalid_image ?? ""); setChecking(false); } }
   }, []);
 
   const onPaste = useCallback((e: React.ClipboardEvent) => {
@@ -142,51 +154,72 @@ export default function AppPage() {
     const bitmap = bitmapRef.current;
     if (!bitmap) return;
     const gen = genRef.current;
-    const redacted = redact(bitmap, regions, manualCount);
-    redactedRef.current = redacted;
-    setPhase("looking"); startedRef.current = Date.now(); setElapsed(0);
+    setError("");
     try {
+      const redacted = redact(bitmap, regions, manualCount);
+      redactedRef.current = redacted;
+      setPhase("looking"); startedRef.current = Date.now(); setElapsed(0);
       const result = await apiStep(redacted, maskPii(goal.trim()).slice(0, 300), history);
       if (gen !== genRef.current) return;
       setCurrent(result); setRefinement(null); setPhase("step");
       // PRIV-5: trail of redacted step images, tab memory only, for the opt-in share second review.
-      setTrail((t) => [...t, { n: t.length + 1, instruction: result.instruction, status: result.status, caution: result.caution, image: redacted, target: result.target, svgPath: null, svgOrigin: null }]);
+      const id = ++stepIdRef.current;
+      setTrail((t) => [...t, { id, n: t.length + 1, instruction: result.instruction, status: result.status, caution: result.caution, image: redacted, target: result.target, svgPath: null, svgOrigin: null }]);
       if (result.target) {
-        try { const r = await refine(redacted, result.target.box, result.target.point); if (gen === genRef.current) { setRefinement(r); const svg = r.svg_path; if (svg) setTrail((t) => t.map((s, i) => (i === t.length - 1 ? { ...s, svgPath: svg, svgOrigin: r.origin ?? null } : s))); } } catch { setRefinement(null); }
+        try {
+          const r = await refine(redacted, result.target.box, result.target.point);
+          if (gen === genRef.current) setRefinement(r);
+          const svg = r.svg_path;
+          if (svg) setTrail((t) => t.map((s) => (s.id === id ? { ...s, svgPath: svg, svgOrigin: r.origin ?? null } : s)));
+        } catch { if (gen === genRef.current) setRefinement(null); }
       }
     } catch (err) {
       if (gen !== genRef.current) return;
       setPhase("review");
-      setError(err instanceof ApiClientError ? (ERROR_COPY[err.code] ?? "That did not work on our side. Your screenshot was not saved. Try again.") : "That did not work on our side. Your screenshot was not saved. Try again.");
+      setError(errorCopy(err));
     }
   }
 
   function nextWith(result: "done" | "failed") {
+    genRef.current++; // this step's pending outline must not reach whatever is on screen next
     if (current) setHistory((h) => appendHistory(h, current, result));
+    // A step the helper marked wrong must not reach the recipient; history keeps it so the model avoids repeating it.
+    if (result === "failed") setTrail((t) => t.slice(0, -1));
     setCurrent(null); setRefinement(null); setPhase("start");
   }
 
   async function createLink() {
+    if (shareBusyRef.current) return;
+    shareBusyRef.current = true; setShareBusy(true);
     setShareError("");
     try {
       const res = await createGuide(maskPii(goal.trim()).slice(0, 300), trail, consent);
-      setCreated(res);
+      setCreated({ ...res, steps: trail.length }); setGuideDeleted(false);
     } catch (err) {
       setShareError(
         err instanceof ApiClientError
           ? err.message || (ERROR_COPY[err.code] ?? "That did not work on our side. Your pictures were not shared. Try again.")
           : "That did not work on our side. Your pictures were not shared. Try again."
       );
-    }
+    } finally { shareBusyRef.current = false; setShareBusy(false); }
   }
 
   async function deleteLink() {
-    if (!created) return;
+    if (!created || shareBusyRef.current) return;
+    shareBusyRef.current = true; setShareBusy(true);
+    setShareError("");
     const token = created.url.split("/").pop() ?? "";
-    try { await deleteGuide(token, created.delete_key); setGuideDeleted(true); } catch { setShareError("That did not work on our side. Try deleting again."); }
+    try { await deleteGuide(token, created.delete_key); setCreated(null); setConsent(false); setGuideDeleted(true); } catch { setShareError("That did not work on our side. Try deleting again."); } finally { shareBusyRef.current = false; setShareBusy(false); }
+  }
+
+  // A live link stays on screen with its delete key: clearing it here would strand that link for 7 days.
+  function openShare() {
+    setChecked(trail.map(() => false)); setConsent(false); setShareError(""); setPhase("share");
   }
 
   function resetAll() {
+    // The delete key lives only in this tab's state, so a live link cannot be deleted after this.
+    if (created && !window.confirm("Start over? You will no longer be able to delete your shared link. It stays live until it expires.")) return;
     setHistory([]); setTrail([]); setCurrent(null); setRefinement(null); setCreated(null); setConsent(false); setChecked([]); setGuideDeleted(false); setGoal(""); setPhase("start");
   }
 
@@ -217,6 +250,8 @@ export default function AppPage() {
     <main className="mx-auto min-h-screen max-w-5xl px-4 pt-2 pb-4 sm:px-6 sm:py-12" onPaste={onPaste}>
       <h1 className="sr-only">ShowMe</h1>
       {error && <p role="alert" className="type-body mb-6 rounded-panel bg-blush p-4 text-caution">{error}</p>}
+
+      {checking && <p role="status" data-testid="ocr-checking" className="type-body mb-6 rounded-panel bg-sun p-4">Checking your picture for private details. This can take a few seconds.</p>}
 
       {phase === "start" && (
         <section className="mx-auto max-w-2xl">
@@ -253,7 +288,7 @@ export default function AppPage() {
       {phase === "review" && (
         <section className="mx-auto max-w-3xl">
           <h2 className="type-title text-[1.5rem] sm:text-[2rem] leading-tight">Check what we will send</h2>
-          <p className="type-body text-[1.125rem] sm:text-[1.25rem] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} things that looked private. Tap anything else you want hidden.</p>
+          <p className="type-body text-[1.125rem] sm:text-[1.25rem] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} {regions.length - manualCount === 1 ? "thing" : "things"} that looked private. Tap anything else you want hidden.</p>
           {ocrFailed ? <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
           <div className="mt-2 flex flex-wrap gap-1 sm:mt-6 sm:gap-3">
             <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_TOOLBAR} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
@@ -288,19 +323,14 @@ export default function AppPage() {
                   const w = bitmapRef.current.width, h = bitmapRef.current.height, p = frac(e);
                   const nr = { x: Math.min(d.x, p.x) * w, y: Math.min(d.y, p.y) * h, width: Math.abs(p.x - d.x) * w, height: Math.abs(p.y - d.y) * h };
                   if (nr.width <= 2 || nr.height <= 2) return;
-                  // Snap to OCR lines the drag touched: a rough finger drag over text hides exactly that text, not a near miss.
-                  const hit = lines.filter((l) => l.bbox.x0 < nr.x + nr.width && l.bbox.x1 > nr.x && l.bbox.y0 < nr.y + nr.height && l.bbox.y1 > nr.y);
-                  const r = hit.length
-                    ? { x: Math.min(...hit.map((l) => l.bbox.x0)), y: Math.min(...hit.map((l) => l.bbox.y0)), width: Math.max(...hit.map((l) => l.bbox.x1)) - Math.min(...hit.map((l) => l.bbox.x0)), height: Math.max(...hit.map((l) => l.bbox.y1)) - Math.min(...hit.map((l) => l.bbox.y0)) }
-                    : nr;
                   setUndone([]);
-                  setEntries((prev) => [...prev, { r, manual: true }]);
+                  setEntries((prev) => [...prev, { r: brushRegion(nr, lines), manual: true }]);
                 }} />
               {lines.map((line, i) => (
                 <button key={i} data-testid="ocr-line" aria-label={`Hide: ${line.text}`}
                   style={{ left: `${(line.bbox.x0 / (bitmapRef.current?.width ?? 1)) * 100}%`, top: `${(line.bbox.y0 / (bitmapRef.current?.height ?? 1)) * 100}%`, width: `${((line.bbox.x1 - line.bbox.x0) / (bitmapRef.current?.width ?? 1)) * 100}%`, height: `${((line.bbox.y1 - line.bbox.y0) / (bitmapRef.current?.height ?? 1)) * 100}%` }}
                   // Pointer taps go to the image (nearest-line hit test); these buttons stay for keyboard and screen readers.
-                  className="pointer-events-none absolute border border-ink"
+                  className="pointer-events-none absolute border border-ink/20"
                   onClick={() => hideLine(line)} />
               ))}
               {entries.map(({ r, manual }, i) => (
@@ -328,9 +358,9 @@ export default function AppPage() {
         <section className="md:grid md:grid-cols-[1fr_380px] md:grid-rows-[auto_1fr] md:gap-x-8">
           <div className="md:row-span-2">
             {current.status === "not_visible" ? (
-              <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={imageUrl} alt="Your screenshot" className="w-full rounded-panel border-2 border-mist" /><p className="type-body mt-4">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-3">Scroll {current.scroll_direction}</p>}</div>
+              <div data-testid="not-visible-panel">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={redactedRef.current?.dataUrl ?? imageUrl} alt="Your screenshot" className="w-full rounded-panel border-2 border-mist" /><p className="type-body mt-4">{current.instruction}</p>{current.scroll_direction !== "none" && <p data-testid="scroll-arrow" className="type-instruction mt-3">Scroll {current.scroll_direction}</p>}</div>
             ) : current.status === "done" ? (
-              <div data-testid="done-screen" className="rounded-panel bg-sage p-8"><p className="type-instruction text-done">You did it: {goal}</p><div className="mt-6 flex flex-wrap gap-3"><button data-testid="share-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className={BTN_PRIMARY}>Share these steps</button><button data-testid="start-new-btn" onClick={resetAll} className={BTN_SECONDARY}>Start something new</button></div></div>
+              <div data-testid="done-screen" className="rounded-panel bg-sage p-8"><p className="type-instruction text-done">You did it: {goal}</p><div className="mt-6 flex flex-wrap gap-3"><button data-testid="share-btn" onClick={openShare} className={BTN_PRIMARY}>Share these steps</button><button data-testid="start-new-btn" onClick={resetAll} className={BTN_SECONDARY}>Start something new</button></div></div>
             ) : current.status === "refuse" ? (
               <div data-testid="refuse-panel" className="rounded-panel border-2 border-mist bg-mist p-6"><p className="type-body">{current.instruction}</p></div>
             ) : bitmapRef.current && (
@@ -352,10 +382,10 @@ export default function AppPage() {
               <button data-testid="failed-btn" onClick={() => nextWith("failed")} className={`${BTN_SECONDARY} mt-3 w-full`}>That didn&apos;t work</button>
               <label className={`${BTN_SECONDARY} mt-3 flex w-full cursor-pointer items-center justify-center focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter`}>Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
               {trail.length > 0 && (
-                <button data-testid="share-early-btn" onClick={() => { setChecked(trail.map(() => false)); setConsent(false); setCreated(null); setGuideDeleted(false); setShareError(""); setPhase("share"); }} className={`${BTN_SECONDARY} mt-3 w-full`}>Share guide ({trail.length} {trail.length === 1 ? "step" : "steps"})</button>
+                <button data-testid="share-early-btn" onClick={openShare} className={`${BTN_SECONDARY} mt-3 w-full`}>Share guide ({trail.length} {trail.length === 1 ? "step" : "steps"})</button>
               )}
             </>)}
-            <p data-testid="shortcut-help" className="type-small mt-6">Keyboard: N next step, R read aloud, Esc cancel</p>
+            <p data-testid="shortcut-help" className="type-small mt-6 [@media(pointer:coarse)]:hidden">Keyboard: N next step, R read aloud, Esc cancel</p>
             <button data-testid="start-over" onClick={resetAll} className="type-small mt-2 min-h-12 underline underline-offset-4">Start over</button>
           </div>
         </section>
@@ -383,17 +413,18 @@ export default function AppPage() {
           {shareError && <p role="alert" className="type-body mt-4 rounded-panel bg-blush p-4 text-caution">{shareError}</p>}
           {trail.length > 15 && <p data-testid="guide-too-long" className="type-body mt-4 rounded-panel bg-sun p-4">Guides hold up to 15 steps. Finish this guide at step 15 or start over and split the task into two guides.</p>}
           {!created && (
-            <button data-testid="create-link" disabled={trail.length === 0 || trail.length > 15 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className={`${BTN_PRIMARY} mt-6 w-full`}>Create link</button>
+            <button data-testid="create-link" disabled={shareBusy || trail.length === 0 || trail.length > 15 || checked.length !== trail.length || !checked.every(Boolean) || !consent} onClick={() => void createLink()} className={`${BTN_PRIMARY} mt-6 w-full`}>Create link</button>
           )}
-          {created && !guideDeleted && (
+          {created && (
             <div className="mt-8 rounded-panel bg-mist p-6">
               <p className="type-body">Your link:</p>
               <p data-testid="guide-url" className="type-body mt-2 break-all font-bold">{created.url}</p>
               <p data-testid="guide-expiry" className="type-small mt-3">This link deletes itself on {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(created.expires_at))}.</p>
+              {trail.length !== created.steps && <p data-testid="guide-outdated" className="type-small mt-3">This link has your first {created.steps} {created.steps === 1 ? "step" : "steps"}. To share the newest steps, delete it and create a new link.</p>}
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button data-testid="copy-link" onClick={() => { void navigator.clipboard?.writeText(created.url); setCopied(true); }} className={BTN_PRIMARY}>Copy link</button>
                 {copied && <span className="type-body">Copied</span>}
-                <button data-testid="delete-link" onClick={() => void deleteLink()} className={BTN_SECONDARY}>Delete now</button>
+                <button data-testid="delete-link" disabled={shareBusy} onClick={() => void deleteLink()} className={BTN_SECONDARY}>Delete now</button>
               </div>
             </div>
           )}

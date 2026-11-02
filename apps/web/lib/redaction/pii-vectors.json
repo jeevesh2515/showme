@@ -59,6 +59,9 @@
     { "id": "neg-plain-copy", "text": "Choose a plan that fits you", "kind": "none", "shouldMatch": false },
     { "id": "neg-2fa-code", "text": "2FA code: 123456", "kind": "none", "shouldMatch": false },
     { "id": "neg-iso-date", "text": "2026-10-29", "kind": "none", "shouldMatch": false },
-    { "id": "neg-ratio", "text": "Contrast 4.5:1 in dark mode", "kind": "none", "shouldMatch": false }
+    { "id": "neg-ratio", "text": "Contrast 4.5:1 in dark mode", "kind": "none", "shouldMatch": false },
+    { "id": "card-then-expiry", "text": "Card 4111 1111 1111 1111 12/25", "kind": "card", "shouldMatch": true },
+    { "id": "card-then-cvc", "text": "4111 1111 1111 1111 123", "kind": "card", "shouldMatch": true },
+    { "id": "card-amex-grouped", "text": "3782 822463 10005 01/27", "kind": "card", "shouldMatch": true }
   ]
 }

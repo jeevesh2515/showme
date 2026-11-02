@@ -81,6 +81,8 @@ def _image_size(image: str) -> tuple[int, int]:
         raise ApiError(413, "image_too_large", "Image must be 3 MB or smaller.")
     try:
         with Image.open(io.BytesIO(raw)) as im:
+            if im.format not in {"JPEG", "PNG", "WEBP"}:
+                raise ApiError(400, "invalid_image", "Image must be a JPEG, PNG or WebP data URL.")
             width, height = im.size
             if max(width, height) > MAX_SIDE_PX:
                 raise ApiError(400, "invalid_image", f"Image must be at most {MAX_SIDE_PX} px on its longest side.")
@@ -109,14 +111,14 @@ async def _maybe_await(value: Any) -> Any:
     return value
 
 
-async def _enforce_rate_limit(request: Request) -> None:
+async def _enforce_rate_limit(request: Request, prefix: str = "", factor: int = 1) -> None:
     cfg: ApiSettings = request.app.state.settings
     limiter = request.app.state.rate
     key = hash_key(client_ip(request), cfg.ip_hash_salt_seed)
     for window_s, limit in ((3600, cfg.rate_per_hour), (86400, cfg.rate_per_day)):
         # Fixed window id so the Supabase counter bucket resets with the window, not last-hit + window.
-        bucket = f"{window_s}:{int(time.time() // window_s)}:{key}"
-        if not await _maybe_await(limiter.check(bucket, limit, window_s)):
+        bucket = f"{prefix}{window_s}:{int(time.time() // window_s)}:{key}"
+        if not await _maybe_await(limiter.check(bucket, limit * factor, window_s)):
             raise ApiError(
                 429,
                 "rate_limited",
@@ -263,7 +265,9 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     @app.post("/v1/refine", response_model=RefineResponse)
     async def refine_step(req: RefineRequest, request: Request) -> RefineResponse:
         # API-6 counts steps, not refinements: one user step = /v1/step + /v1/refine would otherwise
-        # halve the 30/hour quota (measured in the 2026-10-31 E2E run). SAM cost stays gated by the spend reserve.
+        # halve the 30/hour quota (measured in the 2026-10-31 E2E run). Own bucket at twice the step rate:
+        # normal use never reaches it, but one client cannot drain the shared spend cap.
+        await _enforce_rate_limit(request, prefix="refine:", factor=2)
         reserved_day = await _maybe_await(
             request.app.state.spend.reserve(RESERVE_REFINE_USD, cfg.spend_cap_daily_usd, cfg.spend_cap_total_usd)
         )
@@ -335,7 +339,9 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                     "instruction": mask_pii(step_in.instruction),
                     "status": step_in.status,
                     "caution": mask_pii(step_in.caution),
-                    "target": step_in.target.model_dump() if step_in.target else None,
+                    "target": {**step_in.target.model_dump(), "label": mask_pii(step_in.target.label)[:300]}
+                    if step_in.target
+                    else None,
                     "svg_path": step_in.svg_path,
                     "svg_origin": step_in.svg_origin.model_dump() if step_in.svg_origin else None,
                     "width": step_in.width,

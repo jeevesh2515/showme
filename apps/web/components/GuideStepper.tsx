@@ -1,16 +1,33 @@
 "use client";
 // DESIGN §4.6: read-only stepper over shared steps; reuses the same Overlay ring.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Overlay from "./Overlay";
 import type { GetGuideResponse, StepResponse } from "../lib/api/client";
 
 export default function GuideStepper({ guide }: { guide: GetGuideResponse }) {
   const [index, setIndex] = useState(0);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement>(null);
+  // Phones: a ring below the fold on a tall screenshot is scrolled into view; the instruction stays pinned above it.
+  useEffect(() => {
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    const badge = rootRef.current?.querySelector('[data-testid="step-badge"]');
+    const img = badge?.closest("div")?.querySelector("img");
+    if (!badge || !img) return;
+    const go = () => {
+      const { top, bottom } = badge.getBoundingClientRect();
+      if (top >= (stickyRef.current?.getBoundingClientRect().bottom ?? 0) && bottom <= window.innerHeight) return;
+      window.scrollTo({ top: Math.max(0, top + window.scrollY - window.innerHeight * 0.6), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    };
+    if (img.complete && img.naturalHeight > 0) go();
+    else img.addEventListener("load", go, { once: true });
+    return () => img.removeEventListener("load", go);
+  }, [index]);
   const step = guide.steps[index];
   if (!step) return <p className="type-body">This guide has no steps.</p>;
   const shim: StepResponse = {
     step_id: "shared",
-    status: step.target ? ((step.status as StepResponse["status"]) ?? "ok") : "done",
+    status: step.status as StepResponse["status"],
     action: "tap",
     instruction: step.instruction,
     target: step.target ?? null,
@@ -24,8 +41,9 @@ export default function GuideStepper({ guide }: { guide: GetGuideResponse }) {
     cost_usd: 0,
   };
   return (
-    <section>
-      <div aria-live="polite">
+    <section ref={rootRef}>
+      <p data-testid="guide-picture-note" className="type-body mb-4 rounded-panel bg-sun p-4">This is a picture of the screen, not your live screen. Tapping it does nothing. Find the same button on your own screen and tap it there.</p>
+      <div ref={stickyRef} aria-live="polite" className="sticky top-0 z-20 bg-paper py-2 md:static">
         <p className="type-small font-bold">Step {step.n} of {guide.steps.length}</p>
         {shim.caution && <p data-testid="guide-caution" className="type-body mt-3 rounded-panel bg-blush p-3 text-caution"><strong>Careful:</strong> {shim.caution.replace(/^careful:\s*/i, "")}</p>}
         {shim.status === "unsure" && <p className="type-body mt-3 rounded-panel bg-sun p-3">I think it is this one. Check before you tap.</p>}
@@ -40,9 +58,10 @@ export default function GuideStepper({ guide }: { guide: GetGuideResponse }) {
         )}
       </div>
       <div className="mt-8 flex flex-wrap gap-3">
-        <button data-testid="guide-prev" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))} className="type-body min-h-12 rounded-control border-2 border-ink bg-paper px-6 py-3 font-bold text-ink disabled:opacity-50">Previous step</button>
-        <button data-testid="guide-next" disabled={index >= guide.steps.length - 1} onClick={() => setIndex((i) => Math.min(guide.steps.length - 1, i + 1))} className="type-body min-h-12 rounded-control bg-ink px-6 py-3 font-bold text-paper disabled:opacity-50">Next step</button>
+        <button data-testid="guide-prev" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))} className="type-body min-h-12 flex-1 rounded-control border-2 border-ink bg-paper px-3 py-3 font-bold text-ink disabled:opacity-50">Previous step</button>
+        <button data-testid="guide-next" disabled={index >= guide.steps.length - 1} onClick={() => setIndex((i) => Math.min(guide.steps.length - 1, i + 1))} className="type-body min-h-12 flex-1 rounded-control bg-ink px-3 py-3 font-bold text-paper disabled:opacity-50">Next step</button>
       </div>
+      <p data-testid="guide-next-screenshot" className="type-body mt-6 rounded-panel bg-mist p-4">Stuck on the next screen? Take a new screenshot and send it to the person who shared this.</p>
       <nav aria-label="All steps in this guide" className="mt-10">
         <h2 className="type-body font-bold">Your path, all {guide.steps.length} steps</h2>
         <ol className="type-body mt-3 space-y-2">

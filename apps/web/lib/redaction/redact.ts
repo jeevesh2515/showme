@@ -104,12 +104,10 @@ export function redact(bitmap: ImageBitmap, regions: readonly Region[], manualRe
   ctx.drawImage(bitmap, 0, 0, width, height);
   ctx.fillStyle = "#000";
   for (const region of regions) {
-    ctx.fillRect(
-      Math.round(region.x * scale),
-      Math.round(region.y * scale),
-      Math.ceil(region.width * scale),
-      Math.ceil(region.height * scale),
-    );
+    // Round outward: a fractional brush edge must never leave a strip of private pixels.
+    const x = Math.floor(region.x * scale);
+    const y = Math.floor(region.y * scale);
+    ctx.fillRect(x, y, Math.ceil((region.x + region.width) * scale) - x, Math.ceil((region.y + region.height) * scale) - y);
   }
   const encoded = encodeCanvas(canvas);
   const manual = Math.min(Math.max(0, Math.trunc(manualRegions)), regions.length);

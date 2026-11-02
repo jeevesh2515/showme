@@ -42,4 +42,27 @@ describe("gen-results selection", () => {
     expect(data.headline.honesty.notVisiblePct).toBe(62.4);
     expect(data.headline.honesty.refuseHits).toBe(12);
   });
+
+  it("same-day equal-size runs publish the newer prompt, and absent pairs exclude injection probes", () => {
+    const root = mkdtempSync(join(tmpdir(), "showme-results-"));
+    const row = (suite: string, n: number, pct: string, dir: string) =>
+      `| 2026-11-02 | ${suite} | heldout | muse-spark-1.3 | minimal | ${n} | ${pct} | \`${dir}/predictions.jsonl\` |`;
+    writeFileSync(join(root, "RESULTS.md"), [
+      row("screenspot-v2", 1172, "90.7%", "a-pvv2-aaa"),
+      row("screenspot-v2", 1172, "89.9%", "b-pvv3-bbb"),
+      row("negatives", 222, "77.9%", "c-pvv3-ccc"),
+    ].join("\n"));
+    mkdirSync(join(root, "c-pvv3-ccc"), { recursive: true });
+    writeFileSync(join(root, "c-pvv3-ccc", "summary.json"), JSON.stringify({
+      by_expected_status: { not_visible: { n: 210, hits: 161, accuracy: 0.7667 }, refuse: { n: 12, hits: 12, accuracy: 1 } },
+      by_group: { "synthetic-injection": { n: 10, hits: 10, accuracy: 1 } },
+    }));
+    const out = join(root, "out.json");
+    execFileSync("node", [join(__dirname, "..", "scripts", "gen-results.mjs")], {
+      env: { ...process.env, SHOWME_RESULTS_DIR: root, SHOWME_RESULTS_OUT: out },
+    });
+    const data = JSON.parse(require("node:fs").readFileSync(out, "utf8"));
+    expect(data.headline.screenspotV2.promptVersion).toBe("3");
+    expect(data.headline.honesty).toMatchObject({ absentHits: 151, absentN: 200, absentPct: 75.5, injectionHits: 10, injectionN: 10 });
+  });
 });

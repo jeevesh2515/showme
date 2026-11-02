@@ -9,6 +9,8 @@ const wrap = "mx-auto max-w-6xl px-4 sm:px-6";
 
 export default function Eval() {
   const e2e = results.headline.e2e;
+  const h = results.headline;
+  const current = new Set([h.screenspotV2, h.screenspotPro, h.negatives].map((r) => r?.predictions));
   return (
     <main>
       <div className={`${wrap} py-12 md:py-16`}>
@@ -16,8 +18,18 @@ export default function Eval() {
         <p className="type-body mt-6">
           Every number here is read at build time from a generated file in{" "}
           <code>eval/results/</code> and links to its raw predictions. Weakest
-          results are shown with the same prominence as the best.
+          results are shown with the same prominence as the best. Rows marked
+          current are the numbers on the home page; the others are earlier
+          prompts and development runs.
         </p>
+        {h.honesty && (
+          <p className="type-body mt-4">
+            &ldquo;Negatives&rdquo; means goals the screen cannot satisfy: {h.honesty.absentHits} of {h.honesty.absentN} absent
+            targets said not visible, {h.honesty.injectionHits} of {h.honesty.injectionN} injection probes said not visible,
+            and {h.honesty.refuseHits} of {h.honesty.refuseN} harmful goals were refused. Held-out splits are by annotation, so
+            they share screenshots with the development split, and one negatives image and goal pair appears in both.
+          </p>
+        )}
 
         <div
           className="mt-10 overflow-x-auto rounded-panel border-2 border-mist"
@@ -30,6 +42,7 @@ export default function Eval() {
               <tr>
                 <th className="p-2">Suite</th>
                 <th className="p-2">Accuracy</th>
+                <th className="p-2">Prompt</th>
                 <th className="p-2">Split</th>
                 <th className="p-2">n</th>
                 <th className="p-2">Model</th>
@@ -38,10 +51,11 @@ export default function Eval() {
               </tr>
             </thead>
             <tbody>
-              {results.rows.map((r) => (
+              {[...results.rows].reverse().map((r) => (
                 <tr key={r.predictions} className="border-t border-mist">
                   <td className="p-2">{r.suite}</td>
-                  <td className="p-2 font-bold">{r.accuracyPct}%</td>
+                  <td className="p-2 font-bold whitespace-nowrap">{r.accuracyPct}%{current.has(r.predictions) ? " (current)" : ""}</td>
+                  <td className="p-2">{r.promptVersion ? `v${r.promptVersion}` : "not recorded"}</td>
                   <td className="p-2">{r.split}</td>
                   <td className="p-2">{r.n}</td>
                   <td className="p-2">
@@ -73,17 +87,11 @@ export default function Eval() {
               {e2e.date}: {e2e.passed} of {e2e.tasksRun} public tasks completed
               ({e2e.successPct}%), average {e2e.avgSteps} steps, {e2e.refusals}{" "}
               refusals.{" "}
-              <a href={gh(`${e2e.dir}/report.md`)} className="underline">
+              These tasks were also used during development, so this is a recorded run, not an unseen test.{" "}
+              <a href={gh(`${e2e.dir}/report.md`)} className="inline-flex min-h-11 items-center underline">
                 Full E2E report
               </a>
             </p>
-            {/* shortcut: audit note pinned to this run's dir, disappears once a re-run regenerates results. */}
-            {e2e.dir === "2026-11-01-e2e-final" && (
-              <p className="type-body mt-4">
-                An audit of this run found 4 of the {e2e.passed} passes are suspect: the success check matched a video
-                title, search suggestions or a sign-in page before the task was done. The other {e2e.passed - 4} recorded passes still await validation. The checks are fixed and a re-run is pending.
-              </p>
-            )}
           </div>
         </section>
       )}
@@ -91,13 +99,13 @@ export default function Eval() {
       <div className={`${wrap} py-12 md:py-16`}>
         <p className="type-body">
           Calibration and verifier detail:{" "}
-          <a href={gh("RESULTS.md")} className="underline">
+          <a href={gh("RESULTS.md")} className="inline-flex min-h-11 items-center underline">
             RESULTS.md
           </a>{" "}
           (AUROC, verifier precision, SAM ablation links).
         </p>
         <p className="type-small mt-8">
-          <Link href="/" className="underline">
+          <Link href="/" className="inline-flex min-h-11 items-center underline">
             Back to the start
           </Link>
         </p>

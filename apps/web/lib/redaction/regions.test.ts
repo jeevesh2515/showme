@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { piiRegions, type OcrLine } from "./regions";
+import { brushRegion, piiRegions, type OcrLine } from "./regions";
 
 const line = (text: string, words: OcrLine["words"]): OcrLine => ({
   text,
@@ -32,5 +32,22 @@ describe("regions.piiRegions", () => {
       line("Looks private enough, continue", [{ text: "Looks", bbox: { x0: 0, y0: 40, x1: 40, y1: 60 } }, { text: "private", bbox: { x0: 50, y0: 40, x1: 100, y1: 60 } }]),
     ];
     expect(piiRegions(lines)).toEqual([{ x: 0, y: 0, width: 126, height: 26 }]);
+  });
+});
+
+describe("regions.brushRegion", () => {
+  const ocr = line("Jane", [{ text: "Jane", bbox: { x0: 150, y0: 120, x1: 200, y1: 140 } }]);
+
+  it("flow-3: never shrinks the drag when it touches an OCR line", () => {
+    expect(brushRegion({ x: 100, y: 100, width: 300, height: 100 }, [ocr])).toEqual({ x: 100, y: 100, width: 300, height: 100 });
+  });
+
+  it("flow-3: grows to cover the whole touched line", () => {
+    expect(brushRegion({ x: 160, y: 125, width: 10, height: 5 }, [ocr])).toEqual({ x: 150, y: 120, width: 50, height: 20 });
+  });
+
+  it("flow-3: keeps a drag that touches no line unchanged", () => {
+    const drag = { x: 300, y: 300, width: 40, height: 40 };
+    expect(brushRegion(drag, [ocr])).toEqual(drag);
   });
 });

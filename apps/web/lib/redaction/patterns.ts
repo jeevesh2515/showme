@@ -19,6 +19,8 @@ const RULES: readonly Rule[] = [
   { kind: "iban", pattern: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){2,7}(?:[ ]?\d{1,3})?\b/g },
   { kind: "postcode", pattern: /\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/gi },
   { kind: "card", pattern: /\b(?:\d[ -]?){12,18}\d\b/g, accept: isCard },
+  // Printed card grouping: a trailing expiry or CVC would otherwise join the rule above and fail Luhn.
+  { kind: "card", pattern: /\b(?:\d{4}([ -])\d{4}\1\d{4}\1\d{4}|3[47]\d{2}([ -])\d{6}\2\d{5})\b/g, accept: isCard },
   { kind: "phone", pattern: /\+?\d[\d ()-]{7,}\d/g, accept: (d) => d.length >= 9 && d.length <= 15 },
   { kind: "digits", pattern: /\b\d{8,}\b/g },
 ];

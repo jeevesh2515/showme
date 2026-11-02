@@ -89,6 +89,13 @@ describe("redact", () => {
     expect(fillRects).toEqual([[50, 100, 25, 10]]); // solid block at half scale, never a blur
   });
 
+  it("priv-1: a fractional region is covered outward, never leaving an edge strip", () => {
+    const fillRects: number[][] = [];
+    stubCanvas(fillRects, []);
+    redact({ width: 100, height: 100 } as unknown as ImageBitmap, [{ x: 10.6, y: 20.6, width: 5, height: 5 }]);
+    expect(fillRects).toEqual([[10, 20, 6, 6]]); // 10.6..15.6 -> 10..16
+  });
+
   it("arch-7: reports manual and auto regions honestly", () => {
     const regions = [
       { x: 0, y: 0, width: 10, height: 10 },

@@ -5,6 +5,8 @@ EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 IBAN = re.compile(r"\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){2,7}(?:[ ]?\d{1,3})?\b")
 POSTCODE = re.compile(r"\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b", re.IGNORECASE)
 CARD_CANDIDATE = re.compile(r"\b(?:\d[ -]?){12,18}\d\b")
+# Printed card grouping: a trailing expiry or CVC would otherwise join CARD_CANDIDATE and fail Luhn.
+CARD_GROUPED = re.compile(r"\b(?:\d{4}([ -])\d{4}\1\d{4}\1\d{4}|3[47]\d{2}([ -])\d{6}\2\d{5})\b")
 PHONE = re.compile(r"\+?\d[\d ()-]{7,}\d")
 DIGIT_RUN = re.compile(r"\b\d{8,}\b")
 
@@ -30,6 +32,7 @@ _PATTERNS: list[tuple[re.Pattern[str], object]] = [
     (IBAN, None),
     (POSTCODE, None),
     (CARD_CANDIDATE, _is_card),
+    (CARD_GROUPED, _is_card),
     (PHONE, None),
     (DIGIT_RUN, None),
 ]

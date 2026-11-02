@@ -254,6 +254,8 @@ export async function refine(
 export type GuideStepInput = {
   n: number;
   instruction: string;
+  status: StepResponse["status"];
+  caution: string;
   image: RedactedImage;
   target: Target | null;
   svgPath: string | null;
@@ -279,6 +281,8 @@ export async function createGuide(
     steps: steps.map((s) => ({
       n: s.n,
       instruction: s.instruction,
+      status: s.status,
+      caution: s.caution.slice(0, 300), // the guide API caps this; the model does not
       image: s.image.dataUrl,
       target: s.target,
       svg_path: s.svgPath,

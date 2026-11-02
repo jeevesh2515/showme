@@ -418,3 +418,23 @@ def test_api_6_large_usage_within_reserved_bounds_records_actual() -> None:
     assert resp.json()["cost_usd"] == round((10000 * 1.25 + 100 * 4.25) / 1_000_000, 6)
     assert api.app.state.spend._day_total == pytest.approx(0.012925)  # type: ignore[attr-defined]
     assert api.app.state.spend._reserved_day == 0.0  # type: ignore[attr-defined]
+
+
+@respx.mock
+def test_api_6_refine_has_its_own_limit_at_twice_the_step_rate() -> None:
+    # /v1/refine bills SAM per call: without a limit one client can drain the shared daily spend cap.
+    route = respx.post(SAM_URL).mock(return_value=httpx.Response(500, json={}))
+    api = client(rate_per_hour=1, rate_per_day=100)
+    assert api.post("/v1/refine", json=refine_payload()).status_code == 200
+    assert api.post("/v1/refine", json=refine_payload()).status_code == 200
+    resp = api.post("/v1/refine", json=refine_payload())
+    assert resp.status_code == 429 and resp.json()["error"]["code"] == "rate_limited"
+    assert route.call_count == 2
+
+
+def test_api_1_rejects_image_format_that_differs_from_allowed_set() -> None:
+    buf = io.BytesIO()
+    Image.new("RGB", (100, 100)).save(buf, format="GIF")
+    data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    resp = client().post("/v1/step", json=step_payload(image=data))
+    assert resp.status_code == 400 and resp.json()["error"]["code"] == "invalid_image"

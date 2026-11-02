@@ -51,3 +51,22 @@ describe("regions.brushRegion", () => {
     expect(brushRegion(drag, [ocr])).toEqual(drag);
   });
 });
+
+it("flow-2: a numeric mask extends over touching words with digits, so an OCR misread cannot leave the card's start visible", () => {
+  // The real OCR output for the billing example: the first group misreads, Luhn fails, and only the last 12 digits match.
+  const words = ["41114:", "1114", "1111", "1111"].map((text, i) => ({ text, bbox: { x0: 200 + i * 60, y0: 330, x1: 250 + i * 60, y1: 345 } }));
+  const line = { text: words.map((w) => w.text).join(" "), bbox: { x0: 200, y0: 330, x1: 430, y1: 345 }, words };
+  const [region] = piiRegions([line], 0);
+  expect(region?.x).toBe(200);
+  expect(region?.width).toBe(230);
+});
+
+it("flow-2: a text-only neighbour stops the extension, and a postcode does not swallow a house number", () => {
+  const make = (texts: string[]) => {
+    const words = texts.map((text, i) => ({ text, bbox: { x0: i * 100, y0: 0, x1: i * 100 + 80, y1: 10 } }));
+    return { text: texts.join(" "), bbox: { x0: 0, y0: 0, x1: texts.length * 100, y1: 10 }, words };
+  };
+  expect(piiRegions([make(["2026", "call", "07700", "900123"])], 0)).toEqual([{ x: 200, y: 0, width: 180, height: 10 }]);
+  expect(piiRegions([make(["12", "Example", "SW1A", "1AA"])], 0)).toEqual([{ x: 200, y: 0, width: 180, height: 10 }]);
+});
+

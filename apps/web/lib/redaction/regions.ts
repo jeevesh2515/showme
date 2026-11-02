@@ -30,8 +30,16 @@ export function piiRegions(lines: readonly OcrLine[], pad = PAD): Region[] {
       return { start, end: start + word.text.length, bbox: word.bbox };
     });
     for (const span of findPii(text)) {
-      const boxes = offsets.filter((o) => o.start < span.end && o.end > span.start).map((o) => o.bbox);
-      if (boxes.length === 0) continue;
+      const hit = offsets.flatMap((o, i) => (o.start < span.end && o.end > span.start ? [i] : []));
+      const first = hit[0], last = hit.at(-1);
+      if (first === undefined || last === undefined) continue;
+      let from = first, to = last;
+      // OCR misreads ("41114: 1114 1111 1111") can leave part of a number outside the match, so a numeric mask only grows over touching digits.
+      if (span.kind === "card" || span.kind === "phone" || span.kind === "digits") {
+        while (from > 0 && /\d/.test(line.words[from - 1]?.text ?? "")) from--;
+        while (to < line.words.length - 1 && /\d/.test(line.words[to + 1]?.text ?? "")) to++;
+      }
+      const boxes = offsets.slice(from, to + 1).map((o) => o.bbox);
       const x0 = Math.min(...boxes.map((b) => b.x0));
       const y0 = Math.min(...boxes.map((b) => b.y0));
       const x1 = Math.max(...boxes.map((b) => b.x1));

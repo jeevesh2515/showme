@@ -1,5 +1,5 @@
 {
-  "total_usd": 36.3111,
+  "total_usd": 36.3874,
   "runs": [
     {
       "date": "2026-10-28",
@@ -132,6 +132,36 @@
       "date": "2026-11-02",
       "label": "2026-11-02-prod-smoke-test",
       "cost_usd": 0.0065
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-take-1",
+      "cost_usd": 0.01
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-ground-repeat",
+      "cost_usd": 0.0117
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-ground-variants",
+      "cost_usd": 0.0156
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-mask-variants",
+      "cost_usd": 0.0234
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-layout-test",
+      "cost_usd": 0.0078
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-crop-test",
+      "cost_usd": 0.0078
     }
   ]
 }

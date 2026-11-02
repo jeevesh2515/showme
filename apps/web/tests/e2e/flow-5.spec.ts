@@ -20,6 +20,7 @@ test("FLOW-4 on a laptop-height window the progress text stays in view while the
   await openReview(page);
   await page.getByTestId("review-continue").click();
   await expect(page.getByTestId("progress-text")).toBeInViewport();
+  await expect(page.getByTestId("step-instruction")).toBeVisible(); // let the delayed mock finish before the page closes
 });
 
 test.describe("FLOW-5 SAM outline replaces the box", () => {

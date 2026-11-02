@@ -206,7 +206,9 @@ def _run_suite(args: argparse.Namespace) -> int:
         "effort": args.effort,
         "sam_on": sam_on,
         "max_side": args.max_side if args.max_side > 0 else 100000,
-        "split": args.split if args.suite in ("screenspot-v2", "negatives") else "heldout",
+        "split": args.split
+        if args.suite in ("screenspot-v2", "negatives")
+        else "heldout",
         "is_headline": args.headline and args.split != "dev",
     }
     result = write_run(out_dir, predictions, meta)

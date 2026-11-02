@@ -18,6 +18,17 @@ Top 8 risks, reviewed at the end of every day (PHASES.md). Likelihood and impact
 | Risk | Note |
 | --- | --- |
 | Prompt injection via on-screen text | ShowMe never acts; schema-constrained output; rule in system prompt. Add 5 injection screenshots to the negatives suite. |
+
+## Status at freeze (2026-11-02)
+
+- R1: closed — held-out v3 89.9% (v2 suite) / 62.0% (Pro), above kill thresholds; prompt v3 frozen (D52).
+- R2: response executed Day 3 (confidence out of UI); honesty improved 62.4% → 76.7% on v3, still below 90% target — published as limitation.
+- R3: open by design — review remains the net; "Hide all text" one-tap shipped Day 7 (D53); human review time unmeasured (no sessions recorded).
+- R4: eval p50 ~2.1–2.7 s per suite reports; production p50/p95 from logs not run.
+- R5: open — IoU favours the model box (0.556 vs 0.514, v1 ablation); human ratings not run; no SAM quality claim made.
+- R6: spend ledger $35.65 before the Day 7 E2E re-run (plus ~$3.32 unrecorded earlier E2E estimate, D50); caps live on production.
+- R7: closed — Vercel + Supabase live since Day 4/5; daily purge cron doubles as keepalive.
+- R8: rules verified from the participant guide (D51); freeze and tag proceed today.
 | Harmful goals (stalkerware, bypassing parental controls) | `refuse` status; 10 refusal probes in the eval. |
 | Live websites change during E2E | Record run date; keep redacted screenshot trail; tasks on stable public sites (gov.uk, Wikipedia, BBC). |
 | Muse Spark model updates during the event | Pin model ID `muse-spark-1.3`; log model in every result. |

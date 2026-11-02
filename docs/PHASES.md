@@ -87,13 +87,13 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 ## Day 7 · Mon Nov 2 · Hardening · FEATURE FREEZE 23:59
 
 - [ ] Security pass: CSP and headers, secrets scan, no PII in logs (PRIV-3 test), rate limits from a second IP, spend cap trip test
-- [ ] `docs/REQUIREMENTS_STATUS.md` generated: every M requirement green or cut with a D-number
-- [ ] `docs/SECURITY.md` threat model
-- [ ] Final eval re-run on held-out + Pro with the frozen prompt version; regenerate `RESULTS.md`
+- [x] `docs/REQUIREMENTS_STATUS.md` generated: every M requirement green or cut with a D-number
+- [x] `docs/SECURITY.md` threat model
+- [x] Final eval re-run on held-out + Pro with the frozen prompt version; regenerate `RESULTS.md`
 - [ ] Performance: Lighthouse ≥ 90; step p50/p95 from production logs
-- [ ] README draft (ENG-4) with Limitations section
+- [x] README draft (ENG-4) with Limitations section
 - [ ] Stretch S2 to S3 only if everything above is done before 18:00
-- [ ] **Freeze at 23:59**: tag `v1.0.0-rc1`
+- [x] **Freeze at 23:59**: tag `v1.0.0-rc1`
 
 **DoD:** all M requirements green or explicitly cut in MEMORY.md; final numbers generated from the frozen build.
 

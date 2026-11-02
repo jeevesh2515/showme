@@ -40,10 +40,22 @@ def _smooth_svg_path(path: str) -> str:
         pts = list(zip(nums[::2], nums[1::2], strict=False))
         if len(pts) < 3:
             continue
-        slim = [p for i, p in enumerate(pts) if (pts[i - 1][0] - p[0]) * (pts[(i + 1) % len(pts)][1] - p[1]) != (pts[i - 1][1] - p[1]) * (pts[(i + 1) % len(pts)][0] - p[0])]
+        slim = [
+            p
+            for i, p in enumerate(pts)
+            if (pts[i - 1][0] - p[0]) * (pts[(i + 1) % len(pts)][1] - p[1])
+            != (pts[i - 1][1] - p[1]) * (pts[(i + 1) % len(pts)][0] - p[0])
+        ]
         pts = slim or pts
         for _ in range(2):
-            pts = [q for i, p in enumerate(pts) for q in ((0.75 * p[0] + 0.25 * pts[(i + 1) % len(pts)][0], 0.75 * p[1] + 0.25 * pts[(i + 1) % len(pts)][1]), (0.25 * p[0] + 0.75 * pts[(i + 1) % len(pts)][0], 0.25 * p[1] + 0.75 * pts[(i + 1) % len(pts)][1]))]
+            pts = [
+                q
+                for i, p in enumerate(pts)
+                for q in (
+                    (0.75 * p[0] + 0.25 * pts[(i + 1) % len(pts)][0], 0.75 * p[1] + 0.25 * pts[(i + 1) % len(pts)][1]),
+                    (0.25 * p[0] + 0.75 * pts[(i + 1) % len(pts)][0], 0.25 * p[1] + 0.75 * pts[(i + 1) % len(pts)][1]),
+                )
+            ]
         pts = pts[::2]  # Chaikin quadruples points; stride back below the raw staircase count
         out.append("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + "Z")
     return "".join(out) or path

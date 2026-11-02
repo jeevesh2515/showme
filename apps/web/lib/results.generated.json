@@ -233,12 +233,12 @@
       "predictions": "2026-11-02-negatives-heldout-n222-977dad4c-muse-spark-1.3-minimal-samoff-max2560-pvv3-e2f82896/predictions.jsonl"
     },
     "e2e": {
-      "dir": "2026-11-01-e2e-final",
-      "date": "2026-10-31",
+      "dir": "2026-11-02-e2e-bb543ba-04574992c7",
+      "date": "2026-11-02",
       "tasksRun": 20,
-      "passed": 14,
-      "successPct": 70,
-      "avgSteps": 3.7,
+      "passed": 12,
+      "successPct": 60,
+      "avgSteps": 4.45,
       "refusals": 0
     }
   }

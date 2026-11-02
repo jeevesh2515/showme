@@ -274,3 +274,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Read the authenticated participant guide and submission form without editing/submitting it; confirmed numerical weights, three-minute video, public/event-period-work rules, team limit and deadline. Integrated three read-only specialist reviews into docs/HACKATHON.md and recorded D51/Q4 status.
 - **Result / evidence:** Official sources linked in HACKATHON.md; current CI snapshot 4f974e4; evidence caveats retained. Found shared warning/uncertainty loss, SIGTERM restore gap and stale-headline selection. No application fixes, new metrics, live evaluation or human sessions were performed.
 - **Decision:** D51. Prioritize phone/handoff evidence and scoped correctness repairs over native iOS or extra models. Spend $0. Verification: existing doc-path check plus all local links in the consolidated brief; full application checks are not claimed.
+
+## 2026-11-02 · S36 · Day 7 hardening, frozen prompt v3, phone fixes, freeze
+
+- **Why:** Day 7: final numbers on the shipped prompt, founder iPhone feedback, HACKATHON A–D findings, freeze at 23:59.
+- **What I did:** Fixed review (Redo, Hide-all-text, brush snap-to-lines), SAM outline smoothing, guide status/caution preservation, 15-step guard, SIGTERM wrapper restore, results selection; ran prompt v3 dev gate, froze v3, re-ran held-out (v2/Pro/negatives) and the 20-task E2E on production; rebuilt landing with split honesty and prompt labels.
+- **Result / evidence:** Held-out v3: 89.9% / 62.0% / honesty 76.7% (161/210), refusals 12/12. E2E 12/20 avg 4.45 (+$0.5885 recorded, limits restored). Gates: 162+33+82 tests, Playwright 60/60, iPhone audit 35/35, Lighthouse 99/100.
+- **Decision:** D52 (prompt v3 frozen), D53 (phone/guide/wrapper/publication fixes). SAM human ratings and usability sessions remain not run — stated, not filled.

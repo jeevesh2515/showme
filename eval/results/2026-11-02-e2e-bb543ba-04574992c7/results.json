@@ -1,0 +1,204 @@
+{
+  "date": "2026-11-02",
+  "git_sha": "bb543ba",
+  "web": "https://showme-web-delta.vercel.app",
+  "tasks_selected": 20,
+  "budget_usd": 3,
+  "cost_usd": 0.508471,
+  "charged_usd": 0.588471,
+  "unknown_cost_responses": 2,
+  "step_reserve_usd": 0.04,
+  "stopped_on_budget": false,
+  "tasks": [
+    {
+      "id": "e2e-01-bbc-cookies",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.006115000000000001
+    },
+    {
+      "id": "e2e-02-govuk-passport",
+      "success": true,
+      "steps": 6,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.035734
+    },
+    {
+      "id": "e2e-03-govuk-bank-holidays",
+      "success": true,
+      "steps": 6,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.035775
+    },
+    {
+      "id": "e2e-04-nhs-find-gp",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.017973000000000003
+    },
+    {
+      "id": "e2e-05-nhs-111",
+      "success": true,
+      "steps": 4,
+      "honesty_events": [
+        "step 3: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.023057
+    },
+    {
+      "id": "e2e-06-bbc-weather-london",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.01246
+    },
+    {
+      "id": "e2e-07-nationalrail-plan",
+      "success": true,
+      "steps": 8,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.049392000000000005
+    },
+    {
+      "id": "e2e-08-royalmail-track",
+      "success": false,
+      "steps": 3,
+      "honesty_events": [
+        "step 1: not_visible",
+        "step 2: not_visible",
+        "step 3: not_visible",
+        "step 3: loop_detected"
+      ],
+      "refused": false,
+      "cost_usd": 0.008818
+    },
+    {
+      "id": "e2e-09-ikea-returns",
+      "success": true,
+      "steps": 5,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.030348
+    },
+    {
+      "id": "e2e-10-apple-cancel-subscription",
+      "success": false,
+      "steps": 4,
+      "honesty_events": [
+        "step 3: not_visible",
+        "step 4: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.017982,
+      "error": "Error: /v1/step 502: model_error"
+    },
+    {
+      "id": "e2e-11-netflix-cancel",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 5: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.066441
+    },
+    {
+      "id": "e2e-12-gmail-password",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.019831
+    },
+    {
+      "id": "e2e-13-wikipedia-spanish",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.05535800000000001
+    },
+    {
+      "id": "e2e-14-wikipedia-talk",
+      "success": true,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.005766
+    },
+    {
+      "id": "e2e-15-python-macos",
+      "success": false,
+      "steps": 4,
+      "honesty_events": [
+        "step 4: loop_detected"
+      ],
+      "refused": false,
+      "cost_usd": 0.026002
+    },
+    {
+      "id": "e2e-16-github-pricing",
+      "success": true,
+      "steps": 2,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.010197999999999999
+    },
+    {
+      "id": "e2e-17-firefox-download",
+      "success": false,
+      "steps": 10,
+      "honesty_events": [
+        "step 2: not_visible",
+        "step 3: not_visible"
+      ],
+      "refused": false,
+      "cost_usd": 0.050066
+    },
+    {
+      "id": "e2e-18-leeds-council-contact",
+      "success": true,
+      "steps": 3,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.018956
+    },
+    {
+      "id": "e2e-19-youtube-captions",
+      "success": false,
+      "steps": 3,
+      "honesty_events": [
+        "step 1: not_visible",
+        "step 2: not_visible",
+        "step 3: not_visible",
+        "step 3: loop_detected"
+      ],
+      "refused": false,
+      "cost_usd": 0.013173
+    },
+    {
+      "id": "e2e-20-nhm-opening-hours",
+      "success": false,
+      "steps": 1,
+      "honesty_events": [],
+      "refused": false,
+      "cost_usd": 0.005026,
+      "error": "Error: /v1/step 504: model_timeout"
+    }
+  ],
+  "success_rate": 0.6,
+  "avg_steps": 4.45
+}

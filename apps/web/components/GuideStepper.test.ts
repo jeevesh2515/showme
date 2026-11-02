@@ -20,6 +20,12 @@ describe("GuideStepper", () => {
     expect(render(step({ status: "unsure", target: null }))).toContain("I think it is this one");
   });
 
+  it("web: a one-step guide does not say 'all 1 steps'", () => {
+    const html = render(step({}));
+    expect(html).toContain("Your path, 1 step");
+    expect(html).not.toContain("all 1 steps");
+  });
+
   it("flow-10: a caution reaches the recipient", () => {
     expect(render(step({ caution: "This ends your plan." }))).toContain("This ends your plan.");
   });

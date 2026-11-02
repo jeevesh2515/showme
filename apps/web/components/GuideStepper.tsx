@@ -63,7 +63,7 @@ export default function GuideStepper({ guide }: { guide: GetGuideResponse }) {
       </div>
       <p data-testid="guide-next-screenshot" className="type-body mt-6 rounded-panel bg-mist p-4">Stuck on the next screen? Take a new screenshot and send it to the person who shared this.</p>
       <nav aria-label="All steps in this guide" className="mt-10">
-        <h2 className="type-body font-bold">Your path, all {guide.steps.length} steps</h2>
+        <h2 className="type-body font-bold">Your path, {guide.steps.length === 1 ? "1 step" : `all ${guide.steps.length} steps`}</h2>
         <ol className="type-body mt-3 space-y-2">
           {guide.steps.map((s, i) => (
             <li key={s.n}>

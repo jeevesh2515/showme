@@ -1,5 +1,5 @@
 {
-  "total_usd": 36.3874,
+  "total_usd": 36.3934,
   "runs": [
     {
       "date": "2026-10-28",
@@ -162,6 +162,11 @@
       "date": "2026-11-02",
       "label": "2026-11-02-video-crop-test",
       "cost_usd": 0.0078
+    },
+    {
+      "date": "2026-11-02",
+      "label": "2026-11-02-video-take-2",
+      "cost_usd": 0.006
     }
   ]
 }

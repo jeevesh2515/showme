@@ -17,13 +17,13 @@
 
 ## 2. The Problem & Founder Story
 
-Every week, millions of adult children receive panic screenshots on WhatsApp from their parents or elderly relatives:
+65% of US adults aged 65+ get tech help from family at least sometimes (Journal of Applied Gerontology, 2025, n=1,173). That help often starts with a screenshot sent to a relative:
 - *"How do I cancel this gym membership?"*
 - *"Where is the renew button on the passport website?"*
 - *"Why is my screen asking for cookies?"*
 
 Today, there are two bad options:
-1. **The 20-Minute Phone Call**: "What do you see now? No, not that blue button, the small link under the picture." It ends in frustration for both sides.
+1. **The phone call**: "What do you see now? No, not that blue button, the small link under the picture." Neither side can see what the other means.
 2. **Screen Sharing & Cloud AI Uploads**: Traditional remote support software requires intrusive installs, and uploading unredacted screenshots to cloud chatbots exposes bank details, credit card numbers, personal emails, and private documents.
 
 **ShowMe solves this for the remote helper:**
@@ -56,7 +56,7 @@ ShowMe combines two complementary Meta models through a multi-stage visual pipel
 | **Client-side redaction before upload** | Yes, partial: OCR + regex masks structured data, and a mandatory manual review covers the rest. Only the redacted image is uploaded. | Not documented | Not documented | Not reviewed |
 | **Platforms** | Web app; the helper can use any screenshot from iOS, Android, Mac, or Windows | Windows, web (screen share), and Copilot mobile app (camera) per Microsoft support | Android and iPhone/iPad (camera and screen sharing) per Google support | Not reviewed |
 | **Shareable expiring guide link** | Yes (7-day expiry, creator delete key) | Not documented | Not documented | Not reviewed |
-| **Reports "not visible" and refusals** | Yes, with measured rates (section 5; 62.4% on absent targets, so it often still guesses) | Not documented | Not documented | Not reviewed |
+| **Reports "not visible" and refusals** | Yes, with measured rates (section 5; 76.7% on absent targets at prompt v3, so it still guesses in 23.3% of cases) | Not documented | Not documented | Not reviewed |
 
 *Sources, all as of 2026-11-01: Microsoft, [Using Copilot Vision with Microsoft Copilot](https://support.microsoft.com/en-gb/topic/using-copilot-vision-with-microsoft-copilot-3c67686f-fa97-40f6-8a3e-0e45265d425f) (desktop Windows or web screen share; mobile app camera); Google, [Gemini Apps Help: Talk naturally with Gemini Live, iPhone & iPad](https://support.google.com/gemini/answer/15274899?hl=en&co=GENIE.Platform%3DiOS) (Gemini mobile app on iPhone/iPad, with camera and screen sharing). "Not documented" means we did not find it in those pages, not that the product lacks it. Tech help statistics: Journal of Applied Gerontology (2025, n=1,173).*
 
@@ -67,19 +67,22 @@ ShowMe combines two complementary Meta models through a multi-stage visual pipel
 
 We publish all evaluation numbers directly from raw output files in our open-source repo:
 
-- **ScreenSpot-v2 Benchmark (Held-out, n=1,172)**: **90.7%** click accuracy.
-- **ScreenSpot-Pro Benchmark (Held-out high-res apps, n=300)**: **63.7%** click accuracy (`muse-spark-1.3`), **66.7%** (`muse-wonder-1.0`).
-- **Negatives & Honesty Suite (Held-out absent probes, n=210)**: **62.4%** correctly identified targets as `not_visible` (131 / 210).
-- **Safety Refusals (Safety probe suite, n=12)**: **100.0%** refused requests attempting credential harvesting or unsafe actions.
+- **ScreenSpot-v2 Benchmark (Held-out, n=1,172, prompt v3)**: **89.9%** click accuracy (prompt v1: 90.7%).
+- **ScreenSpot-Pro Benchmark (Held-out high-res apps, n=300, prompt v3)**: **62.0%** click accuracy (`muse-spark-1.3`; prompt v1: 63.7% Spark, 66.7% Wonder).
+- **Negatives & Honesty Suite (Held-out absent probes, n=210, prompt v3)**: **76.7%** correctly identified targets as `not_visible` (161 / 210; prompt v1: 62.4%).
+- **Safety Refusals (Safety probe suite, n=12, prompt v3)**: **100.0%** refused requests attempting credential harvesting or unsafe actions.
 - **20-Task End-to-End Live Web Suite**: the generated run records **70.0% (14/20)** on real live websites (BBC, NHS, Gov.uk, Netflix, Apple, IKEA), average 3.7 steps. An audit of the saved trails found 4 of those 14 passes are suspect (the success check matched a video title, search suggestions or a sign-in page before the task was done), which leaves 10 recorded passes still awaiting validation (14 − 4); this is not a verified 50% success rate. The checks are fixed and covered by offline tests; a re-run is pending, and the generated files are not hand-edited.
 - **SAM Highlight Quality (74 live steps)**: Automated pipeline recorded 53 SAM outlines (71.6%), 9 model boxes (12.2%), and 12 no-highlight/scroll states (16.2%); human grading is **not run** (all 74 rating cells in `eval/e2e/highlight_ratings.csv` are empty), so no claim is made that outlines beat boxes.
 
 ---
 
-## 6. Video Demo Script Summary
+## 6. Video Demo Script Summary (3:00, per participant guide)
 
-- **0:00 - 0:25**: The Problem. Priya receives a frantic WhatsApp screenshot from her 77-year-old father Ken trying to cancel an unwanted recurring subscription.
-- **0:25 - 0:50**: Redaction & Privacy. Priya drops the screenshot into ShowMe. Client-side OCR masks structured details such as emails and card numbers in ink black with lock icons. She reviews the result and brushes out a personal name, which automatic detection does not catch. The raw image is never uploaded to ShowMe or Meta (Ken had already sent it to her over WhatsApp).
-- **0:50 - 1:25**: Step Grounding & Refine. `muse-spark-1.3` identifies the "Manage Subscriptions" link; `sam-3.1` outlines the exact button. Priya clicks "Share guide" to generate a 7-day link for this one step. A later step needs a new screenshot from Ken.
-- **1:25 - 2:00**: Ken's Experience. Ken opens the link on his iPhone and sees the screenshot with large 24px instructions, a high-contrast toggle, and a yellow highlighter ring. The picture is a guide, not his live app: he finds the same button in his real app and taps it there, then sends Priya the next screenshot for step two. The link stops working when Priya deletes it or after 7 days; expired images are removed by the next daily purge.
+- **0:00 - 0:20**: The Problem. Priya receives a WhatsApp screenshot from her 77-year-old father Ken, stuck cancelling a subscription (made-up billing screen, no real data).
+- **0:20 - 0:55**: Redaction & Privacy. Priya drops it into ShowMe. On-device OCR masks emails and card numbers; she brushes out a name the patterns missed. The raw image is never uploaded to ShowMe or Meta (Ken had already sent it to her over WhatsApp).
+- **0:55 - 1:25**: Step Grounding & Refine. `muse-spark-1.3` draws its box; `sam-3.1` replaces it with an outline only when the agreement gate passes. One sentence: what to tap and where.
+- **1:25 - 1:55**: Ken's Experience. Ken opens the 7-day link on his phone, follows the numbered path, and taps the same button in his real app — the picture itself does nothing. He sends the next screenshot for step two.
+- **1:55 - 2:20**: Honest limits. Competitors (Copilot Vision, Gemini Live) see the live screen; ShowMe redacts first and publishes its miss: it says "not visible" on 76.7% of absent targets (prompt v3, section 5) — and still highlights something in the other 23.3%.
+- **2:20 - 2:45**: Built during the hackathon (26 Oct - 4 Nov). Code on screen: only `redact()` can build a `RedactedImage`; the SAM gate refuses a mask that does not contain Spark's point.
+- **2:45 - 3:00**: Live URL, public repo, solo builder, Indie track, Build for Your World. Captions on, no music over the UI.
 

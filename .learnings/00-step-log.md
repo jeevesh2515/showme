@@ -267,3 +267,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **Result / evidence:** `make lint test` clean (160 backend + 32 eval + 81 web unit + 5 predicate + 1 doc-path); Playwright 59/59 with backend proxied to a dead port (no live calls); predicate tests 10/10; predicate and doc-path checks added to CI. Spend $0.
 - **Not done:** E2E re-run (live), deploy of current `main`, two-person helper/recipient sessions.
 - **Decision:** D46–D49.
+
+## 2026-11-02 · S35 · Authenticated event guide and parallel submission-gap review
+
+- **Why:** Founder supplied the participant /details link and requested an honest senior assessment, parallel brainstorming and one maintained hackathon brief.
+- **What I did:** Read the authenticated participant guide and submission form without editing/submitting it; confirmed numerical weights, three-minute video, public/event-period-work rules, team limit and deadline. Integrated three read-only specialist reviews into docs/HACKATHON.md and recorded D51/Q4 status.
+- **Result / evidence:** Official sources linked in HACKATHON.md; current CI snapshot 4f974e4; evidence caveats retained. Found shared warning/uncertainty loss, SIGTERM restore gap and stale-headline selection. No application fixes, new metrics, live evaluation or human sessions were performed.
+- **Decision:** D51. Prioritize phone/handoff evidence and scoped correctness repairs over native iOS or extra models. Spend $0. Verification: existing doc-path check plus all local links in the consolidated brief; full application checks are not claimed.

@@ -1,137 +1,228 @@
-# HACKATHON.md - Meta Global AI Developer Hackathon
+# ShowMe hackathon brief and submission plan
 
-> Event parameters, judging criteria, project alignment, and architecture rationale for ShowMe.
-> Sections marked "official" are quoted from the public event page (checked 2026-11-01). Everything else is our strategy, a plan, or a pointer to a generated file. Numbers come only from `eval/results/` or are labelled target, planned, or not measured (docs/RULES.md).
+Updated 2026-11-02, Europe/London. Repository snapshot: 4f974e4.
+Scope: official event facts, current project evidence, independent product/engineering/evaluation reviews, and proposed work before submission. This document does not certify eligibility or predict a prize.
 
----
+Confidence: **[Certain]** directly observed official source, code or artifact; **[Likely]** engineering/product judgement; **[Guessing]** unresolved speculation. A proposed action is not a completed result.
 
-## 1. Event Overview & Key Dates
+## 1. Official sources and the correction to earlier uncertainty
 
-- **Host**: Meta & Cerebral Valley ([Event Details](https://cerebralvalley.ai/e/meta-ai-developer-hackathon))
-- **Submission Portal**: [`https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit`](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit)
-- **Track**: **Indie Developer Track** (Decision D14). The public page describes it as for individual builders and students; the team-size limit of 4 is from the participant briefing and is not on the public page.
-- **Theme**: **Build for Your World** (*"Bring Meta's models into your domain. Solve a problem you know firsthand, free up time and mental space, and make something possible that wasn't before."*).
-- **Total prize pool (official)**: "$1,000,000 in total prizes" per the event page. The public page lists no per-track or per-place amounts.
-  - Per-place amounts and bonus prizes: per participant briefing, unverified publicly. Do not quote them externally.
+**[Certain]** The authenticated [participant guide](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) and [submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit) were read in the founder's signed-in Chrome session on November 2. The unauthenticated browser redirected to login. No form fields were changed, no permission checkbox was accepted, and no submission was made.
 
-### Timeline
-Source: public event page, times in ET, "dates may change at Meta's discretion". The Official Rules were to be published on Oct 26, 2026; we have not located them, so check them before submitting. Our internal freeze row is ours, not the host's.
+**[Certain]** The participant guide now verifies the numerical judging weights, team limit, prizes and video requirement that could not previously be verified from the public landing page. Earlier notes calling these publicly unverified reflected the source boundary then; they are now verified against the participant guide.
 
-| Milestone | Date & Time | Notes |
-| :--- | :--- | :--- |
-| **Hackathon Start** | Oct 26, 2026 | Kickoff livestream (event page) |
-| **Internal Feature Freeze** | Mon Nov 2, 2026, 23:59 London | Our own plan, not a host date |
-| **Project Submissions Due** | **Wed Nov 4, 2026, 9:00 PM ET** (Nov 5, 02:00 UTC) | Event page; confirm in the Official Rules |
-| **Judging Period** | Nov 4 – Nov 8, 2026 | Event page |
-| **Closing Ceremony & Winners** | Nov 9, 2026 | Event page: live finals and winners announced |
+Sources:
+- [Participant guide: rules, submission, judging and prizes](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details)
+- [Actual submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit)
+- [Public organizer overview](https://cerebralvalley.ai/e/meta-ai-developer-hackathon)
+- [Meta event overview](https://dev.meta.ai/events/global-hackathon)
 
----
+The participant guide is more specific than the public overview. This review did not accept or separately audit the legal waiver.
 
-## 2. Judging Criteria & Winning Strategy
+## 2. Dates, requirements and eligibility evidence
 
-**Official (public event page, https://cerebralvalley.ai/e/meta-ai-developer-hackathon, as of 2026-11-01):** the Indie developer track is "Judged on creativity, technical ambition, and whether it works." The page publishes no numeric weights and no further sub-criteria.
+### Dates
 
-**Our working assumption (not from official rules):** we plan against four lenses taken from the participant briefing, with weights we could not verify publicly: Impact 30%, Demo 25%, Use of Meta tooling 25%, Technical depth 20%. Treat the weights as a prioritisation aid only. The "Official Standard" lines below are paraphrases from that briefing, not quotes from a public source.
+| Item | Verified requirement or internal plan |
+| --- | --- |
+| Official submission deadline | **[Certain]** Wednesday November 4, 2026, 21:00 Eastern Standard Time; Thursday November 5, 02:00 London. |
+| Feature freeze | **[Certain]** Monday November 2, 23:59 London is ShowMe's own freeze, not an organizer requirement. |
+| Suggested submission buffer | **[Likely]** Aim to submit by November 4, 18:00 London, keeping eight hours before the host deadline for failures. This is a recommendation. |
+| Last full troubleshooting day | **[Certain]** The participant guide identifies November 3 as the last full day for submission questions and technical troubleshooting. |
+| Judging | **[Certain]** The detailed guide specifies November 5–8. The public overview says November 4–8; use the detailed guide for this plan and check announcements for changes. |
+| Final round | **[Certain]** November 9, 12:00 ET / 17:00 London: top five projects per track, live video judging and winners. |
+| Community award | **[Certain]** Guide says the community-vote winner is announced November 16. |
 
-Mapping of the official wording to our lenses (strategy): "creativity" is Impact and Meta tooling, "technical ambition" is Meta tooling and Technical depth, "whether it works" is Demo.
+### Submission validity checklist
 
-### Criterion 1: Impact (assumed 30%)
-* **Briefing standard (unverified publicly)**: Real-world potential of the project, who benefits, how much it matters, whether it could become something people use, and whether it fits one of the problem statements.
-* **Our alignment (strategy)**:
-  * **The Problem (our framing, no market-size claim)**: Older adults and non-technical family members often get stuck on websites and apps, and helpers receive screenshots asking things like *"How do I cancel this gym membership?"*. Common workarounds are a phone call or screen-sharing, which can expose passwords, cards, and bank details. We have not measured how often or how long this takes.
-  * **Who Benefits**: The **Remote Helper** (Priya) and the **Stuck Relative** (Ken, 77). Priya drops the screenshot into ShowMe, verifies the on-device PII redaction, gets the exact button highlighted with Meta AI, and shares a 7-day self-destructing guide link back to Ken. Ken opens the link on his iPhone and follows the highlighter ring. Time to finish is not measured; usability sessions are planned (`eval/usability/2026-11-01-kit.md`) and no results exist yet.
-  * **Theme Fit**: Our argument for fit with the theme **Build for Your World**: it targets a problem the team knows from family experience. Whether judges agree is not something we can state.
+| Requirement from guide | ShowMe status and next proof |
+| --- | --- |
+| Incorporate Meta models and fit one stated theme | **[Certain]** Source uses muse-spark-1.3 and sam-3.1. Proposed theme is Build for Your World. **[Likely]** A real helper story makes that fit defensible; judges decide the fit. |
+| Public open-source repository | **[Certain]** Repository is [jeevesh2515/showme](https://github.com/jeevesh2515/showme). Recheck unauthenticated access and the licence before submission. |
+| Solo or at most four participants | **[Certain]** Guide permits solo participants and teams of up to four. Founder must list everyone who worked on the project accurately. |
+| Demonstrate event-period original work | **[Certain]** Guide requires the demo and submission to identify features/code created during the event. **[Likely]** Include a short build-period/contribution statement with commits, distinguish dependencies and datasets, and do not present third-party work as original. |
+| Rights to code, data and assets; compliance with policies | **[Certain]** Guide lists violations and unlicensed assets as disqualifying. Founder must complete the rights/attribution check; this document is not proof of every asset's licence. |
+| Three-minute demo video | **[Certain]** Guide and form both specify a three-minute demo. Current two-minute outline in [SUBMISSION.md](SUBMISSION.md) needs adaptation. Video recording and accessible final URL are not evidenced in the repo. |
+| Accessible links and representative | **[Certain]** Guide asks for accessible public code/video, one project submission per team and a designated representative. |
+| Actual submission | **[Certain]** Not performed in this review. A draft document, working URL or passing CI is not a submitted entry. Founder should retain the platform confirmation. |
 
-### Criterion 2: Demo & Video (assumed 25%)
-* **Briefing standard (unverified publicly)**: Working, impressive demo, whether the product holds up live, and the quality of the demo video.
-* **Our alignment (strategy)**:
-  * **Live Production App**: Deployed at [https://showme-web-delta.vercel.app](https://showme-web-delta.vercel.app) (API health endpoint: [healthz](https://showme-api-xi.vercel.app/v1/healthz)). Uptime and health-check latency are not measured or monitored; no uptime figure is claimed.
-  * **One-Tap Judge Demo**: Built-in *"Try with an example billing screenshot"* button on `/app` allows judges to test the complete end-to-end pipeline in one tap without finding a screenshot.
-  * **Mobile layout checks**: `scripts/live_iphone16_audit.mjs` runs automated iPhone 16 layout checks (overflow, 44px touch targets, docked step card). Its output is not stored in `eval/results/`, so no pass count is claimed here; re-run it and cite the output before quoting a number.
-  * **Demo Video (planned, not recorded)**: target 2 minutes following the Priya + Ken story (`docs/DESIGN.md §7`). Recording, devices used, and voiceover are not done yet.
+**[Certain]** The guide flags generic image-analysis projects among examples to avoid. **[Likely]** ShowMe risks appearing in that category if the demo is only screenshot upload followed by a highlighted button. Demonstrate an actual two-person, multi-screen guidance exchange, privacy review, failure handling and model contribution. This is a strategic response to the risk, not an organizer exemption or guarantee.
 
-### Criterion 3: Use of Meta AI Tooling (assumed 25%)
-* **Briefing standard (unverified publicly)**: How creatively the team used Meta's AI tooling, whether they went beyond a basic integration, and whether they surfaced unexpected capabilities.
-* **Our alignment (strategy)**:
-  * **Multi-Stage Visual Pipeline**: We do not build a basic text chatbot. ShowMe chains two distinct Meta models:
-    1. **`muse-spark-1.3`**: Grounded visual comprehension via Meta API, outputting normalized coordinates (0–1000 grid), action classification (`tap`, `type`, `scroll`), and concise instructions under strict JSON schema enforcement (`additionalProperties: false`).
-    2. **`sam-3.1` (Segment Anything Model)**: Promoted with the model bounding box to compute pixel-perfect SVG contour outlines for irregular controls, icons, and buttons.
-  * **Agreement Gate**: An algorithmic guardrail ensuring SAM outlines are only displayed when SAM agrees with Spark's box (IoU $\ge 0.5$, point enclosed, area $\le 25\%$; ARCHITECTURE §5). If not, it falls back to the clean box without moving the click point.
-  * **Negative & Safety Probing**: Prompts and postprocessors are designed to return `not_visible` when a requested button is absent and `refuse` when unsafe, instead of inventing coordinates. Measured results are in Criterion 4. SAM outline quality has not been human graded (not run; D44).
+### Fields observed in the submission form
 
-### Criterion 4: Technical Depth & Execution (assumed 20%)
-* **Briefing standard (unverified publicly)**: Sound engineering, thoughtful refinement, and demonstrating real craft.
-* **Our alignment (strategy)**:
-  * **Architecture Integrity**: Clean monorepo (`apps/web` Next.js 14 strict TypeScript, `backend` FastAPI Python 3.11 with pure functional core in `showme/core`, `eval` offline benchmark harnesses).
-  * **Testing & Quality Gates**: unit tests (backend, eval, web), Playwright browser tests including axe checks, and `scripts/score_gate.py`. Test counts and the score-gate result are not stored in `eval/results/`; run `make test` and the gates and quote that output rather than a number written here.
-  * **Privacy engineering (design goals; rules in RULES.md P1-P9)**:
-    * Zero raw screenshot transmission: Only client-side WASM OCR redacted bitmaps (`RedactedImage`) ever reach the network.
-    * Ephemeral storage: Backend never logs or stores images, goals, or raw IPs. Opt-in shared guides expire after 7 days (checked on every read). Purge job behaviour is by design; check ARCHITECTURE before claiming more.
-    * Creator delete key: SHA-256 hashed secrets allow instant guide revocation.
-  * **Evaluation (generated files in `eval/results/`, see `RESULTS.md`)**:
-    * ScreenSpot-v2 held-out, n=1172, `muse-spark-1.3` minimal, SAM off: 90.7% (`2026-10-29-screenspot-v2-heldout-n1172-...`).
-    * ScreenSpot-Pro held-out, n=300, same config: 63.7%. `muse-wonder-1.0` on the same 300: 66.7%.
-    * Negatives held-out, n=222: 64.4% overall (143/222). Absent-target (`not_visible` expected) 131/210 = 62.4%. Refusal (`refuse` expected) 12/12, a small sample that includes synthetic cases, so it is not evidence of general safety.
-    * Live E2E, 20 web tasks: the recorded run reports 14/20 passes, average 3.7 steps (`eval/results/2026-11-01-e2e-final/report.md`). 4 of those passes are suspect and the other 10 are recorded passes awaiting validation; this is not a verified success rate (MEMORY D48).
+**[Certain]** Prepare team identity/membership; track and theme selections; a project summary; public code and three-minute video URLs; an explanation of Meta integration and why those models matter; partner feedback where applicable; and experience surveys. The form also offers an X-post URL for the viral award.
 
----
+**[Certain]** The form includes permission for the organizers to use and promote submitted materials. The founder must review that consent; use synthetic or appropriately consented material in the video. Field visibility was inspected, but final validation and submission were not exercised. Do not invent survey answers, tool usage, comparisons or satisfaction ratings.
 
-## 3. What We Are Building: Feature Breakdown
+## 3. Verified judging rubric and prize focus
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          SHOWME APPLICATION FLOW                       │
-├─────────────────┬──────────────────┬─────────────────┬─────────────────┤
-│ 1. Start Screen │ 2. Review Screen │ 3. Step Guidance│  4. Share Guide │
-│                 │                  │                 │                 │
-│ • Goal input    │ • Auto-PII mask  │ • Ring overlay  │ • 7-day link    │
-│ • Drag/paste    │ • Brush tool     │ • SAM contour   │ • Consent check │
-│ • Example sample│ • Tap-to-hide    │ • Docked card   │ • Delete secret │
-│ • Device help   │ • Lock glyphs    │ • Audio read    │ • Expired purge │
-└─────────────────┴──────────────────┴─────────────────┴─────────────────┘
-```
+From participant-guide judging section:
 
-1. **Start Screen (`/app`)**:
-   - Accepts goal text (max 300 chars) and screenshot via drag-and-drop, clipboard paste, or file selection.
-   - Includes *"Try with an example billing screenshot"* for instant judge walkthroughs.
-2. **Privacy Review Screen (`/app` review phase)**:
-   - Mandatory on-device OCR runs inside a Web Worker using self-hosted Tesseract WASM.
-   - Auto-masks emails, phone numbers, card numbers, UK postcodes, and IBANs with solid ink blocks and highlighter lock glyphs.
-   - Interactive manual brush tool (finger/mouse drag) and tap-to-hide (22px near-tap radius for phone usability).
-   - "Looks private. Continue" button enables only after user review.
-3. **Step Guidance Screen (`/app` step phase)**:
-   - Shows the annotated screenshot with a highlighter yellow bounding ring and numbered badge.
-   - Crossfades smoothly from the rectangular box to the SAM 3.1 outline once refined.
-   - Docked bottom card on mobile with step count, clear action instruction, and caution banner (e.g. *"Careful: cancelling ends your plan"*).
-   - Keyboard shortcuts (`N` for next, `R` for read aloud, `Esc` to cancel) and Web Speech API synthesis.
-4. **Early & Late Share Flow (`/g/[token]`)**:
-   - Helpers can generate a guide link from Step 1 (`data-testid="share-early-btn"`) or at completion.
-   - Requires explicit second review and consent checkbox.
-   - Generates an expiring 7-day link with an immediate deletion key.
-   - Recipients view the step card and annotated screenshot with large touch targets and high-contrast toggle.
+| Category | Weight | What ShowMe should demonstrate |
+| --- | --- | --- |
+| Impact | **[Certain] 30%** | **[Likely]** Identify a specific helper and recipient, show a genuine obstacle, observe the full exchange, and report whether anyone can use it without coaching. |
+| Use of Meta AI tooling | **[Certain] 25%** | **[Likely]** Show Spark selecting the next action and SAM refining an eligible outline. Explain the agreement gate and unchanged click point. Report what SAM does not improve. |
+| Technical depth and execution | **[Certain] 20%** | **[Likely]** Show the privacy boundary, typed contract, recovery paths, trustworthy cost controls and reproducible evidence rather than a test-count score. |
+| Demo | **[Certain] 25%** | **[Likely]** Deliver an understandable three-minute narrative with a live working flow, a real recipient and honest limitations. |
 
----
+**[Certain]** Stage one is a viability/theme/Meta-use pass/fail assessment; stage two scores the rubric; the five highest-scoring projects per track reach the final video round. There is no evidence here about other entrants' submissions or ShowMe's relative rank.
 
-## 4. Why We Chose These Models & Tools
+**[Certain]** Total prizes are $1,000,000: Indie $400,000, Startup $550,000, bonuses $50,000. Indie places receive $150,000 / $100,000 / $75,000 / $50,000 / $25,000. Bonuses cover viral engagement ($20,000), an eligible Meta open-weight build ($10,000), community vote ($10,000), agentic use ($5,000) and a creative build using the specified creative models ($5,000).
 
-### Why `muse-spark-1.3` (with `reasoning_effort=minimal`)?
-- **Speed & Latency**: Interactive guidance requires fast feedback. Spark at `minimal` effort had p50 2,809 ms in the 10-sample spike (SPIKES.md; run-to-run variance seen, n=10). Higher efforts were slower in the same spike (low 4,282 ms, default 5,485 ms). Wonder at minimal was 3,069 ms in that spike, so Wonder is not 5-8 s there. Production latency over real traffic is not measured.
-- **Cost Efficiency**: about $0.0051 per grounding call at minimal effort (arithmetic on token usage, SPIKES.md; Wonder about $0.0157). Spend is capped by a budget ceiling (RULES, `eval/results/spend.json`).
-- **Accuracy**: 90.7% on ScreenSpot-v2 held-out (n=1172). We did not run Wonder on ScreenSpot-v2. On ScreenSpot-Pro (n=300) Wonder scored higher (66.7% vs 63.7%), so we do not claim Spark matches or beats larger models.
+**[Likely]** Prioritize the Indie rubric. Adding open-weight hosting or a creative model solely to chase a bonus would consume time without proving the present workflow. Do not claim bonus eligibility without satisfying that category's model and delivery requirements. The viral category requires a separate post/link; no posting is authorized by this document.
 
-### Why `sam-3.1` via Meta Model API?
-- **Pixel Contour Highlights**: Rectangular boxes look clunky over circular profile icons, pill-shaped buttons, or hamburger menus. SAM segments the exact organic contour.
-- **Box Prompting**: The SAM spike measured higher IoU when prompting with the model box (0.51) than with a point (0.41); small spike sample, see SPIKES.md.
+## 4. What ShowMe actually does and where it might help
 
-### Why the Agreement Gate?
-- **Safety First**: SAM is class-agnostic and can segment whatever lies near the prompt even if Spark picked the wrong element (spike: refinement did not fix wrong clicks). The Agreement Gate requires IoU $\ge 0.5$ and enclosure of the click point before displaying an outline. Otherwise, ShowMe falls back safely to Spark's bounding box.
+**[Certain]** Implemented flow, traced through [README.md](../README.md), [app page](../apps/web/app/app/page.tsx), [API](../backend/showme/api/main.py) and [shared viewer](../apps/web/components/GuideStepper.tsx):
 
-### Why Client-Side Redaction (Tesseract WASM)?
-- **Privacy Guarantee (PRIV-1)**: Uploading unredacted screenshots to third-party APIs or backend servers exposes personal data (bank details, passwords, health info). Running redaction client-side in a Web Worker is designed so that unredacted pixels never reach the network (only `RedactedImage` is sent). Redaction recall is not guaranteed: OCR can miss text, which is why review is mandatory.
+Screenshot + goal → local OCR/pattern detection → mandatory manual review → redacted upload → Spark next-step instruction and location → progressive box / agreement-gated SAM outline → user acts in the original app → fresh screenshot for the next state. Optional second review and consent create a shared, expiring guide.
 
----
+**[Certain]** A screenshot shows one state. A multi-step guide requires screenshots of subsequent states. A recipient sees annotated pictures, not a live overlay operating Spotify, Settings or another app. They must switch to the original screen to act.
 
-## 5. Verification & Submission Checklist for Agents
+**[Certain]** In the remote-helper scenario the helper already received the original screenshot, possibly through messaging. ShowMe's redaction boundary protects the subsequent upload to ShowMe/Meta; it cannot undo that prior disclosure. Pattern detection misses unstructured private text and needs review. Guide access expires after seven days; storage deletion follows the next successful purge.
+
+**[Likely] Recommended pitch:** Turn a confusing screenshot into one clear visual next step, review private details locally, and send an expiring guide to someone you are helping.
+
+**[Likely]** This could help with asynchronous help across different devices, where the helper cannot inspect the target app's DOM. It has not yet been shown to replace a phone call, save a particular amount of time or let older users finish tasks independently.
+
+### Competing approaches and the evidence needed
+
+| Alternative | ShowMe's proposed benefit | What would validate it |
+| --- | --- | --- |
+| A screenshot with a manually drawn arrow and short message | **[Likely]** Less helper effort when generating precise visual instructions and successive cards | Matched task comparison including review/share time, not only model response time |
+| Generic screenshot conversation or live visual assistant | **[Likely]** Explicit local review, one-action presentation and an expiring handoff in a browser | Observe whether people prefer and understand the handoff; avoid exclusive feature claims |
+| Remote support call/screen sharing | **[Likely]** Asynchronous help with no required remote-control installation | Measure the whole exchange and recipient app switching; privacy scope must remain accurate |
+
+**[Likely]** Compete through specificity and evidence: one recognizable person, one complete workflow, a visible reason for both Meta models, and a credible treatment of errors. Model count, native-app packaging, internal agent scores and elaborate architecture diagrams do not establish usefulness or a winning rank.
+
+## 5. Current evidence: what can be claimed
+
+Evidence snapshot precedes any new paid run. [Generated index](../eval/results/RESULTS.md); [production prompt](../backend/showme/core/prompts.py).
+
+| Measurement | Defensible statement | Qualification |
+| --- | --- | --- |
+| ScreenSpot-v2 | **[Certain]** 1,063/1,172 = 90.7%, Spark minimal, prompt v1, SAM off | Historical grounding benchmark; current prompt constant is v2 |
+| ScreenSpot-Pro | **[Certain]** Spark 191/300 = 63.7%; Wonder 200/300 = 66.7%, minimal, v1 | Wonder advantage on this sample is three percentage points; no evidence it improves every task |
+| v2 dev split | **[Certain]** 92/100 versus v1 dev-100 93/100 | Development evidence, not a new held-out headline |
+| Absent-target honesty | **[Certain]** 131/210 = 62.4% strict expected-status success, v1 | Remaining outcomes include inappropriate targets and premature completion; do not call every strict miss a hallucinated highlight |
+| Refusal probes | **[Certain]** 12/12 | Small, synthetic-inclusive set; not proof of general safety |
+| Confidence discrimination | **[Certain]** AUROC 0.62249 | [Calibration artifact](../eval/results/2026-10-29-calibration-v2heldout/calibration.json); no calibrated-confidence guarantee |
+| E2E | **[Certain]** Original run recorded 14/20; four passes suspect; remaining ten await validation | [Original report](../eval/results/2026-11-01-e2e-final/report.md). Not a verified 70% or 50% current-production result |
+| SAM geometry | **[Certain]** Mean model-box IoU about 0.556 versus SAM about 0.5145 on the paired 100-sample run | Geometry is not human outline quality; SAM does not move the click point |
+| Human SAM review | **[Certain]** 74 rows, no human grades: 53 outlines, nine boxes, 12 no-highlight states | [Rating sheet](../eval/e2e/highlight_ratings.csv); superiority is not established |
+| Human usability and physical-phone OCR | **[Certain]** A [test kit](../eval/usability/2026-11-01-kit.md) exists; no completed participant report found | Tests must include the new helper/recipient exchange, not only self-use |
+| CI | **[Certain]** Snapshot 4f974e4 passed [GitHub CI](https://github.com/jeevesh2515/showme/actions/runs/41335717180) | CI is evidence of its automated checks, not a readiness score or live user study |
+
+**[Certain]** Benchmark preprocessing is not the entire browser production pipeline: evaluation uses public images and its JPEG encoding, while browser production includes redaction and may choose WebP. Shared core logic is valuable; full pipeline performance requires browser and phone evidence.
+
+### Spend planning
+
+**[Certain]** The [ledger](../eval/results/spend.json) records $22.7699. [MEMORY D50](MEMORY.md) separately records an estimate for earlier E2E calls: 437 × $0.0076 = $3.3212. Combined planning estimate: $26.0911; approximate headroom to the $40 eval ceiling is $13.9089. This is not a provider-billing reconciliation.
+
+**[Certain]** Day-7 prompt permits $15 for today's calls, but the project/account ceilings still apply. Before any paid run reconcile today's use, previous unrecorded calls and public-demo spend; announce count/cost and check all applicable limits.
+
+**[Likely]** Illustrative planning arithmetic for Spark: an E2E allocation of $3 plus (1,172 + 300 + 222) grounding samples × approximately $0.0051 = $11.6394. This excludes variable token use, retries, additional SAM calls and other manual use. It is an estimate, not an upper bound or permission to spend. Do not use the old negatives run's low cached cost to price a fresh prompt run.
+
+## 6. Concrete gaps from the parallel reviews
+
+Application code was reviewed, not changed in this task.
+
+### A. P1 [Certain]: shared guides lose caution and uncertainty
+
+Evidence: [trail capture](../apps/web/app/app/page.tsx), line 139; [guide schema](../backend/showme/api/guides.py), lines 15–44; [viewer](../apps/web/components/GuideStepper.tsx), lines 13–19. Relevant requirements: FLOW-6/FLOW-10 and PRIV-5.
+
+A step shown as unsure with a caution to the helper is saved without status/caution/action/type text. The viewer reconstructs a targeted step as ok, and warnings and dashed uncertainty styling disappear. The recipient can receive stronger-looking advice than the helper saw.
+
+Recommended fix: preserve PII-masked warning/status through trail, API generation, storage and viewer, and render them consistently. Preserve necessary safe action/typing information, or block unsupported sharing until it can be represented.
+
+Regression: mocked unsure cancellation/payment step with a caution → create/get guide → recipient sees the same warning and uncertainty styling. Fix this before presenting shared guides as reliably preserving safety context.
+
+### B. P2 [Certain]: process termination can bypass rate-limit restoration
+
+Evidence: [live wrapper](../scripts/e2e_live.sh), line 52. It handles ordinary failures with an EXIT trap, but not SIGTERM. Read-only/offline signal reproduction terminated Bash without its EXIT cleanup.
+
+Recommended fix: INT/TERM handlers must exit through idempotent cleanup; preserve failure status and document recovery for interruptions that cannot run cleanup.
+
+Regression: mocked raised deployment, signal the wrapper with SIGTERM, assert variable removal and successful restoration deployment. This gates the automatic production rerun, not low-risk phone observations.
+
+### C. P2 [Certain]: publication can select stale metrics after a corrected rerun
+
+Evidence: [web results generator](../apps/web/scripts/gen-results.mjs), lines 24–32. Every directory ending in -final is processed after ordinary SHA/time-tagged runs, so the old November 1 final overrides a newer complete run. Benchmark selection sorts only by sample count; equal-sized v1/v2 runs can retain the older row.
+
+Recommended fix: explicitly select audited publication run IDs and matching model/prompt metadata, or use deterministic eligible-version/recency rules. Do not infer quality or freshness from a directory suffix.
+
+Regression: old final + newer complete SHA-tagged run selects the intended corrected run; equal-n v1/v2 results select the intended frozen-prompt result. Fix before publishing refreshed metrics; do not hand-edit generated files.
+
+### D. P2 [Certain], secondary: long guides exceed the API limit without recovery
+
+Evidence: trail grows in [app page](../apps/web/app/app/page.tsx), while [guide request](../backend/showme/api/guides.py) allows at most 15 steps. At step 16 the UI still offers creation, which fails validation.
+
+Recommended fix: explain and enforce the supported size, or permit selecting/splitting a guide into supported parts. Regression: 15 steps succeeds; 16 has an actionable recovery before network submission. Existing ten-step E2E tasks will not exercise this.
+
+### Previous fixes present in source
+
+**[Certain]** The review replacement reset, durable row-before-upload cleanup, aggregate image cap, reservation-day spend reconciliation, corrected caption predicates, $0.04 pricing-derived E2E reserve, ordinary restore-error checks and non-overwriting per-run artifacts are present. These are source-level closure checks; current production behaviour was not re-certified here.
+
+## 7. Ordered plan until submission
+
+These are proposed work blocks, not completed tasks or guaranteed durations. Owners: founder handles people, platform declarations and final submission; implementation agent handles scoped bug fixes.
+
+| Order / window | Action | Completion evidence |
+| --- | --- | --- |
+| 1. Today, parallel tracks | **[Likely]** Founder runs physical iPhone test and two-person handoff; agent fixes shared warning/status loss. Use low-consequence public tasks while safety-context preservation is unresolved. | Written observations and mocked round-trip regression; no invented time savings |
+| 2. Before a paid rerun | **[Likely]** Fix signal restoration and publication selection; do not add features. | Offline failure/signal tests and synthetic old/new result-selection tests |
+| 3. Before freeze tonight | **[Likely]** Freeze the demonstrated scope and final prompt after dev-only validation. Reconcile spend, then run the chosen final evaluations under budget. If scope/budget prevents a suite, explicitly retain its historical version label and record the cut; never tick it done. | Immutable results, prompt/model/revision metadata, actual-versus-estimated costs, audited success trails |
+| 4. Freeze at Nov 2, 23:59 | **[Likely]** Complete affected checks/CI and deployed-revision verification through the existing approval flow. Implementation owner creates the planned release-candidate tag. | CI URL, deployment identities, rollback/recovery instructions and clear remaining limitations |
+| 5. Nov 3 | **[Likely]** Record and caption the three-minute demo; prepare portal answers and attribution statement; verify repository/video as a logged-out viewer. | Real video, accessible URLs, full checklist and no placeholder claims |
+| 6. Nov 4, aim 18:00 London | **[Likely]** Founder reviews declarations and permission checkbox, submits once through the platform and saves confirmation. | Actual platform confirmation before Nov 5 02:00 London |
+| 7. Judging period | **[Likely]** Maintain a functioning deployment and available model credit; fix release-blocking defects, avoid experiments that invalidate the recorded demo. | Working URLs, verified limits, spend monitoring and recovery procedure |
+
+**[Likely] Cut now:** native iOS rewrite/wrapper, voice input, enterprise widget/pricing, extra model stages and bonus-driven model migrations unless a recorded user blocker makes them necessary. Xcode is not required to test Safari or a Home Screen web app on the founder's iPhone 16.
+
+### Two-person observation protocol
+
+**[Likely]** Use one helper on a laptop and one recipient on the actual iPhone. Use a public task requiring at least two screens, with no real credentials or payment details in recorded artifacts.
+
+1. Recipient captures/sends the current screenshot.
+2. Helper reviews local masking, generates one next step, reviews/consents to sharing.
+3. Recipient opens the guide, identifies the intended original app/tab, acts there and returns the next screenshot.
+4. Repeat for another state; do not coach unless needed, and record every intervention.
+5. Include an absent-control case and observe whether the person recognises and recovers from a wrong suggestion.
+6. Measure total time, helper-active time, review time, screenshot cycles, wrong taps and requests for explanation. Record whether they tap the picture expecting it to control the original app.
+7. Compare against a matched ordinary screenshot-plus-arrow/message task if time permits; counterbalance order rather than reusing a learned identical task.
+8. Report the small exploratory sample, failures included. A self-test is useful but is not a two-person usability session or general evidence about older adults.
+
+**[Certain]** For Spotify, reaching the cancellation control is navigation evidence; stopping before changing the subscription is not completed cancellation. Use public low-consequence tasks for the main success demonstration.
+
+### Paired SAM review
+
+**[Likely]** Show the same existing screenshots with box and SAM alternatives in shuffled order to an independent reviewer. Record preference, wrong-element cases and confidence separately. The founder can begin with 10–20 cases as exploratory evidence, or honestly retain not run. Agreement with Spark's box is not agreement with ground truth.
+
+## 8. Proposed three-minute demo
+
+This is a script plan; nothing here states the recording exists.
+
+| Segment | Proposed content |
+| --- | --- |
+| 0:00–0:20 | **[Likely]** A specific, truthful helper problem and the intended recipient; avoid unsupported market-size or phone-call-duration claims. |
+| 0:20–0:55 | **[Likely]** Add a made-up screenshot, show an automatic mask and manually hide a missed detail before upload. |
+| 0:55–1:30 | **[Likely]** Real Spark response, progressive box, eligible SAM outline or honest fallback. Explain the two models and unchanged click point. |
+| 1:30–2:20 | **[Likely]** Real recipient opens the shared guide on iPhone, switches to the original public page, acts and sends the next screenshot. Show the actual handoff rather than tapping an image as though it controls another app. |
+| 2:20–2:40 | **[Likely]** One real limitation or failure/recovery. If several attempts were needed, disclose the selection. Never show mocks as live model output. |
+| 2:40–3:00 | **[Likely]** Version-labelled measured evidence, what was built during the event, public URLs and honest remaining limits. |
+
+**[Likely]** Prepare portal explanations around model roles and trade-offs: Spark provides semantic grounding/action selection; SAM refines contour presentation only; the agreement gate rejects inconsistent refinement. Do not claim SAM improves click accuracy or that this project has compared against every competitor.
+
+## 9. Completion boundary and remaining unknowns
+
+**[Certain]** This review used three parallel read-only reviewers (product, engineering, evidence), current source/tests/docs, GitHub CI and the authenticated organizer pages. It did not change application code, deploy, submit a form, accept terms, run paid evaluation, or conduct physical-phone/user sessions.
+
+**[Certain]** Pending proof includes human usefulness, phone OCR performance, human SAM preference, fresh frozen-prompt results, end-to-end production release checks and the final video/submission confirmation. Current test passes do not close those gaps.
+
+**[Likely]** ShowMe is a defensible prototype for a narrow visual help workflow. Its usefulness and competitiveness should be judged from observed task completion and the quality of its actual handoff. No evidence supports a probability of winning, a perfect-validity guarantee or an internal readiness score.
+
+
+## 10. Existing agent verification and commit duties
 
 Before committing or pushing any change, every agent must verify:
 

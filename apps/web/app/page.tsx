@@ -26,7 +26,7 @@ export default function Home() {
     <main>
       {/* Phones: headline, demo so the ring draws above the 659px fold (DESIGN §6), text, then buttons. Desktop: text left, demo right. */}
       <section className={`${wrap} grid grid-cols-[minmax(0,1fr)] pb-12 pt-6 lg:grid-cols-12 lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-12 lg:py-16`}>
-        <h1 className="type-display lg:col-span-6 lg:row-start-2">Stuck on a screen? ShowMe points to <span className="mark">the next tap</span>.</h1>
+        <h1 className="type-display lg:col-span-6 lg:row-start-2">Someone stuck on a screen? ShowMe points to <span className="mark">the next tap</span>.</h1>
         <div className="mt-6 lg:col-span-6 lg:col-start-7 lg:row-span-5 lg:row-start-1 lg:mt-0 lg:self-center">
           <BillingDemo />
         </div>
@@ -68,9 +68,10 @@ export default function Home() {
           <h2 id="accuracy" className="type-title">How often it is right</h2>
           <p className="type-body mt-4">Measured on public benchmarks and real tasks, weakest number included. Every figure links to its raw output file.</p>
           <ul className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {h.screenspotV2 && <Metric pct={h.screenspotV2.accuracyPct} label={`ScreenSpot-v2 held-out: point inside the right control (n=${h.screenspotV2.n})`}><a href={gh(h.screenspotV2.predictions)} className="underline">Raw predictions</a></Metric>}
-            {h.screenspotPro && <Metric pct={h.screenspotPro.accuracyPct} label={`ScreenSpot-Pro held-out (hard, high-resolution screens) (n=${h.screenspotPro.n})`}><a href={gh(h.screenspotPro.predictions)} className="underline">Raw predictions</a></Metric>}
-            {h.negatives && <Metric pct={h.negatives.accuracyPct} label={`Negatives: correctly said not visible, unsure, or refused (n=${h.negatives.n})`}><a href={gh(h.negatives.predictions)} className="underline">Raw predictions</a></Metric>}
+            {h.screenspotV2 && <Metric pct={h.screenspotV2.accuracyPct} label={`ScreenSpot-v2 held-out: point inside the right control (n=${h.screenspotV2.n}, prompt v${h.screenspotV2.promptVersion})`}><a href={gh(h.screenspotV2.predictions)} className="underline">Raw predictions</a></Metric>}
+            {h.screenspotPro && <Metric pct={h.screenspotPro.accuracyPct} label={`ScreenSpot-Pro held-out (hard, high-resolution screens) (n=${h.screenspotPro.n}, prompt v${h.screenspotPro.promptVersion})`}><a href={gh(h.screenspotPro.predictions)} className="underline">Raw predictions</a></Metric>}
+            {h.honesty && <Metric pct={h.honesty.notVisiblePct} label={`Said "not visible" when the target was absent (${h.honesty.notVisibleHits}/${h.honesty.notVisibleN}, prompt v${h.honesty.promptVersion}). The rest got a highlight anyway — our weakest number.`}><a href={gh(h.honesty.predictions)} className="underline">Raw predictions</a></Metric>}
+            {h.honesty && <Metric pct={100} label={`Refused harmful goals (${h.honesty.refuseHits}/${h.honesty.refuseN}, prompt v${h.honesty.promptVersion})`}><a href={gh(h.honesty.predictions)} className="underline">Raw predictions</a></Metric>}
             {h.e2e && <Metric pct={h.e2e.successPct} label={`E2E tasks completed (${h.e2e.passed}/${h.e2e.tasksRun}, average ${h.e2e.avgSteps} steps, ${h.e2e.date})${h.e2e.dir === "2026-11-01-e2e-final" ? "; 4 passes under audit, see full results" : ""}`}><Link href="/eval" className="underline">Full results</Link></Metric>}
           </ul>
         </div>
@@ -79,7 +80,7 @@ export default function Home() {
       <div className={`${wrap} grid gap-8 py-16 md:grid-cols-2 md:py-24`}>
         <section className="rounded-panel bg-sun p-8 md:p-10" aria-labelledby="families">
           <h2 id="families" className="type-title">For remote helpers</h2>
-          <p className="type-body mt-4">When a relative or friend gets stuck, they send a screenshot. Turn it into a clean, expiring step-by-step guide in one minute instead of a 20-minute phone call. They open the link on their phone and tap along at their own pace.</p>
+          <p className="type-body mt-4">When a relative or friend gets stuck, they send a screenshot. Turn it into a clean, expiring step-by-step guide. They open the link on their phone, follow each picture in their own app, and send the next screenshot when they need it.</p>
         </section>
         <section className="rounded-panel border-2 border-mist p-8 md:p-10" aria-labelledby="companies">
           <h2 id="companies" className="type-title">For digital inclusion</h2>

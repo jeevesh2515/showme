@@ -38,7 +38,7 @@ Visual grounding and UI overlays are active areas (e.g. Microsoft Copilot Vision
 | **Client-side redaction before upload** | Yes, partial: OCR + regex masks structured data, mandatory manual review covers the rest | Not documented | Not documented | Not reviewed |
 | **Platforms** | Web app; the helper can use a screenshot from iOS, Android, Mac, or Windows | Windows, web (screen share), Copilot mobile app (camera) per Microsoft support | Android and iPhone/iPad (camera and screen sharing) per Google support | Not reviewed |
 | **Shareable expiring guide link** | Yes (7-day expiry, creator delete key) | Not documented | Not documented | Not reviewed |
-| **Reports `not_visible` and refusals** | Yes, with measured rates (62.4% on absent targets, so it often still guesses) | Not documented | Not documented | Not reviewed |
+| **Reports `not_visible` and refusals** | Yes, with measured rates (76.7% on absent targets at prompt v3; still guesses in 23.3% of cases) | Not documented | Not documented | Not reviewed |
 
 *Sources, all as of 2026-11-01: Microsoft, [Using Copilot Vision with Microsoft Copilot](https://support.microsoft.com/en-gb/topic/using-copilot-vision-with-microsoft-copilot-3c67686f-fa97-40f6-8a3e-0e45265d425f) (desktop Windows or web screen share; mobile app camera); Google, [Gemini Apps Help: Talk naturally with Gemini Live, iPhone & iPad](https://support.google.com/gemini/answer/15274899?hl=en&co=GENIE.Platform%3DiOS) (Gemini mobile app on iPhone/iPad, with camera and screen sharing). "One minute vs 20-minute phone call" represents our estimated product UX goal, not a measurement.*
 
@@ -111,27 +111,27 @@ Every figure below is generated directly from output logs in `eval/results/` and
 
 | Suite | Dataset / Split | Model | Prompt | n | Accuracy | Metric |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ScreenSpot-v2** | Held-out (test) | `muse-spark-1.3` (minimal) | v1 | 1,172 | **90.7%** | Point inside ground-truth control box |
-| **ScreenSpot-Pro** | Held-out (stratified) | `muse-spark-1.3` (minimal) | v1 | 300 | **63.7%** | Point inside control (high-res desktop/web) |
+| **ScreenSpot-v2** | Held-out (test) | `muse-spark-1.3` (minimal) | v3 | 1,172 | **89.9%** | Point inside ground-truth control box |
+| **ScreenSpot-Pro** | Held-out (stratified) | `muse-spark-1.3` (minimal) | v3 | 300 | **62.0%** | Point inside control (high-res desktop/web) |
 | **ScreenSpot-Pro** | Held-out (stratified) | `muse-wonder-1.0` (minimal) | v1 | 300 | **66.7%** | Point inside control (+3.0 pts at ~3× cost) |
-| **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v1 | 210 | **62.4%** | Correctly stated `not_visible` (131 / 210) |
-| **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v1 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
+| **Negatives (Honesty)** | Held-out absent probes | `muse-spark-1.3` (minimal) | v3 | 210 | **76.7%** | Correctly stated `not_visible` (161 / 210) |
+| **Negatives (Safety)** | Safety probes | `muse-spark-1.3` (minimal) | v3 | 12 | **100.0%** | Correctly stated `refuse` (12 / 12) |
 | **E2E 20-Task Suite** | Real live websites | `muse-spark-1.3` + `sam-3.1` | v2 | 20 | **70.0% (14/20) recorded; 4 passes suspect** (10 recorded passes awaiting validation, not a verified rate) | Task predicate met (avg 3.7 steps); see Known Limitations 2 |
 | **SAM Highlight Quality** | E2E step highlights | `sam-3.1` agreement | v2 | 74 | **not run** (all 74 rating cells empty; no claim vs boxes) | Automated pipeline recorded 53 SAM outlines, 9 model boxes, 12 none; sheet in `eval/e2e/highlight_ratings.csv` |
 
 *Full evaluation reports and raw predictions: [`eval/results/RESULTS.md`](eval/results/RESULTS.md) and [`eval/results/2026-11-01-e2e-final/report.md`](eval/results/2026-11-01-e2e-final/report.md).*
 
-> **Prompt Version Note**: Benchmark runs on ScreenSpot and Negatives were evaluated on prompt v1 (`pvv1`). Shipped production runs prompt v2 (`pvv2`), which was introduced during Day 6 E2E hardening to require visible evidence before emitting `done` (validated on ScreenSpot dev-100: 92.0% vs 93.0%).
+> **Prompt Version Note**: Shipped production runs prompt v3 (`pvv3`, frozen 2026-11-02), and the benchmark rows above are that prompt's held-out runs. Prompt v3 added a label-match gate for `ok`; on the dev splits it scored honesty 70.0% vs v2 60.0% and ScreenSpot 94.0% vs 92.0% (MEMORY D52). Historical v1 runs remain in `eval/results/` (ScreenSpot-v2 90.7%, Pro 63.7%, honesty 62.4%). The SAM ablation is still the v1 run and is labelled as such.
 
 ---
 
 ## 6. Known Limitations
 
 In keeping with our transparency principles:
-1. **Absent-Target Honesty**: On held-out screens where the requested target is not present, `muse-spark-1.3` says `not_visible` 62.4% of the time (131/210), falling short of our 90% target. In 37.6% of absent cases, the model still hallucinates a highlight.
+1. **Absent-Target Honesty**: On held-out screens where the requested target is not present, `muse-spark-1.3` (prompt v3) says `not_visible` 76.7% of the time (161/210), falling short of our 90% target. In 23.3% of absent cases, the model still highlights something. Prompt v1 scored 62.4% on the same probes; the v3 label-match gate was kept by a pre-registered dev-split rule (D52).
 2. **E2E Task Set Scope and Predicate Audit**: The recorded 70.0% (14/20) comes from the generated run in `eval/results/2026-11-01-e2e-final/`. A 2026-11-01 audit of the saved trails found 4 of the 14 passes are suspect because their success predicate could match text or a URL reached before the task was done: e2e-19 (YouTube captions: the predicate matched the video title; captions were never turned on), e2e-10 (Apple) and e2e-11 (Netflix) (help-article titles matched search suggestions), and e2e-12 (Google password: the predicate matched the sign-in page). Those predicates now check the caption player state or the specific help-article URL, with offline negative tests in `eval/e2e/predicate.test.mjs`. That leaves 10 recorded passes (14 − 4) still awaiting validation; subtracting suspects does not verify them, so this is not a 50% verified success rate. The generated files are left unedited until a re-run regenerates them. The tasks were also used during iterative development, so no unseen held-out E2E task suite has been run yet.
 3. **Free-form Text Inputs**: Regex covers structured PII (emails, cards, phones, postcodes, IBANs), but unstructured personal text (names, custom notes) depends on the user's manual brush on the review screen.
-4. **Dense Desktop Interfaces**: Accuracy drops to 63.7% on high-resolution professional software (ScreenSpot-Pro) with tightly packed toolbars.
+4. **Dense Desktop Interfaces**: Accuracy drops to 62.0% on high-resolution professional software (ScreenSpot-Pro, prompt v3) with tightly packed toolbars.
 5. **Live Web E2E Failure Modes**: 6 of 20 live web tasks failed due to anti-bot defenses (e.g. Royal Mail Access Denied), stubborn third-party cookie consent banners, and file download triggers without in-page success states.
 6. **Mobile Browser OCR**: Laptop Chrome OCR executes in 106–214 ms; mid-range mobile phone browser OCR timing has not been verified in the field yet (marked **not run** per RULES.md transparency policy rather than estimated).
 7. **Human Highlight Quality Rating**: 74 step screenshots and refine outcomes from the 20-task E2E suite are extracted into `eval/e2e/highlight_ratings.csv` (53 SAM outlines, 9 model boxes, 12 no-highlight/scroll states), but human evaluation is currently marked **not run** pending external founder grading.

@@ -1,5 +1,19 @@
 # 10 Hard questions
 
+## 2026-11-02 source and readiness update
+
+[Certain] The answers below include historical planning snapshots. For current official rules, measured evidence, limitations and next steps use [the consolidated hackathon brief](../docs/HACKATHON.md) and [today's founder briefing](daily/2026-11-02.md).
+
+### Q: What is actually verified about judging and submission?
+
+**Short answer:** [Certain] The signed-in participant guide confirms Impact 30%, Meta tooling 25%, Technical Depth 20%, Demo 25%, a three-minute video, public code, clear identification of event-period work and up to four participants. The deadline is November 5 at 02:00 London. The founder still reviews final declarations and submits.
+
+### Q: Does that mean ShowMe is useful or likely to win?
+
+**Short answer:** [Likely] It is a defensible prototype for a narrow visual next-step handoff. There is no completed human-use report, current corrected E2E success rate or evidence of SAM superiority. The next proof is a real two-person exchange and a truthful video, not a numerical readiness score.
+
+---
+
 Purpose: rehearse the questions a skeptical judge, investor or interviewer would ask, with answers that hold up when pushed. Tags are explained in [README.md](README.md). The rule for every answer here: admit the weakness first, then say what is measured, what is planned and what would change my mind. As of 2026-10-27 only spikes and docs exist, and I say so whenever it matters.
 
 ### Q: Isn't this just a wrapper around an API?

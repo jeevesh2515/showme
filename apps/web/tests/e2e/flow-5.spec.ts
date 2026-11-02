@@ -1,8 +1,17 @@
 import { expect, test } from "@playwright/test";
 import { refineOutline } from "./fixtures";
-import { reachStep } from "./helpers";
+import { mockApi, openReview, reachStep } from "./helpers";
 
 const normalize = (d: string): string => d.replace(/[\s,]+/g, "");
+
+test("FLOW-4 on a laptop-height window the step opens with the ring in view", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await mockApi(page);
+  await openReview(page);
+  await page.getByTestId("review-continue").click(); // the review page is taller than the window, so this scrolls down
+  await expect(page.getByTestId("step-badge")).toBeInViewport();
+});
 
 test.describe("FLOW-5 SAM outline replaces the box", () => {
   test("FLOW-5 the refine outline appears with no layout shift", async ({ page }) => {

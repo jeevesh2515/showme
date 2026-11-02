@@ -71,7 +71,9 @@ export default function AppPage() {
 
   // DESIGN §4.4: on phones, scroll the ring into the upper part of the view, above the docked card.
   useEffect(() => {
-    if (phase !== "step" || !window.matchMedia("(max-width: 767px)").matches) return;
+    if (phase !== "step") return;
+    // On a short laptop window the taller review page leaves the step scrolled past the ring.
+    if (!window.matchMedia("(max-width: 767px)").matches) { window.scrollTo({ top: 0 }); return; }
     const badge = document.querySelector('[data-testid="step-badge"]');
     const img = badge?.closest("div")?.querySelector("img");
     if (!badge || !img) return;

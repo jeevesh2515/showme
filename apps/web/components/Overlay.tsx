@@ -1,6 +1,6 @@
 "use client";
 // DESIGN §3: SVG layer, viewBox = image size. SAM never moves point; outline swaps in with 200ms crossfade.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { RefineResponse, StepResponse } from "../lib/api/client";
 
 type Props = { imageUrl: string; width: number; height: number; step: StepResponse; refinement: RefineResponse | null; stepNumber: number };
@@ -8,6 +8,7 @@ type Props = { imageUrl: string; width: number; height: number; step: StepRespon
 export default function Overlay({ imageUrl, width, height, step, refinement, stepNumber }: Props) {
   // SVG units are image pixels; k converts DESIGN's CSS sizes so a 1170 px screenshot on a phone keeps a 6 px ring and a readable badge.
   const rootRef = useRef<HTMLDivElement>(null);
+  const maskId = `outline-${useId().replace(/:/g, "")}`;
   const [k, setK] = useState(1);
   useEffect(() => {
     const el = rootRef.current;
@@ -43,11 +44,20 @@ export default function Overlay({ imageUrl, width, height, step, refinement, ste
           <path d={`M0 0H${width}V${height}H0Z M${bx} ${by}H${bx + bw}V${by + bh}H${bx}Z`} fill="var(--scrim)" fillRule="evenodd" />
           {!outline && <>{ring("var(--ink)", 2, 5)}{ring("var(--highlighter)", 6, 1)}{ring("var(--paper)", 2, -3)}</>}
           {outline && refinement?.origin && (
-            <g style={{ transition: "opacity 200ms", opacity: 1 }} className="refine-fade">
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--ink)" strokeWidth={10 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--highlighter)" strokeWidth={6 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
-              <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--paper)" strokeWidth={2 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
-            </g>
+            <>
+              {/* The stroke width is fixed in CSS pixels, so on a phone it can be as tall as the button. Masking the inside keeps the label readable. */}
+              <mask id={maskId} maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={height}>
+                <rect width={width} height={height} fill="white" />
+                {(refinement.svg_path ?? "").split(/(?=M)/).map((d, i) => (
+                  <path key={i} d={d} transform={`translate(${refinement.origin?.x ?? 0} ${refinement.origin?.y ?? 0})`} fill="black" />
+                ))}
+              </mask>
+              <g mask={`url(#${maskId})`} style={{ transition: "opacity 200ms", opacity: 1 }} className="refine-fade">
+                <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--ink)" strokeWidth={12 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
+                <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--highlighter)" strokeWidth={8 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
+                <path d={refinement.svg_path ?? ""} transform={`translate(${refinement.origin.x} ${refinement.origin.y})`} fill="none" stroke="var(--paper)" strokeWidth={2 * k} strokeDasharray={dash} strokeLinejoin="round" strokeLinecap="round" />
+              </g>
+            </>
           )}
           <g data-testid="step-badge">
             <circle cx={badgeX} cy={badgeY} r={16 * k} fill="var(--highlighter)" stroke="var(--ink)" strokeWidth={2 * k} />

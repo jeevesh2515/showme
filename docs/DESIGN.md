@@ -75,7 +75,7 @@ The overlay is drawn in an SVG layer over the user's redacted screenshot, scaled
 | State | Ring | Badge | Extra |
 | --- | --- | --- | --- |
 | `ok`, model box | Rounded rect from the box | Step number | Ring draws on |
-| `ok`, SAM outline | SAM path, same strokes | Step number | Crossfade from the box; no layout shift |
+| `ok`, SAM outline | SAM path, same strokes, drawn only outside the path so the label stays readable | Step number | Crossfade from the box; no layout shift |
 | `unsure` | Dashed (12 / 8) | "?" | Banner: "I think it is this one. Check before you tap." + "Try another way" |
 | `not_visible` | None, no scrim | None | Edge arrow in `scroll_direction` + the model's hint ("It is probably further down. Scroll down, then take a new screenshot.") |
 | `done` | None | Tick | Completion screen |

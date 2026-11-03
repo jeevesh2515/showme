@@ -26,6 +26,15 @@ describe("GuideStepper", () => {
     expect(html).not.toContain("all 1 steps");
   });
 
+  it("flow-5: the outline is masked out inside the control, so it cannot cover the button label", () => {
+    const html = render(step({ svg_path: "M0 0L9 0L9 9L0 9ZM3 3L6 3L6 6L3 6Z", svg_origin: { x: 1, y: 2 } }));
+    const id = /<mask id="([^"]+)"/.exec(html)?.[1];
+    expect(id).toBeTruthy();
+    expect(html).toContain(`mask="url(#${id})"`);
+    // Every contour is filled, so a hole in the SAM mask cannot let a stroke back in over the label.
+    expect(html.match(/<mask.*?<\/mask>/)?.[0].match(/fill="black"/g)).toHaveLength(2);
+  });
+
   it("flow-10: a caution reaches the recipient", () => {
     expect(render(step({ caution: "This ends your plan." }))).toContain("This ends your plan.");
   });

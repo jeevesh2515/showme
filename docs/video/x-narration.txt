@@ -6,6 +6,6 @@ Meta's Muse Spark finds the one next control. SAM 3.1 outlines it, but only when
 
 Send a seven-day link. They get one instruction and one highlight.
 
-ShowMe says not visible on 151 of 200 absent targets, and hits 89.9 percent on held-out screens. The failures are public.
+ShowMe says not visible on 151 of 200 absent targets, and hits 89.9 percent on held-out examples. The failures are public.
 
 ShowMe. Try it, and read the code.

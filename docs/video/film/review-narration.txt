@@ -1,0 +1,13 @@
+Someone sends you a screenshot: “Where do I press?” Explaining it over the phone can be confusing. ShowMe sends back one visual next step. These billing details are made up.
+
+I add the screenshot and the goal: cancel my subscription. The browser detects structured details such as emails and card numbers. Detection is partial, so I review the picture and hide the name, expiry and address myself. Only after I continue does the reviewed, redacted image go to ShowMe and Meta.
+
+Muse Spark names the next control. SAM refines its outline only when the bounding boxes agree and SAM’s box contains Spark’s point. This take produced an accepted outline. If refinement fails the checks, ShowMe keeps the box. Refinement never changes the click point.
+
+I review the image again, consent to sharing, and create an expiring link. The recipient gets one instruction and a highlight. They need to check the intended control on their own screen. This is a picture, not remote control, and no subscription is changed. Another step needs another screenshot. The link expires after seven days.
+
+Here is the engineering I built during the hackathon. The browser re-encodes the reviewed image, and the API client requires that redaction result. Tests inspect the uploaded payload. The SAM agreement gate rejects inconsistent refinement.
+
+On prompt version three, the click point landed inside the labelled target in 89.9 percent of 1,172 held-out grounding examples. When the target was absent, it said “not visible” in 151 of 200 probes, 75.5 percent. Most of the rest still got a highlight, and we publish those failures.
+
+ShowMe is for the person who receives the screenshot: review locally, send one visual step, and let the recipient stay in control. Try the live app and inspect the code.

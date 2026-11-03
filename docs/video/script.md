@@ -1,6 +1,6 @@
 # ShowMe — three-minute recording script
 
-Status: **ready-to-record script; final footage, voiceover and export pending**.
+Status: **desktop take selected; improved review cut being assembled; founder voice and physical-iPhone footage pending**.
 References: WEB-1, ENG-4, EVAL-7; [filming checklist](filming-checklist.md).
 The seven segments total 180 seconds. Speak naturally in English; confidence tags and directions are not spoken.
 
@@ -12,29 +12,29 @@ The seven segments total 180 seconds. Speak naturally in English; confidence tag
 
 **Say:**
 
-> Someone sends you a screenshot: “Where do I press?” On a call, neither of you can see what the other means. ShowMe sends back one clear visual next step. This example uses made-up billing details.
+> Someone sends you a screenshot: “Where do I press?” Explaining it over the phone can be confusing. ShowMe sends back one visual next step. These billing details are made up.
 
 **Caption/label:** “Illustrative scenario · synthetic billing screen.” Keep this readable at opening. Do not invent a real parent's message, age or testimonial.
 
 ## 0:15–0:45 — Privacy before upload
 
-**Show:** Open the live /app page. Choose **Try with an example billing screenshot**. Show the actual automatic masks. Enable **Brush**, hide the name, inspect that the intended name is covered, then choose **Looks private. Continue**.
+**Show:** Open the live /app page. Choose **Try with an example billing screenshot**. Show the actual automatic masks. Enable **Brush**, hide the name, expiry and address. Inspect every intended region, then choose **Looks private. Continue**.
 
 **Say:**
 
-> I add the screenshot and the goal: cancel my subscription. The browser detects structured details such as emails and card numbers. Detection is partial, so I review the picture and brush out this name myself. Only after I continue does the reviewed, redacted image go to ShowMe and Meta.
+> I add the screenshot and the goal: cancel my subscription. The browser detects structured details such as emails and card numbers. Detection is partial, so I review the picture and hide the name, expiry and address myself. Only after I continue does the reviewed, redacted image go to ShowMe and Meta.
 
 **Caption:** “Partial detection. Manual review before upload.”
 
-**Gate:** If masking does not cover the intended region, stop rather than narrating a successful privacy check. Film only on a deployment that includes the brush fix (D54); the production build before it shrinks the mask, per [the November 2 audit](../REVIEW-2026-11-02.md).
+**Gate:** If masking does not cover the intended region, stop rather than narrating a successful privacy check. The improved take uses the cropped 1280×740 example and numeric-mask fix; name, expiry and address are manually covered. Use assets/billing-recorded-v2.png for the exact recorded original. Visually inspect the actual uploaded mask; decision numbers alone do not establish privacy.
 
 ## 0:45–1:08 — Two Meta models
 
-**Show:** The genuine response and progressive highlight. Keep the real box fallback if no outline is accepted; do not spend takes chasing a prettier mask.
+**Show:** The genuine response and progressive highlight. The improved selected take has an accepted SAM outline around the intended control. Preserve the actual progressive box-to-outline change. Earlier attempts included a misplaced box, so disclose take selection; do not claim a first-take success.
 
 **Say:**
 
-> Muse Spark identifies the next control. SAM can refine the highlight when its bounding box agrees with Spark’s and contains Spark’s point. Otherwise, ShowMe keeps the box. Refinement never changes the click point.
+> Muse Spark names the next control. SAM refines its outline only when the bounding boxes agree and SAM’s box contains Spark’s point. This take produced an accepted outline. If refinement fails the checks, ShowMe keeps the box. Refinement never changes the click point.
 
 **Labels:** “muse-spark-1.3” and “sam-3.1”.
 
@@ -46,11 +46,11 @@ The seven segments total 180 seconds. Speak naturally in English; confidence tag
 
 **Say:**
 
-> I review the image again, consent to sharing, and create an expiring link. On the iPhone, the recipient gets one instruction and a highlight. They use it to find the matching control on the original example. This is a picture, not remote control, and no subscription is changed. Another step needs another screenshot. The link expires after seven days.
+> I review the image again, consent to sharing, and create an expiring link. The recipient gets one instruction and a highlight. They need to check the intended control on their own screen. This is a picture, not remote control, and no subscription is changed. Another step needs another screenshot. The link expires after seven days.
 
 **Caption:** “Visual guidance, not remote control. No subscription changed.”
 
-**Gate:** Keep “They use it to find the matching control…” only if that is visible in the recording. Otherwise replace that sentence with “The guide shows the intended control on the original example.” Mark any coaching accurately; do not call the staged exchange a usability study. A next step requires a new screenshot.
+**Gate:** The current narration makes no observed-success claim. If the recipient struggles, keep the struggle accurately. Mark any coaching; do not call the staged exchange a usability study. The mobile preview is emulated until replaced by the physical-iPhone recording. A next step requires a new screenshot.
 
 ## 1:48–2:12 — Engineering built during the event
 
@@ -89,7 +89,7 @@ The seven segments total 180 seconds. Speak naturally in English; confidence tag
 
 **Say:**
 
-> ShowMe is for the person who receives the screenshot: review locally, send one clear step, and let the recipient stay in control. Try the live app and inspect the code.
+> ShowMe is for the person who receives the screenshot: review locally, send one visual step, and let the recipient stay in control. Try the live app and inspect the code.
 
 **Timing:** Aim to finish speaking at approximately 2:55, then hold through 3:00. The founder's actual timed voiceover determines the final edit; written word counts are not a duration guarantee.
 

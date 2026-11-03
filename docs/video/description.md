@@ -1,6 +1,6 @@
 # Video description and source links
 
-Status: **VIDEO_URL_PENDING — final film not recorded/exported/published by this kit**.
+Status: **VIDEO_URL_PENDING — review cut exported; founder voice, physical-iPhone footage and final publication pending**.
 Do not paste a pending placeholder into the hackathon submission.
 
 ## Description to publish with the completed film
@@ -8,6 +8,8 @@ Do not paste a pending placeholder into the hackathon submission.
 ShowMe turns a screenshot and a goal into one reviewed visual next step that can be shared as an expiring guide.
 
 This video uses an illustrative synthetic billing screen. It demonstrates guidance and sharing; no subscription is cancelled. The recipient is viewing a picture, not remote-controlling another app. A later state needs another screenshot.
+
+The selected recording shows the intended control with an accepted SAM outline. It was selected after earlier attempts, including one with a misplaced box; it is not a claimed first-take result. The product highlight is unchanged in editing. Playback is slowed or held for narration; waits are not shortened. The exact number of prior exploratory attempts must be reconciled before publication.
 
 Meta models: muse-spark-1.3 selects the next control; sam-3.1 can refine the outline when agreement checks pass. Refinement never moves the click point.
 

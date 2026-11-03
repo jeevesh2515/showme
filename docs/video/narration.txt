@@ -1,12 +1,12 @@
-Someone you help sends a screenshot: “Where do I press?” So you call, and neither of you can see what the other means. In a 2025 study of 1,173 older internet users, 65 percent got tech help from family at least sometimes. ShowMe is for that helper.
+Someone you help sends a screenshot: “Where do I press?” In a 2025 study of 1,173 older internet users, 65 percent got tech help from family at least sometimes. ShowMe is for that helper.
 
-This is a made-up billing screen. I type the goal and add the picture. Before anything is uploaded, the browser reads it on this device and masks the email, card number, phone and postcode. Detection is partial: it missed the name, the expiry and the street, so I hide those myself. This review can't be skipped, and here is the exact image that left the browser.
+This is a made-up billing screen. Before anything is uploaded, the browser reads it on this device and masks the email, card number, phone and postcode. Detection is partial: it missed the name, the expiry and the street, so I hide those myself. This review can't be skipped.
 
 Muse Spark 1.3 reads the redacted screen and the goal, and returns one action in a strict JSON schema: which control, where, and one plain sentence. At prompt version three, that's about 2.8 seconds and under a cent. SAM 3.1 then tries to outline that control. ShowMe keeps the outline only if its bounding box agrees with Spark's. Otherwise the box stays, and the click point never moves.
 
-To send it back, I review the picture again, consent, and create a link that expires in seven days. I keep a key that can delete it sooner. On a phone, the recipient gets one instruction and one highlight. It's a picture of the screen, not remote control: the guide shows which control to find on their own screen. No subscription is changed here, and another step needs another screenshot.
+To send it back, I review the picture again, consent, and create a link that expires in seven days. On a phone, the recipient gets one instruction and one highlight. It's a picture of the screen, not remote control: the guide shows which control to find on their own screen. No subscription is changed here, and another step needs another screenshot.
 
-I built this during the hackathon. The browser re-encodes the reviewed image, and the API client only accepts that redacted result. Tests inspect the uploaded payload. This is the SAM gate, in plain code. The same core code also runs the evaluation, so grounding is measured on the production path.
+I built this during the hackathon. The browser re-encodes the reviewed image, and the API client only accepts that redacted result. Tests inspect the uploaded payload. The same core code also runs the evaluation, so grounding is measured on the production path.
 
 When the control isn't on screen, it should say so, as it does here. On prompt version three, the click point hit the target on 89.9 percent of 1,172 held-out examples, and 62 percent on harder professional apps. With the target absent, it said not visible in 151 of 200 probes. Most of the rest still got a highlight. Live websites passed 12 of 20 development tasks, and the failures are public.
 

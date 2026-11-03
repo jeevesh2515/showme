@@ -1,31 +1,13 @@
-# ShowMe recording kit
+# ShowMe video finishing
 
-**[Certain]** This kit implements the approved three-minute script. It does not contain a completed product film or the founder's recorded voice.
+The authoritative pipeline is [film/build.mjs](film/build.mjs), [narration.txt](narration.txt) and [x-narration.txt](x-narration.txt). Follow [HIGGSFIELD-FINISH.md](HIGGSFIELD-FINISH.md) for account/spend receipts, approved voice, alignment, candidate checks and exact resume instructions.
 
-Start with [the timed script](script.md), record the real product and recipient footage, then read [the narration sheet](narration.txt). Follow [the filming and acceptance checklist](filming-checklist.md). [The description](description.md) supplies public source links and publication wording.
+[Certain] The user approved Callum after the [13.4-second voice test](out/voice/higgsfield/voice-test-callum-raw.wav). Higgsfield quoted two credits per complete track, but the film exceeds the underlying provider’s2,000-character limit and its job failed/refunded. The complete X track succeeded; the film needs an approved shorter script or two-request budget exception. Raw outputs and receipts stay under `out/voice/higgsfield/`; AI speech remains labelled “AI-generated narration.”
 
-## Production choices
+[Certain] The only approved wording change is X's “held-out screens” → “held-out examples.” All other words and numbers remain as supplied. Film stays180 seconds and X44.6 unless the user agrees to an edit after measured overrun checks.
 
-- Founder English voiceover; laptop screen recording and actual iPhone 16 recording.
-- Existing synthetic billing image; another consenting person receives the guide.
-- Outcome: recipient identifies the matching control on the original synthetic image.
-- No subscription changes, invented testimonial, independent usability-study claim or mocked product output.
-- Seven segments: 0:00, 0:15, 0:45, 1:08, 1:48, 2:12, 2:42; finish at 3:00.
+[Certain] Existing exports are preserved. Builder changes prevent candidate collisions, inspect all narration segments and require measured replacement-caption timing. Earlier `assemble.py` cuts and their alternative scripts remain historical work and are not used for these candidates.
 
-## Evidence boundary
+[Certain] [Take audit](take-audit.md) establishes the selected footage as the third main recording, after earlier attempts; a later fourth failed during sharing. The old “fifth” default was unsupported.
 
-**[Certain]** Use recorded v3 results: 89.9% ScreenSpot-v2 (n=1,172), 62.0% ScreenSpot-Pro (n=300), “not visible” on 75.5% of absent targets (151/200) and 12/20 live-web development tasks. Injection probes are counted apart (10/10); the combined figure is 161/210 = 76.7%. A dev/reporting image-goal overlap is disclosed in [the audit](../REVIEW-2026-11-02.md); the narration therefore does not call the honesty score independently held out. The E2E set is not unseen.
-
-**[Certain]** No benchmark files are edited by this kit. The separate evidence graphic is a presentation of linked artifacts, not simulated application UI.
-
-## What remains for the founder
-
-- [ ] Capture genuine product generation and consent/sharing.
-- [ ] Capture the other person's actual iPhone actions with their agreement.
-- [ ] Record the English voiceover.
-- [ ] Replace/retime draft captions to the actual recorded speech.
-- [ ] Assemble and review the final 3:00 export.
-- [ ] Upload the final video and replace VIDEO_URL_PENDING in the publication checklist.
-- [ ] Verify all public links while logged out.
-
-**[Likely]** The script can meet the 8.5 editorial threshold; the final video is unscored until its footage, audio and export are reviewed. A score is not a prize prediction or readiness certification.
+Please provide the genuine iPhone/recipient original at `/Users/jeeveshsingale/dev/ShowMe/docs/video/out/raw/recipient.mov`, with consent/coaching observations. The current phone clip remains labelled emulation and has unresolved button readability/stale-copy issues. Production parity, real-device verification, full speech/caption playback and final acceptance remain separate gates. No deployment, publication, submission or replacement product footage is part of this task.

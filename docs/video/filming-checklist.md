@@ -19,7 +19,7 @@ All boxes are deliberately unchecked. Complete them from actual recordings and e
 - [ ] Opening label reads “Illustrative scenario · synthetic billing screen.”
 - [ ] Original image and real resulting guide are visible.
 - [ ] Automatic masks are real; the manual name correction actually covers the intended name.
-- [ ] If the brush fails to cover the intended region, stop and report it. Film only on a deployment that includes D54, and check the mask in the recording.
+- [ ] If the brush fails to cover the intended region, stop and report it. Check full coverage in the actual recording/upload, including the partial-card issue recorded in D56; D54 alone is insufficient.
 - [ ] Continue precedes the actual model request; no mocked output or reconstructed highlight is substituted.
 - [ ] Show the genuine SAM outline or box fallback. Do not retry for appearance alone.
 - [ ] Actual second review and sharing consent are captured.

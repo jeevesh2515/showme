@@ -7,7 +7,7 @@ ShowMe is an on-screen assistant built for the **Meta Global AI Developer Hackat
 - **Live Web App**: [https://showme-web-delta.vercel.app](https://showme-web-delta.vercel.app)
 - **Live API Health**: [https://showme-api-xi.vercel.app/v1/healthz](https://showme-api-xi.vercel.app/v1/healthz)
 - **Evaluation Dashboard**: [https://showme-web-delta.vercel.app/eval](https://showme-web-delta.vercel.app/eval)
-- **Demo Video (3 min)**: [docs/video/out/ShowMe-3min-hackathon.mp4](docs/video/out/ShowMe-3min-hackathon.mp4) *(YouTube / Loom unlisted URL to be pasted before final form submission)*
+- **Demo Video (3 min)**: [YouTube / Loom demo link (pending upload)](https://youtu.be/PENDING_SUBMISSION_URL)
 
 ---
 

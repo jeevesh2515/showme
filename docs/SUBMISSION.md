@@ -6,6 +6,7 @@
 - **Live API Health**: [https://showme-api-xi.vercel.app/v1/healthz](https://showme-api-xi.vercel.app/v1/healthz)
 - **GitHub Repository**: [https://github.com/jeevesh2515/showme](https://github.com/jeevesh2515/showme)
 - **Evaluation Dashboard**: [https://showme-web-delta.vercel.app/eval](https://showme-web-delta.vercel.app/eval)
+- **Demo Video (3 min)**: [video/out/ShowMe-3min-hackathon.mp4](video/out/ShowMe-3min-hackathon.mp4) *(YouTube / Loom unlisted URL to be pasted before final form submission)*
 
 ---
 

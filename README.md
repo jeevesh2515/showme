@@ -7,6 +7,7 @@ ShowMe is an on-screen assistant built for the **Meta Global AI Developer Hackat
 - **Live Web App**: [https://showme-web-delta.vercel.app](https://showme-web-delta.vercel.app)
 - **Live API Health**: [https://showme-api-xi.vercel.app/v1/healthz](https://showme-api-xi.vercel.app/v1/healthz)
 - **Evaluation Dashboard**: [https://showme-web-delta.vercel.app/eval](https://showme-web-delta.vercel.app/eval)
+- **Demo Video (3 min)**: [docs/video/out/ShowMe-3min-hackathon.mp4](docs/video/out/ShowMe-3min-hackathon.mp4) *(YouTube / Loom unlisted URL to be pasted before final form submission)*
 
 ---
 
@@ -135,6 +136,7 @@ In keeping with our transparency principles:
 5. **Live Web E2E Failure Modes**: 8 of 20 live web tasks failed: anti-bot defenses (e.g. Royal Mail Access Denied), third-party cookie consent banners, file download triggers without in-page success states, one model 502 and one 504.
 6. **Mobile Browser OCR**: Laptop Chrome OCR executes in 106–214 ms; mid-range mobile phone browser OCR timing has not been verified in the field yet (marked **not run** per RULES.md transparency policy rather than estimated).
 7. **Human Highlight Quality Rating**: 89 step screenshots and refine outcomes from the 2026-11-02 E2E run are in that run's `highlight_ratings.csv` (66 SAM outlines, 9 model boxes, 14 no-highlight/scroll states), but human evaluation is marked **not run**. On the v1 SAM ablation, gated SAM outlines scored lower IoU than the model box on the same 86 samples (0.5145 vs 0.5596), which is why the box stays unless SAM agrees.
+8. **Browser Coverage**: Automated end-to-end tests run continuously under Chromium via Playwright (73/73 passing). Manual physical-device testing has been performed on iPhone Safari (iOS 18) and Desktop Chrome (macOS). Formal verification on desktop Safari and Firefox remains open.
 
 ---
 

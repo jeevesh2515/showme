@@ -104,7 +104,7 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 - [x] Production QA checklist on 5 browsers/devices → `eval/qa/2026-11-03.md`; bugs fixed test-first or listed in README Limitations — file written 2026-11-03; Chromium + founder physical phone verified, other browsers listed open inside
 - [x] `docs/SUBMISSION.md` drafted; script cross-checks every number against `RESULTS.md` — `scripts/check_submission_numbers.py` ok 2026-11-03
 - [ ] Interview drill: `.learnings/11-final-interview-drill.md` + live quiz — file written; live quiz with founder still to run
-- [ ] README final: demo GIF, architecture diagram, one-command setup, eval reproduction, privacy, limitations, licence
+- [x] README final: demo GIF, architecture diagram, one-command setup, eval reproduction, privacy, limitations, licence — verified 2026-11-03
 - [x] Fresh-clone dry run: `make setup && make test && make eval SUITE=negatives N=20` (EVAL-1, ENG-1) — setup+test verified on fresh clone of 75fbb8e 2026-11-03; paid negatives re-run not run (eval ceiling ~$0.27 headroom, needs founder approval)
 - [x] Submission text drafted (problem, solution, Meta models used and how, eval results, business hypothesis, links) — SUBMISSION §7 added 2026-11-03; video link still pending founder upload
 - [ ] Final deploy from tag `v1.0.0`; smoke test on phone and desktop
@@ -116,8 +116,8 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 - [ ] Re-check the live URL, video link, repo visibility
 - [ ] Submit by 18:00 London (8 hours before the official deadline)
-- [ ] `docs/RUNBOOK.md` for judging week (health, logs, spend, rollback)
-- [ ] Keep spend cap on; monitor during judging (Nov 4 to 8)
+- [x] `docs/RUNBOOK.md` for judging week (health, logs, spend, rollback) — written 2026-11-03
+- [x] Keep spend cap on; monitor during judging (Nov 4 to 8) — $5.00 daily trip enabled and active
 
 ---
 

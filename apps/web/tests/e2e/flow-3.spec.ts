@@ -73,6 +73,7 @@ test.describe("FLOW-3 review tools: brush, undo, zoom", () => {
     }
     const hidden = page.getByTestId("hidden-region");
     const before = await hidden.count();
+    await image.scrollIntoViewIfNeeded();
     const box = await image.boundingBox();
     if (!box) throw new Error("review-image has no layout box");
     await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.4);
@@ -109,6 +110,7 @@ test.describe("FLOW-3 review tools: brush, undo, zoom", () => {
     await expect(lines.first()).toBeAttached({ timeout: 30_000 });
     const hidden = page.getByTestId("hidden-region");
     const before = await hidden.count();
+    await lines.first().scrollIntoViewIfNeeded();
     const first = await lines.first().boundingBox();
     if (!first) throw new Error("ocr-line has no layout box");
     await page.mouse.click(first.x + first.width / 2, first.y + first.height / 2);

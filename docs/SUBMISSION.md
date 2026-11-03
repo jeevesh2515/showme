@@ -46,7 +46,7 @@ ShowMe combines two complementary Meta models through a multi-stage visual pipel
 
 2. **`sam-3.1` (Segment Anything Model)**:
    - Evaluates the bounding box proposal from Spark to produce an SVG outline for irregular buttons, icons, and menus.
-   - Governed by a strict **Agreement Gate**: outlines are rendered only if the bounding box of the SAM mask has IoU $\ge 0.5$ with the model box, contains the click point, and covers $\le 25\%$ of screen area. The check uses that bounding box, not the mask pixels. Otherwise, the clean model box is shown as a safe fallback.
+   - Governed by a strict **Agreement Gate**: outlines are rendered only if the bounding box of the SAM mask has IoU $\ge 0.5$ with the model box, contains the click point, and covers $\le 25\%$ of screen area. The check uses that bounding box, not the mask pixels. Otherwise, the clean model box is shown as a safe fallback. A contour-sanity check also falls back to the box when the smoothed mask is fragmented (for example SAM tracing text or artwork), because that reads as scribble on a phone.
    - Human rating of outline quality is not run (section 5), so outline quality versus boxes is unmeasured. On the 100-sample ScreenSpot-v2 SAM ablation (prompt v1), the 86 gated samples scored mean IoU 0.5145 for SAM and 0.5596 for the model box on those same samples, so SAM does not beat the box on geometry. That is why the box stays unless SAM agrees (`eval/results/2026-10-29-screenspot-v2-heldout-n100-62ed230b-muse-spark-1.3-minimal-samon-max2560-pvv1-80346d48/report.md`).
 
 ---
@@ -88,3 +88,11 @@ Illustrative scenario with a made-up billing screenshot. Full script: [docs/vide
 - **1:48 - 2:12**: Built during the hackathon. Code on screen: the browser re-encodes the reviewed image, and the SAM gate rejects refinement whose bounding box disagrees.
 - **2:12 - 2:42**: Recorded results at prompt v3: 89.9% ScreenSpot-v2, 62.0% ScreenSpot-Pro, "not visible" on 75.5% of absent targets (151/200) and 12/20 live-web development tasks. 44 of the other 49 absent-target cases still get a highlight.
 - **2:42 - 3:00**: Live URL, public repo, close. Captions on, no music over the UI.
+
+---
+
+## 7. Business Hypothesis, What Is Next, Team
+
+- **Business hypothesis (labelled, unvalidated):** organisations whose users get stuck in other people's apps — digital-inclusion charities, library tech-help schemes, bank and telco vulnerable-customer teams — would pay for a reusable library of private, expiring visual guides. No interviews, pilots or letters of intent yet; this needs five customer conversations before any build.
+- **What is next, in order:** (1) recipient continuation — the person following a guide can add their next screenshot into the same guide instead of sending it back separately; (2) a provisional upfront plan for long tasks (Spotify, Uber, Netflix, ChatGPT, Google-style multi-screen flows), revised after each real screenshot, never presented as certain; (3) loop and stuck detection with a recovery step; (4) guide chaining beyond the current 15-step cap; (5) dense-app grounding improvements measured on ScreenSpot-Pro before any claim. Today a long task is handled one screenshot at a time: act in the real app, add the next screenshot, and the checked steps accumulate into the shared path. Logged-in Spotify, Uber, Netflix, ChatGPT and Google flows are untested.
+- **Team:** solo. Jeevesh Singale (founder, representative). Built 26 Oct – 4 Nov 2026; the git history in the public repo is the event-period record.

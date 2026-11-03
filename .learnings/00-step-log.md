@@ -303,3 +303,31 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **Result / evidence:** D55 and its MEMORY entry. Playwright 68/68, video provenance check PASS.
 - **Decision:** Hand-edited generated code was the root cause, so the generator is the fix. Human evidence stays "not run" until a person does it.
 
+
+## 2026-11-02 · S40 · Candid three-minute review cut
+
+- **Why:** Founder asked to continue the script, research first and build the video, then explain their remaining tasks.
+- **What I did:** Inspected existing saved desktop and mobile captures, independently reviewed figures, preserved and narrated the low-box error, assembled a 180-second captioned review cut and prepared precise voice/iPhone instructions. Isolated frozen review narration when another session changed the shared script.
+- **Result / evidence:** docs/video/out/showme-review-cut.mp4 and edit-manifest.json; docs/video/research.md; make lint test passes (168 backend, 33 eval, 97 web plus scripts). Zero new model calls.
+- **Decision:** Rehearsal voice and emulation remain visibly labelled. Founder recordings and final playback/caption review are required before publication; no staged recipient-success claim.
+
+## 2026-11-02 · S41 · Freeze an improved video take and bind its provenance
+
+- **Why:** A newer successful recording arrived through parallel work while the founder had not yet recorded. Mutable shared raw files made the old cache and manifest association unreliable.
+- **What I did:** Confirmed founder preference, inspected new result and masks, copied/hash-sealed the selected take into its own directory, captured the matching guide in an explicitly emulated mobile browser, updated narration/instructions and reassembled the review cut.
+- **Result / evidence:** out/take-v2/source-hashes.json, out/edit-manifest.json and the 180-second showme-review-cut.mp4. Zero model calls for the matching mobile capture.
+- **Decision:** Never infer raw/video identity from file presence. Encode from a sealed take and reject changed inputs. Physical iPhone and founder voice remain required.
+
+## 2026-11-03 · S42 · Higgsfield voice and authoritative candidate safeguards
+
+- **Why:** The founder required build.mjs cuts, exact transcripts, a 10-credit ceiling, voice approval and preserved exports.
+- **What I did:** Tested the MCP connection, resolved the account mismatch, used the authorized CLI fallback, quoted exact text and submitted the approved voice test, film and X jobs sequentially. Added all-segment provenance checks and local speech alignment.
+- **Result / evidence:** The test was approved; the film failed and was refunded; X audio completed. Net spend is 4 credits, with 6 remaining. The provider’s 2,000-character limit likely explains the film failure. A 1,983-character proposal and X timing adjustments await approval. Twelve Node and nine alignment regressions pass; make lint/test passes. See docs/video/HIGGSFIELD-FINISH.md.
+- **Decision:** A quote does not validate input limits. Check the provider constraints, never retry paid jobs automatically, and use measured replacement-caption timing.
+
+## 2026-11-03 · S43 · Founder phone findings closed where freeze allows; long-flow path recorded
+
+- **Why:** Founder reported phone redaction misses, no Redo, inaccurate brush, scribble highlight, and asked how long multi-app flows (Spotify, Uber, Netflix, ChatGPT, Google) become detailed guided paths.
+- **What I did:** Saved findings verbatim in MEMORY (D59/D60). Verified Redo, brush-grow and Hide-all already in code; founder confirms phone now works well. Added SAM contour-sanity fallback, OCR-timeout worker termination, tap dedup, and honest review copy (auto-hide finds email/numbers only). Recorded long-flow design as D60 proposal, not built during freeze.
+- **Result / evidence:** `test_api_4_fragmented_contour_is_not_an_outline` failing-first then pass; `make lint test` green (169 backend, 33 eval, 99 web, scripts); Playwright 73/73; `scripts/check_submission_numbers.py` ok. Spend today: $0 Meta calls.
+- **Decision:** Multi-screenshot path already exists (one checked step per screenshot, up to 15-step shared guide). Upfront plans, recipient continuation, loop detection and >15-step chaining are post-hackathon, each needing a requirement ID and eval.

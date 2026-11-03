@@ -99,6 +99,23 @@ test.describe("FLOW-3 review tools: brush, undo, zoom", () => {
     await expect(page.getByTestId("review-continue")).toBeEnabled();
   });
 
+  test("FLOW-3 tapping the same line twice hides it once, so one Undo removes it", async ({ page }) => {
+    test.setTimeout(90_000);
+    await mockApi(page);
+    await page.goto("/app");
+    await page.getByTestId("goal-input").fill("cancel my subscription");
+    await page.getByTestId("file-input").setInputFiles(path.join(__dirname, "assets", "ocr-a.png"));
+    const lines = page.getByTestId("ocr-line");
+    await expect(lines.first()).toBeAttached({ timeout: 30_000 });
+    const hidden = page.getByTestId("hidden-region");
+    const before = await hidden.count();
+    const first = await lines.first().boundingBox();
+    if (!first) throw new Error("ocr-line has no layout box");
+    await page.mouse.click(first.x + first.width / 2, first.y + first.height / 2);
+    await page.mouse.click(first.x + first.width / 2, first.y + first.height / 2);
+    await expect(hidden).toHaveCount(before + 1);
+  });
+
   test("FLOW-3 undo can be redone and Hide all text covers every OCR line", async ({ page }) => {
     test.setTimeout(90_000);
     await mockApi(page);

@@ -105,11 +105,11 @@ export default function AppPage() {
       if (gen !== genRef.current) return;
       bitmapRef.current = bitmap;
       setImageUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
-      const { recognize } = await import("../../lib/redaction/worker");
+      const { recognize, terminateOcr } = await import("../../lib/redaction/worker");
       let ocrLines: readonly OcrLine[] = [];
       // shortcut: dense pages can stall tesseract for minutes; after 15s show review with no auto-blocks (user hides manually), upgrade to worker termination+retry if stalls recur.
       let failed = false;
-      try { ocrLines = (await Promise.race([recognize(file), new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ocr timeout")), 15_000))])).lines; } catch { failed = true; }
+      try { ocrLines = (await Promise.race([recognize(file), new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ocr timeout")), 15_000))])).lines; } catch (err) { failed = true; if (err instanceof Error && err.message === "ocr timeout") void terminateOcr(); }
       if (gen !== genRef.current) return;
       setOcrFailed(failed);
       setLines(ocrLines);
@@ -127,7 +127,9 @@ export default function AppPage() {
 
   function hideLine(line: OcrLine) {
     setUndone([]);
-    setEntries((prev) => [...prev, { r: { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 }, manual: true }]);
+    const r = { x: line.bbox.x0, y: line.bbox.y0, width: line.bbox.x1 - line.bbox.x0, height: line.bbox.y1 - line.bbox.y0 };
+    // A double-tap must not stack two identical blocks: the second Undo would look broken.
+    setEntries((prev) => (prev.some((e) => e.r.x === r.x && e.r.y === r.y && e.r.width === r.width && e.r.height === r.height) ? prev : [...prev, { r, manual: true }]));
   }
 
   // R3 safety net: one tap hides every line OCR could read, for when pattern matching missed private text.
@@ -292,6 +294,8 @@ export default function AppPage() {
         <section className="mx-auto max-w-3xl">
           <h2 className="type-title text-[1.5rem] sm:text-[2rem] leading-tight">Check what we will send</h2>
           <p className="type-body text-[1.125rem] sm:text-[1.25rem] leading-snug mt-1.5 sm:mt-3">We hid {regions.length - manualCount} {regions.length - manualCount === 1 ? "thing" : "things"} that looked private. Tap anything else you want hidden.</p>
+          <p className="type-small mt-2">We find email addresses and long numbers automatically. Names, addresses and passwords are not hidden automatically. Hide them with the brush.</p>
+          {brush && <p className="type-small mt-2 rounded-panel bg-sun p-3">Brush on: drag over anything private. Lift your finger to check the block, then Undo if it is in the wrong place.</p>}
           {ocrFailed ? <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not check this picture automatically. Check the picture and hide anything private yourself.</p> : lines.length === 0 && <p className="type-small mt-2 rounded-panel bg-sun p-3 sm:mt-3 sm:p-4">We could not find any text to hide automatically. Check the picture and hide anything private.</p>}
           <div className="mt-2 flex flex-wrap gap-1 sm:mt-6 sm:gap-3">
             <button data-testid="brush-toggle" aria-pressed={brush} onClick={() => setBrush((b) => !b)} className={`${BTN_TOOLBAR} ${brush ? "!bg-ink !text-paper" : ""}`}>{brush ? "Brush on" : "Brush"}</button>
@@ -384,9 +388,10 @@ export default function AppPage() {
             {current.status !== "done" && current.status !== "refuse" && (<>
               <button data-testid="failed-btn" onClick={() => nextWith("failed")} className={`${BTN_SECONDARY} mt-3 w-full`}>That didn&apos;t work</button>
               <label className={`${BTN_SECONDARY} mt-3 flex w-full cursor-pointer items-center justify-center focus-within:outline focus-within:outline-[3px] focus-within:outline-highlighter`}>Add next screenshot<input data-testid="next-screenshot-input" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; if (f) { if (current && (current.status === "ok" || current.status === "unsure")) setHistory((h) => appendHistory(h, current, "done")); void loadImage(f); } }} /></label>
-              {trail.length > 0 && (
+              {trail.length > 0 && (<>
+                <p className="type-small mt-3">Each new screenshot adds one step. Together they become the guide path the other person follows in their own app.</p>
                 <button data-testid="share-early-btn" onClick={openShare} className={`${BTN_SECONDARY} mt-3 w-full`}>Share guide ({trail.length} {trail.length === 1 ? "step" : "steps"})</button>
-              )}
+              </>)}
             </>)}
             <p data-testid="shortcut-help" className="type-small mt-6 [@media(pointer:coarse)]:hidden">Keyboard: N next step, R read aloud, Esc cancel</p>
             <button data-testid="start-over" onClick={resetAll} className="type-small mt-2 min-h-12 underline underline-offset-4">Start over</button>

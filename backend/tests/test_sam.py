@@ -92,6 +92,17 @@ def test_api_4_rejects_sam_box_missing_point_or_too_large():
     assert r.mode == "box"
 
 
+def test_api_4_fragmented_contour_is_not_an_outline():
+    # Founder phone finding: SAM tracing text/art returns many fragments; drawn, it reads as scribble, not a highlight.
+    from showme.core.sam import _contour_ok
+
+    squares = "".join(f"M{i * 30} 5L{i * 30 + 25} 5L{i * 30 + 25} 30L{i * 30} 30Z" for i in range(12))
+    assert not _contour_ok(squares, BoxPx(x1=0, y1=0, x2=400, y2=50))
+    zigzag = "M" + "L".join(f"{i * 10} {40 if i % 2 else 0}" for i in range(41)) + "Z"
+    assert not _contour_ok(zigzag, BoxPx(x1=0, y1=0, x2=400, y2=50))
+    assert _contour_ok("M0 0L171 0L171 38L0 38Z", BoxPx(x1=0, y1=0, x2=171, y2=38))
+
+
 def test_api_4_svg_path_smoothed_below_pixel_staircase():
     import json
     import re

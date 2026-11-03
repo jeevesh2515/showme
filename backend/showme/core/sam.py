@@ -61,6 +61,37 @@ def _smooth_svg_path(path: str) -> str:
     return "".join(out) or path
 
 
+def _contour_ok(path: str, sam_box: BoxPx) -> bool:
+    """Presentation sanity: fragmented contours (SAM tracing text/art) read as scribble on a phone.
+    Calibrated offline on the 20 stored highlight pairs + recorded fixtures ($0): clean billing
+    outline wiggle 1.35 / 4 subpaths passes; fragmented pairs (96 subpaths, wiggle 2.0) fail."""
+    bw, bh = sam_box.x2 - sam_box.x1, sam_box.y2 - sam_box.y1
+    if bw <= 0 or bh <= 0:
+        return False
+    subs = 0
+    perimeter = 0.0
+    area = 0.0
+    for sub in path.split("M"):
+        nums = [float(v) for v in re.findall(r"-?\d+(?:\.\d+)?", sub)]
+        pts = list(zip(nums[::2], nums[1::2], strict=False))
+        if len(pts) < 3:
+            continue
+        subs += 1
+        perimeter += sum(
+            ((pts[(i + 1) % len(pts)][0] - p[0]) ** 2 + (pts[(i + 1) % len(pts)][1] - p[1]) ** 2) ** 0.5
+            for i, p in enumerate(pts)
+        )
+        area += abs(
+            sum(
+                pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts))
+            )
+            / 2
+        )
+    wiggle = perimeter / (2 * (bw + bh))
+    fill = area / (bw * bh)
+    return wiggle <= 1.75 and not (subs > 8 and fill < 0.9 and wiggle > 1.2)
+
+
 def _box_result(latency_ms: int) -> Refinement:
     return Refinement(mode="box", latency_ms=latency_ms, cost_usd=cost_sam())
 
@@ -132,6 +163,8 @@ async def refine(image_data_url: str, box: BoxPx, point: PointPx, settings: Sett
             height=int(mm.group(1)),
         )
         svg_path = _smooth_svg_path(decode_mask_to_svg_path(mask))
+        if not _contour_ok(svg_path, sam_box):
+            return _box_result(latency_ms)
         return Refinement(
             mode="outline",
             svg_path=svg_path,

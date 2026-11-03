@@ -7,6 +7,8 @@ test.describe("PRIV-2 redaction review is mandatory", () => {
     const api = await mockApi(page);
     await openReview(page, GOAL);
     await expect(page.getByTestId("review-continue")).toBeVisible();
+    // Auto-hide only matches email/number patterns; the review must say names and addresses need a manual hide.
+    await expect(page.getByText(/names, addresses and passwords are not hidden automatically/i)).toBeVisible();
     expect(api.allBodies.length).toBe(0);
     await page.getByTestId("review-continue").click();
     await expect(page.getByTestId("step-instruction")).toBeVisible();

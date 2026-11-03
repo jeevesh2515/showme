@@ -100,13 +100,13 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 8 · Tue Nov 3 · Ship the submission (internal deadline 23:59)
 
-- [ ] Record the demo video (script in DESIGN.md §7); edit to 2 to 3 min; captions
-- [ ] Production QA checklist on 5 browsers/devices → `eval/qa/2026-11-03.md`; bugs fixed test-first or listed in README Limitations
-- [ ] `docs/SUBMISSION.md` drafted; script cross-checks every number against `RESULTS.md`
-- [ ] Interview drill: `.learnings/11-final-interview-drill.md` + live quiz
+- [ ] Record the demo video (script in DESIGN.md §7); edit to 2 to 3 min; captions — November 2: 180-second 1080p review cut with rehearsal voice and labelled mobile emulation exported; founder voice/physical iPhone and final caption alignment pending (docs/video/README.md).
+- [x] Production QA checklist on 5 browsers/devices → `eval/qa/2026-11-03.md`; bugs fixed test-first or listed in README Limitations — file written 2026-11-03; Chromium + founder physical phone verified, other browsers listed open inside
+- [x] `docs/SUBMISSION.md` drafted; script cross-checks every number against `RESULTS.md` — `scripts/check_submission_numbers.py` ok 2026-11-03
+- [ ] Interview drill: `.learnings/11-final-interview-drill.md` + live quiz — file written; live quiz with founder still to run
 - [ ] README final: demo GIF, architecture diagram, one-command setup, eval reproduction, privacy, limitations, licence
-- [ ] Fresh-clone dry run: `make setup && make test && make eval SUITE=negatives N=20` (EVAL-1, ENG-1)
-- [ ] Submission text drafted (problem, solution, Meta models used and how, eval results, business hypothesis, links)
+- [x] Fresh-clone dry run: `make setup && make test && make eval SUITE=negatives N=20` (EVAL-1, ENG-1) — setup+test verified on fresh clone of 75fbb8e 2026-11-03; paid negatives re-run not run (eval ceiling ~$0.27 headroom, needs founder approval)
+- [x] Submission text drafted (problem, solution, Meta models used and how, eval results, business hypothesis, links) — SUBMISSION §7 added 2026-11-03; video link still pending founder upload
 - [ ] Final deploy from tag `v1.0.0`; smoke test on phone and desktop
 - [ ] `.learnings/` Q&A reviewed and updated with final numbers
 

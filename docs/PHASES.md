@@ -100,7 +100,7 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Day 8 · Tue Nov 3 · Ship the submission (internal deadline 23:59)
 
-- [ ] Record the demo video (script in DESIGN.md §7); edit to 2 to 3 min; captions — November 2: 180-second 1080p review cut with rehearsal voice and labelled mobile emulation exported; founder voice/physical iPhone and final caption alignment pending (docs/video/README.md).
+- [ ] Record the demo video (script in DESIGN.md §7); edit to 2 to 3 min; captions — November4: v5 exports180.000s/44.600s with user-confirmed iPhone16 self-demo, explanatory motion and frame-accurate scenes; full human playback/privacy approval and hosted-video/submission remain open. — November 3: Callum candidates verified at 180.000s and 44.600s (docs/video/README.md); physical recipient footage, production/device parity and human final acceptance remain open. — November 2: 180-second 1080p review cut with rehearsal voice and labelled mobile emulation exported; founder voice/physical iPhone and final caption alignment pending (docs/video/README.md). — Later November4: continuity v2 candidates verified at180.000s/44.600s; independent visual-only editorial scores8.6/8.5. Human playback/hosting/submission still open; see redesign/CONTINUITY-HANDOFF.md. — Readable finish: text covers replaced by light emphasis, complete180s/44.6s exports verified; Downloads delivery and GitHub/X/submission checklist prepared. Final viewing, hosted URL, new PR CI and portal confirmation remain open.
 - [x] Production QA checklist on 5 browsers/devices → `eval/qa/2026-11-03.md`; bugs fixed test-first or listed in README Limitations — file written 2026-11-03; Chromium + founder physical phone verified, other browsers listed open inside
 - [x] `docs/SUBMISSION.md` drafted; script cross-checks every number against `RESULTS.md` — `scripts/check_submission_numbers.py` ok 2026-11-03
 - [ ] Interview drill: `.learnings/11-final-interview-drill.md` + live quiz — file written; live quiz with founder still to run
@@ -114,7 +114,9 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Buffer · Wed Nov 4 · Submit
 
-- [ ] Re-check the live URL, video link, repo visibility
+November4 release update: [three-minute film](https://youtu.be/RzdqrBMuqQ0) is hosted, HD complete and Unlisted; [native X demo](https://x.com/jeevesh2515/status/2118097660968128812) and project-links reply are published. Both actual URLs and factual fields are entered in the prepared form. Founder confirmed both videos play in normal incognito browsing; founder survey/permission review and actual submission confirmation remain open. No deployment or paid verification call is implied by this update.
+
+- [x] Re-check the live URL, video link, repo visibility — 2026-11-04 22:17 GMT: web/API-health/eval/GitHub all 200 unauthenticated, YouTube watch page 200, X status 200 (curl headers only; founder incognito playback confirmed separately)
 - [ ] Submit by 18:00 London (8 hours before the official deadline)
 - [x] `docs/RUNBOOK.md` for judging week (health, logs, spend, rollback) — written 2026-11-03
 - [x] Keep spend cap on; monitor during judging (Nov 4 to 8) — $5.00 daily trip enabled and active

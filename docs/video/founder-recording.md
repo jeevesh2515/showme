@@ -1,3 +1,5 @@
+> **Superseded November 4:** Callum narration is approved and recorded. Follow [the current phone and submission checklist](PHONE-AND-SUBMISSION-2026-11-04.md); the older seven-voice-clip instructions below are preserved for history.
+
 # Record these two things
 
 **[Certain] The selected desktop take now shows the intended control with an accepted SAM outline.** An earlier take had a misplaced box; it is retained in the local archive and disclosed as an earlier attempt. Do not claim this was the first take or that one good result proves general accuracy.
@@ -24,7 +26,7 @@
 
 **[Certain]** Use this existing genuine guide; opening it does not require another grounding or SAM call:
 
-[Open the recorded guide](https://showme-web-delta.vercel.app/g/_VhzwgWaKPusAhSBhVzuSA)
+[Open the recorded guide](https://showme-web-delta.vercel.app/g/REDACTED_GUIDE_TOKEN)
 
 **[Likely]** Before recording, obtain the recipient’s agreement to record their screen/actions, turn on Do Not Disturb, and hide notification previews. Save [the original synthetic billing image](assets/billing-recorded-v2.png) to Photos. Use the made-up example only.
 

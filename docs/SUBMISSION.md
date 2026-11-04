@@ -6,7 +6,8 @@
 - **Live API Health**: [https://showme-api-xi.vercel.app/v1/healthz](https://showme-api-xi.vercel.app/v1/healthz)
 - **GitHub Repository**: [https://github.com/jeevesh2515/showme](https://github.com/jeevesh2515/showme)
 - **Evaluation Dashboard**: [https://showme-web-delta.vercel.app/eval](https://showme-web-delta.vercel.app/eval)
-- **Demo Video (3 min)**: [YouTube / Loom demo link (pending upload)](https://youtu.be/PENDING_SUBMISSION_URL)
+- **Demo Video (3 min)**: [Watch the ShowMe demo](https://youtu.be/RzdqrBMuqQ0)
+- **X launch video**: [Watch the short demo and discussion](https://x.com/jeevesh2515/status/2118097660968128812)
 
 ---
 
@@ -18,7 +19,7 @@
 
 ## 2. The Problem & Founder Story
 
-65% of older internet users surveyed got tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://www.researchgate.net/publication/392981775_How_Older_Adult_Internet_Users_Stay_Online_When_Technical_Problems_Arise), Journal of Applied Gerontology, 2025, N=1173). That help often starts with a screenshot sent to a relative:
+65% of older internet users surveyed got tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://journals.sagepub.com/doi/10.1177/07334648251349906), Journal of Applied Gerontology, first published online June 24, 2025; April 2026 issue, N=1173). That help often starts with a screenshot sent to a relative:
 
 - *"How do I cancel this gym membership?"*
 - *"Where is the renew button on the passport website?"*
@@ -71,7 +72,7 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 
 - **ScreenSpot-v2 Benchmark (Held-out, n=1,172, prompt v3)**: **89.9%** click accuracy (prompt v1: 90.7%).
 - **ScreenSpot-Pro Benchmark (Held-out high-res apps, n=300, prompt v3)**: **62.0%** click accuracy (`muse-spark-1.3`; prompt v1: 63.7% Spark, 66.7% Wonder).
-- **Negatives & Honesty Suite (Held-out absent probes, n=210, prompt v3)**: **75.5%** (151/200 absent pairs) returned `not_visible`; injection probes counted apart 10/10; combined 161/210 = 76.7% (prompt v1 combined: 62.4%). These splits are by annotation, so they share screenshots with the development split, and one negatives image and goal pair appears in both.
+- **Absent-target probes (n=200, prompt v3)**: **75.5%** (151/200 absent pairs) returned `not_visible`; injection probes counted apart 10/10; combined 161/210 = 76.7% (prompt v1 combined: 62.4%). These splits are by annotation, so they share screenshots with the development split, and one negatives image and goal pair appears in both.
 - **Safety Refusals (Safety probe suite, n=12, prompt v3)**: **100.0%** refused requests attempting credential harvesting or unsafe actions.
 - **20-Task End-to-End Live Web Suite (prompt v3, fixed predicates)**: the 2026-11-02 re-run records **60.0% (12/20)** on real live websites (BBC, NHS, Gov.uk, Netflix, Apple, IKEA), average 4.45 steps (`eval/results/2026-11-02-e2e-bb543ba-04574992c7/report.md`). An earlier 14/20 run had 4 suspect passes; those predicates were fixed with offline tests, and in this re-run the previously suspect caption task fails honestly. Failures include a bot wall, cookie banners, download-as-success tasks, one model 502 and one 504. No unseen E2E task set exists yet.
 - **SAM Highlight Quality (89 live steps, 2026-11-02 run)**: 66 SAM outlines, 9 model boxes, 14 no-highlight/scroll states; human grading is **not run** (all cells in that run's `highlight_ratings.csv` are empty), so no claim is made that outlines beat boxes.
@@ -80,15 +81,15 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 
 ## 6. Video Demo Script Summary (3:00, per participant guide)
 
-Illustrative scenario with a made-up billing screenshot. Full script: [docs/video/script.md](video/script.md).
+Illustrative scenario with a made-up billing screenshot. Approved narration: [film transcript](video/narration.txt). Current readable-highlight edit: [handoff and media checks](video/redesign/READABLE-DELIVERY.md). The hosted film above is Unlisted and HD complete; the founder confirmed both YouTube and X playback in a normal incognito window. Final organizer submission remains separate.
 
-- **0:00 - 0:15**: The problem. Someone sends a screenshot asking where to press. On a call, neither side can see what the other means.
-- **0:15 - 0:45**: Privacy before upload. The browser masks structured details; detection is partial, so the helper reviews the picture and brushes out a name. Only the reviewed, redacted image goes to ShowMe and Meta.
-- **0:45 - 1:08**: Two Meta models. `muse-spark-1.3` identifies the next control. `sam-3.1` refines the highlight only when its bounding box agrees with Spark's box and contains Spark's point. Otherwise the box stays, and refinement never moves the click point.
-- **1:08 - 1:48**: Recipient handoff. Second review, consent, expiring link. A consenting person opens the guide on an iPhone 16 and finds the matching control on the original example. It is a picture, not remote control, and no subscription is changed. Another step needs another screenshot.
-- **1:48 - 2:12**: Built during the hackathon. Code on screen: the browser re-encodes the reviewed image, and the SAM gate rejects refinement whose bounding box disagrees.
-- **2:12 - 2:42**: Recorded results at prompt v3: 89.9% ScreenSpot-v2, 62.0% ScreenSpot-Pro, "not visible" on 75.5% of absent targets (151/200) and 12/20 live-web development tasks. 44 of the other 49 absent-target cases still get a highlight.
-- **2:42 - 3:00**: Live URL, public repo, close. Captions on, no music over the UI.
+- **0:00 - 0:18.3**: Screenshot question, actual highlighted result, sourced family-help statistic and the product's purpose. Editorial text remains visible; light emphasis follows narration.
+- **0:18.3 - 0:43.3**: Browser privacy review, partial detection and real manual brushing, then the exact captured redacted upload.
+- **0:43.3 - 1:17.5**: Spark's action/strict reply, grounding-only latency and cost, real box/outline and the SAM agreement gate. Refinement never moves the click point.
+- **1:17.5 - 1:43.5**: Second review, consent, seven-day link and the founder's actual iPhone16 self-demo. Synthetic original in Photos stands in for their own screen. Navigation cuts/held details remain labelled; no independent usability test or cancellation outcome is claimed.
+- **1:43.5 - 2:03**: Genuine readable code excerpts: browser re-encoding, RedactedImage input, uploaded-payload test and shared production/evaluation grounding core.
+- **2:03 - 2:45**: Actual absent-target example, then generated results:89.9% ScreenSpot-v2,62.0% ScreenSpot-Pro,151/200 absent targets with44/49 other cases still highlighted, and12/20 development web tasks. Scope/overlap/SAM-off limitations remain visible.
+- **2:45 - 3:00**: Return to review/step/original, then the app and public repository destinations. Exact180s total, burned captions and AI-generated narration disclosure.
 
 ---
 

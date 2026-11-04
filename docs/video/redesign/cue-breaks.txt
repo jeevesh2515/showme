@@ -1,0 +1,72 @@
+[film-0]
+Someone you help sends a screenshot:
+“Where do I press?”
+In a 2025 study of 1,173 older internet users,
+65 percent got tech help from family at least sometimes.
+ShowMe is for that helper.
+[film-1]
+This is a made-up billing screen.
+Before anything is uploaded, the browser reads it on this device
+and masks the email, card number, phone and postcode.
+Detection is partial: it missed the name, the expiry and the street,
+so I hide those myself.
+This review can't be skipped.
+[film-2]
+Muse Spark 1.3 reads the redacted screen and the goal,
+and returns one action in a strict JSON schema:
+which control, where, and one plain sentence.
+At prompt version three, that's about 2.8 seconds and under a cent.
+SAM 3.1 then tries to outline that control.
+ShowMe keeps the outline only if its bounding box agrees with Spark's.
+Otherwise the box stays,
+and the click point never moves.
+[film-3]
+To send it back, I review the picture again, consent,
+and create a link that expires in seven days.
+On a phone, the recipient gets one instruction and one highlight.
+It's a picture of the screen, not remote control:
+the guide shows which control to find on their own screen.
+No subscription is changed here,
+and another step needs another screenshot.
+[film-4]
+I built this during the hackathon.
+The browser re-encodes the reviewed image,
+and the API client only accepts that redacted result.
+Tests inspect the uploaded payload.
+The same core code also runs the evaluation,
+so grounding is measured on the production path.
+[film-5]
+When the control isn't on screen, it should say so, as it does here.
+On prompt version three, the click point hit the target
+on 89.9 percent of 1,172 held-out examples,
+and 62 percent on harder professional apps.
+With the target absent, it said not visible in 151 of 200 probes.
+Most of the rest still got a highlight.
+Live websites passed 12 of 20 development tasks,
+and the failures are public.
+[film-6]
+Review on your device.
+Send one clear step.
+The person you help stays in control.
+Try ShowMe, and read the code.
+[x-0]
+Someone you help sends a screenshot:
+“Where do I press?”
+On a call, neither of you can see what the other means.
+[x-1]
+ShowMe masks private details in your browser.
+You check the picture and hide anything it missed.
+Only then does it upload.
+[x-2]
+Meta's Muse Spark finds the one next control.
+SAM 3.1 outlines it, but only when its box agrees.
+[x-3]
+Send a seven-day link.
+They get one instruction and one highlight.
+[x-4]
+ShowMe says not visible on 151 of 200 absent targets,
+and hits 89.9 percent on held-out examples.
+The failures are public.
+[x-5]
+ShowMe.
+Try it, and read the code.

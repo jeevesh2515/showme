@@ -4,9 +4,10 @@
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { randomUUID } from "node:crypto";
+import { basename, dirname, join, resolve } from "node:path";
+import { createHash, randomUUID } from "node:crypto";
 import { candidatePaths, narrationDisclosure, planNarration } from "./audio-plan.mjs";
+import { validatePhonePlan } from "./phone-plan.mjs";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -16,15 +17,33 @@ const FPS = 30;
 const TAKE = process.env.TAKE?.trim() || "selected recorded take; ordinal not verified";
 const which = process.argv[2] ?? "all";
 if (!["film", "x", "all"].includes(which)) throw new Error("Choose film, x or all; --check performs preflight only");
-const FILM_SCENES = [
-  { dur: 18.3 }, { dur: 28, at: { 3: 12.6, 4: 21.2 } }, { dur: 31.7, at: { 2: 16.5 } }, { dur: 34, at: { 2: 15 }, capRight: [8, 20] },
+// FILM_EDIT selects a redesigned edit; its scene timing comes from its own manifest, never from the v5 slots.
+const EDIT = process.env.FILM_EDIT?.trim() || null;
+if (EDIT && !["fixed-point", "locked", "story", "ink", "continuity", "readable"].includes(EDIT)) throw new Error(`Unknown FILM_EDIT: ${EDIT}`);
+if (EDIT === "story" && which !== "x") throw new Error("The story edit currently supplies only the X candidate; use x, not film or all");
+const inkLayout = ["ink", "continuity", "readable"].includes(EDIT);
+const editModule = EDIT === "readable" ? "../redesign/readable/film.mjs" : EDIT === "continuity" ? "../redesign/continuity/film.mjs" : EDIT === "ink" ? "../redesign/ink/film.mjs" : EDIT === "story" ? "../redesign/rescue/film.mjs" : EDIT === "locked" ? "../redesign/locked/film.mjs" : "../redesign/motion/film.mjs";
+const editTiming = EDIT ? JSON.parse(readFileSync(join(here, "../redesign/timing.json"), "utf8")) : null;
+const FILM_SCENES = editTiming ? editTiming.film.map((dur) => ({ dur, capWidth: EDIT === "locked" || inkLayout ? 120 : 84, capStyle: inkLayout ? "left:60px;transform:none;text-align:left;top:990px;bottom:auto;width:1800px;max-width:1800px;background:none;padding:0;color:#ffffff;font-size:46px;line-height:1.2;border-radius:0" : EDIT === "locked" ? "left:48px;transform:none;text-align:left;top:866px;bottom:auto;width:1280px;max-width:1280px;background:none;padding:0;color:#16264a;font-size:44px;line-height:1.22;text-wrap:balance" : "background:none;font-size:44px;bottom:44px;max-width:1800px" })) : [
+  { dur: 18.3 }, { dur: 28, at: { 3: 12.6, 4: 21.2 } }, { dur: 31.7, at: { 2: 16.5 } }, { dur: 34, at: { 2: 15 }, capRight: [8, 24] },
   { dur: 21, at: { 3: 11.2 } }, { dur: 34, at: { 1: 8.2 } }, { dur: 13, at: { 0: 0.8 } },
 ];
-const X_SCENES = [{ dur: 7.4 }, { dur: 8.4 }, { dur: 8.2 }, { dur: 5.6, capRight: [0, 5.6] }, { dur: 11.82 }, { dur: 3.18 }];
+const X_SCENES = editTiming ? editTiming.x.map((dur) => ({ dur, capWidth: EDIT === "locked" || inkLayout ? 120 : 60, capStyle: inkLayout ? "left:48px;transform:none;text-align:left;top:978px;bottom:auto;width:1824px;max-width:1824px;background:none;padding:0;color:#ffffff;font-size:58px;line-height:1.2;border-radius:0" : EDIT === "story" ? "left:72px;transform:none;text-align:left;top:886px;bottom:auto;width:1776px;max-width:1776px;background:#16264a;padding:8px 18px;color:#ffffff;font-size:46px;line-height:1.1;border-radius:0" : EDIT === "locked" ? "left:48px;transform:none;text-align:left;left:24px;top:958px;bottom:auto;width:1872px;max-width:1872px;background:none;padding:0;color:#16264a;font-size:50px;line-height:1.2" : "background:none;font-size:60px;bottom:32px;max-width:1860px;line-height:1.12" })) : [{ dur: 7.4 }, { dur: 8.4 }, { dur: 8.2 }, { dur: 5.6, capRight: [0, 5.6] }, { dur: 11.82 }, { dur: 3.18 }];
 const seconds = (f) => Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]));
+const frames = (f) => Number(JSON.parse(execFileSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames", "-of", "json", f])).streams[0].nb_frames);
 const manifestFile = process.env.VOICE_MANIFEST ? resolve(process.env.VOICE_MANIFEST) : join(OUT, "voice/higgsfield/segments.json");
 const voiceManifest = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, "utf8")) : null;
 if (process.env.VOICE_MANIFEST && !voiceManifest) throw new Error(`Audio manifest not found: ${manifestFile}`);
+const phoneFile = join(RAW, "recipient.mov");
+const realPhone = existsSync(phoneFile);
+const phonePlanFile = join(here, "phone-edit.json");
+let phonePlan = null;
+if (realPhone) {
+  if (!existsSync(phonePlanFile)) throw new Error("Real phone source needs an explicit reviewed phone-edit.json; filename presence is insufficient");
+  const probe = JSON.parse(execFileSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,duration", "-of", "json", phoneFile]));
+  const source = probe.streams[0];
+  phonePlan = validatePhonePlan(JSON.parse(readFileSync(phonePlanFile, "utf8")), { width: source.width, height: source.height, duration: Number(source.duration), sha256: createHash("sha256").update(readFileSync(phoneFile)).digest("hex") });
+}
 const legacyIndex = JSON.parse(readFileSync(join(OUT, "voice/index.json"), "utf8"));
 const plans = {};
 for (const key of which === "all" ? ["film", "x"] : [which]) {
@@ -35,7 +54,7 @@ for (const key of which === "all" ? ["film", "x"] : [which]) {
   plans[key] = planNarration({ key, paragraphs, scenes: key === "film" ? FILM_SCENES : X_SCENES, manifest: voiceManifest, manifestDir: dirname(manifestFile), root, out: OUT, duration: seconds, legacyIndex });
 }
 if (process.argv.includes("--check")) {
-  console.log(JSON.stringify(Object.fromEntries(Object.entries(plans).map(([key, plan]) => [key, { seconds: plan.total, disclosure: narrationDisclosure(plan), captionTiming: plan.captionTiming, segments: plan.segments }])), null, 2));
+  console.log(JSON.stringify({ narration: Object.fromEntries(Object.entries(plans).map(([key, plan]) => [key, { seconds: plan.total, disclosure: narrationDisclosure(plan), captionTiming: plan.captionTiming, segments: plan.segments }])), phone: phonePlan ?? "Labelled browser emulation" }, null, 2));
   process.exit(0);
 }
 const tag = process.env.CANDIDATE_TAG || `${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID().slice(0, 8)}`;
@@ -59,7 +78,6 @@ const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 const step = json(join(RAW, "main-step-response.json"));
 const sam = json(join(RAW, "main-refine-response.json"));
 const ev = json(join(here, "../assets/evidence.json"));
-const realPhone = existsSync(join(RAW, "recipient.mov"));
 const uploaded = `data:image/webp;base64,${b64(join(RAW, "uploaded.jpg"))}`;
 const original = png(join(root, "apps/web/public/examples/billing.png"));
 
@@ -75,7 +93,7 @@ h1{font-size:76px;line-height:1.08;margin:0;font-weight:800}p{margin:0}.sub{font
 .cap{position:absolute;left:50%;transform:translateX(-50%);bottom:42px;width:max-content;max-width:1640px;background:rgba(22,38,74,.94);color:#fff;font-size:40px;line-height:1.26;font-weight:600;padding:13px 30px;border-radius:12px;text-align:center}`;
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-const setHtml = async (html) => { await page.setContent(`<!doctype html><meta charset=utf-8><style>${CSS}</style>${html}`); await page.evaluate(() => document.fonts.ready); };
+const setHtml = async (html) => { await page.setContent(`<!doctype html><meta charset=utf-8><style>${CSS}</style>${html}`); await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map((img) => img.decode())); }); };
 const stamp = (name, html) => setHtml(html).then(() => page.evaluate(() => document.getAnimations().forEach((a) => a.finish()))).then(() => { const f = join(TMP, `${name}.png`); return page.screenshot({ path: f, omitBackground: true }).then(() => f); });
 
 // Animated card: every animation frame is rendered and checked by seeking, then the last frame holds.
@@ -115,6 +133,7 @@ const piece = (kf, prop) => {
 // Clip with a smooth pan and zoom. kf rects are in 2560-wide source pixels; overlays are full-frame PNGs.
 function clip(name, session, from, to, kf, { hold = 0, overlays = [] } = {}) {
   const r = raw(session), dur = to - from + hold;
+  if (to > seconds(r.file) + 1 / FPS) throw new Error(`${name}: source ends before the requested action; choose a safe end and disclose any hold`);
   // Supersampled zoompan: per-frame scale plus crop keeps a stale input size in ffmpeg 8 and mis-pans.
   const keys = kf.map((k) => ({ t: k.t, z: 2560 / k.w, x: k.x * 2, y: k.y * 2 }));
   const T = (e) => e.replaceAll("t-", `(on/${FPS})-`).replaceAll("lt(t,", `lt((on/${FPS}),`);
@@ -129,7 +148,9 @@ function clip(name, session, from, to, kf, { hold = 0, overlays = [] } = {}) {
     last = `m${i}`;
   });
   const out = join(SHOTS, `${name}.mp4`);
-  ff(...inputs, "-filter_complex", fc, "-map", `[${last}]`, "-t", String(dur), ...ENC, out);
+  // One conforming frame handles fractional source boundaries; the output frame budget is explicit.
+  fc += `;[${last}]tpad=stop_mode=clone:stop_duration=${1 / FPS}[conformed]`;
+  ff(...inputs, "-filter_complex", fc, "-map", "[conformed]", "-frames:v", String(Math.round(dur * FPS)), ...ENC, out);
   return out;
 }
 const FULL = { x: 0, y: 0, w: 2560 };
@@ -138,11 +159,51 @@ const pill = (name, text) => stamp(name, `<div class="pill">${esc(text)}</div>`)
 
 function phoneShot(name, dur, bgPng, from = 0) {
   const out = join(SHOTS, `${name}.mp4`);
-  const src = realPhone ? join(RAW, "recipient.mov") : raw("phone").file;
+  const src = raw("phone").file;
   const hole = { x: 300, y: 92, w: 462, h: 894 };
   ff("-loop", "1", "-t", String(dur), "-i", bgPng, "-i", src, "-filter_complex", `[1:v]trim=start=${from},setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${dur},scale=${hole.w}:${hole.h}:force_original_aspect_ratio=increase:flags=lanczos,crop=${hole.w}:${hole.h}:0:0[p];[0:v][p]overlay=${hole.x}:${hole.y}:shortest=1[v]`, "-map", "[v]", "-t", String(dur), ...ENC, out);
   return out;
 }
+
+const phoneDetails = {};
+function phoneDetail(kind) {
+  if (phoneDetails[kind]) return phoneDetails[kind];
+  const time = kind === "guide" ? 16.8 : 28.7;
+  const crop = kind === "guide" ? "1000:520:100:1340" : "980:350:100:1500";
+  const file = join(TMP, `phone-${kind}-detail.png`);
+  ff("-ss", String(time), "-i", phoneFile, "-frames:v", "1", "-vf", `crop=${crop}`, "-update", "1", file);
+  if (!existsSync(file)) throw new Error(`No phone detail frame at ${time}`);
+  return (phoneDetails[kind] = { file, time, crop });
+}
+
+async function recordedPhoneShot(name, key) {
+  const w = phonePlan.windows[key], isOriginal = key === "original";
+  const detail = phoneDetail(isOriginal ? "original" : "guide");
+  const bg = await stamp(`${name}-bg`, `<div class="card" style="background:#e9eef6;padding:0">
+  <div style="position:absolute;left:100px;top:74px;width:454px;height:936px;background:#16264a;border-radius:52px"></div>
+  <div style="position:absolute;left:650px;top:72px;width:1150px">
+  <div style="font-size:30px;font-weight:700">iPhone 16 · self-demo · synthetic billing example</div>
+  <h1 style="font-size:62px;margin-top:20px">${isOriginal ? "Find it on the original." : "One instruction. One highlight."}</h1>
+  <p style="font-size:27px;margin-top:22px">Detail from this recording · held at ${detail.time.toFixed(1)}s</p>
+  <img src="${png(detail.file)}" style="display:block;width:1080px;max-height:490px;object-fit:contain;object-position:left top;margin-top:14px;border-radius:12px">
+  <p style="font-size:36px;font-weight:700;margin-top:24px">A picture, not remote control.</p>
+  <p style="font-size:29px;margin-top:10px">${isOriginal ? "Navigation cut · no subscription changed." : "The recorded highlight is unchanged."}</p>
+  <p style="font-size:25px;margin-top:12px;color:#42506e">${w.holdSeconds ? `Final ${w.holdSeconds.toFixed(1)}s of the phone view held for reading.` : "Selected excerpt · navigation shortened."}</p>
+  </div></div>`);
+  const dur = w.duration, out = join(SHOTS, `${name}.mp4`);
+  const hold = w.holdSeconds ? `,tpad=stop_mode=clone:stop_duration=${w.holdSeconds}` : "";
+  ff("-loop", "1", "-t", String(dur), "-i", bg, "-i", phoneFile, "-filter_complex", `[1:v]trim=start=${w.start}:end=${w.end},setpts=PTS-STARTPTS,fps=${FPS}${hold},scale=414:896:force_original_aspect_ratio=decrease:flags=lanczos,pad=414:896:(ow-iw)/2:(oh-ih)/2:color=white,setsar=1[p];[0:v][p]overlay=120:94:shortest=1[v]`, "-map", "[v]", "-t", String(dur), ...ENC, out);
+  if (Math.abs(seconds(out) - dur) > 1 / FPS) throw new Error(`${name}: phone shot duration drift`);
+  return out;
+}
+
+const flowBoxes = (steps, delay = 0.3, spacing = 1.2) => `<div style="display:flex;gap:20px;align-items:stretch">${steps.map(([title, sub], i) => `<div class="a" style="animation-delay:${delay + i * spacing}s;flex:1;background:#e9eef6;border-top:9px solid #ffd43b;padding:24px;border-radius:12px"><div style="font-size:38px;font-weight:800">${esc(title)}</div><p style="font-size:27px;margin-top:10px;line-height:1.25">${esc(sub)}</p></div>`).join("")}</div>`;
+
+function phoneRecapHtml() {
+  return `<div class="card" style="padding:72px 100px"><div style="font-size:28px;font-weight:700">iPhone 16 self-demo · synthetic example · navigation cut</div><h1 style="font-size:68px;margin-top:18px">The person stays in control.</h1><div class="mark a"></div><div style="display:flex;gap:65px;margin-top:35px"><div style="width:850px"><img src="${png(phoneDetail("original").file)}" style="width:850px;border-radius:12px"><p style="font-size:27px;margin-top:14px;color:#42506e">Original picture detail · held at source 28.7s</p></div><div style="width:770px">${[["Review locally", "Hide what automatic detection missed."],["Send one guide", "Review again and consent to sharing."],["Find the control", "Act in the original app; not in the picture."]].map(([title, sub], i) => `<div class="a" style="animation-delay:${0.25 + i * 1.3}s;margin-bottom:24px;border-left:10px solid #ffd43b;padding:10px 24px"><div style="font-size:40px;font-weight:800">${title}</div><div style="font-size:29px;margin-top:7px">${sub}</div></div>`).join("")}</div></div><div class="a" style="animation-delay:4.3s;position:absolute;left:100px;bottom:120px;font-size:34px;font-weight:700">No subscription changed. A new step needs a new screenshot.</div></div>`;
+}
+
+const boundaryHtml = () => `<div class="card" style="padding:90px 110px"><div style="font-size:27px;font-weight:700">Engineering explanation · not a live network trace</div><h1 style="font-size:70px;margin-top:24px">Review before the network.</h1><div class="mark a"></div><div style="margin-top:90px">${flowBoxes([["Browser", "Detect, review and re-encode."],["API", "Accept the redacted result."],["Shared core", "The evaluation uses the same grounding code."]], 0.2, 0.65)}</div><p class="a" style="animation-delay:2s;font-size:35px;margin-top:65px">Automatic detection is partial. Manual review remains required.</p></div>`;
 
 // The recipient's highlight enlarged from the same phone recording, so it reads at feed size.
 function phoneZoom(name, dur) {
@@ -168,15 +229,16 @@ async function assets() {
   A.live = await pill("p-live", `Live product · real model output · ${TAKE}`);
   A.spark = await pill("p-spark", CUT_WAIT ? `muse-spark-1.3 · this call ${(step.timings_ms.ground / 1000).toFixed(1)} s, wait trimmed · median 2.8 s` : "muse-spark-1.3 · real call, real time");
   A.gate = await stamp("p-gate", gatePanel);
-  A.share = await pill("p-share", "Second review, consent, then the link");
+  A.share = await pill("p-share", "Second review, consent, then the link · final link frame held");
   A.absent = await pill("p-absent", "Real call, goal “Download my 2019 tax invoice” · status: not_visible, action: scroll");
   A.title = await stamp("p-title", `<div class="f" style="position:absolute;left:0;right:0;bottom:190px;text-align:center"><span style="background:#fff;padding:18px 44px;border-radius:14px;font-size:64px;font-weight:800;box-shadow:0 8px 30px rgba(22,38,74,.3)">ShowMe: one clear next step</span></div>`);
+  if (realPhone) return A;
   A.phoneBg = await (async () => { await setHtml(`<div class="card" style="background:#e9eef6;padding:0"><div style="position:absolute;left:284px;top:76px;width:494px;height:926px;background:#111827;border-radius:64px"></div><div style="position:absolute;left:860px;top:70px;width:940px"><div style="font-size:30px;font-weight:700;margin-bottom:18px">The original example</div><img src="${original}" style="width:900px;border-radius:12px;box-shadow:0 8px 30px rgba(22,38,74,.2)"><div style="margin-top:28px;font-size:44px;font-weight:800;line-height:1.15">A picture, not remote control.</div><div class="sub" style="margin-top:12px;font-size:30px">${realPhone ? "Provided recipient recording · device and consent verification pending." : "Recipient view: phone-size browser, not a physical iPhone."}</div></div></div>`); const f = join(TMP, "phonebg.png"); await page.screenshot({ path: f }); return f; })();
   return A;
 }
 const bubbleHtml = `<div class="card sun"><div class="b" style="animation-delay:.1s;position:absolute;left:380px;top:90px;width:900px;background:#fff;border-radius:28px;padding:20px;box-shadow:0 10px 40px rgba(22,38,74,.16)"><img src="${original}" style="width:100%;border-radius:14px"></div><div class="b" style="animation-delay:.7s;position:absolute;left:380px;top:690px;background:#16264a;color:#fff;border-radius:26px;padding:22px 42px;font-size:60px;font-weight:800">“Where do I press?”</div><p class="sub a" style="animation-delay:1.1s;position:absolute;left:380px;top:825px;font-size:34px">On a call, neither of you can see what the other means.</p></div>`;
 const statHtml = `<div class="card ink" style="padding-top:210px"><div class="b" style="font-size:240px;font-weight:800;color:#ffd43b;line-height:1">65%</div><p class="sub a" style="animation-delay:.5s;font-size:46px;margin-top:30px;max-width:1450px">of older internet users surveyed got tech help from family at least sometimes.</p><p class="f" style="animation-delay:.9s;font-size:25px;margin-top:40px;opacity:.85">Journal of Applied Gerontology, 2025, n=1,173.</p></div>`;
-const uploadHtml = `<div class="card" style="padding:70px 80px"><h1 class="a" style="font-size:58px">The exact image that left the browser</h1><div class="mark a"></div><div style="display:flex;gap:40px"><div class="a" style="animation-delay:.2s;width:860px"><div style="font-size:30px;font-weight:700;margin-bottom:12px">On this device</div><img src="${original}" style="width:100%;border:2px solid #e9eef6;border-radius:10px"></div><div class="a" style="animation-delay:.6s;width:860px"><div style="font-size:30px;font-weight:700;margin-bottom:12px">Captured from POST /v1/step in this take</div><img src="${uploaded}" style="width:100%;border:2px solid #e9eef6;border-radius:10px"></div></div></div>`;
+const uploadHtml = `<div class="card" style="padding:70px 80px"><h1 class="a" style="font-size:58px">The exact image that left the browser</h1><div class="mark a"></div><div style="display:flex;gap:40px"><div class="a" style="animation-delay:.2s;width:860px"><div style="font-size:30px;font-weight:700;margin-bottom:12px">On this device · synthetic original</div><img src="${original}" style="width:100%;border:2px solid #e9eef6;border-radius:10px"></div><div class="a" style="animation-delay:.6s;width:860px"><div style="font-size:30px;font-weight:700;margin-bottom:12px">Captured from POST /v1/step in this take</div><img src="${uploaded}" style="width:100%;border:2px solid #e9eef6;border-radius:10px"></div></div><div style="position:absolute;left:80px;right:80px;top:775px"><p style="font-size:24px;margin-bottom:12px">Workflow explanation</p>${flowBoxes([["Detect", "Partial automatic masking."],["Review", "Hide the details it missed."],["Upload", "Only the reviewed result."]],0.8,1.1)}</div></div>`;
 const jsonHtml = `<div class="card" style="padding:80px 110px"><h1 class="a" style="font-size:60px">Muse Spark's actual reply</h1><div class="mark a"></div><pre class="mono a" style="animation-delay:.3s;margin:0;background:#e9eef6;border-left:12px solid #ffd43b;padding:30px 36px">${esc(['{', `  "status": "${step.status}",`, `  "action": "${step.action}",`, `  "instruction": "${step.instruction}",`, `  "target": {`, `    "label": "${step.target.label}",`, `    "point": ${JSON.stringify(step.target.point)},`, `    "box": ${JSON.stringify(step.target.box)}`, `  },`, `  "model": "${step.model}",`, `  "ground_ms": ${step.timings_ms.ground},`, `  "cost_usd": ${step.cost_usd}`, '}'].join("\n"))}</pre></div>`;
 const row = (l, m, s, d) => `<div class="row a" style="animation-delay:${d}s"><div><div class="rl">${esc(l)}</div><div class="rm">${esc(m)}</div></div><div class="rs">${esc(s)}</div></div>`;
 const n = ev.expectedNotVisible;
@@ -218,6 +280,13 @@ async function finish(name, shots, scenes, voiceKey, outFile) {
   const silent = join(TMP, `${name}-silent.mp4`);
   concat(shots, silent);
   const total = scenes.reduce((a, s) => a + s.dur, 0);
+  const shotFrames = shots.map(frames), shotDurations = shotFrames.map((n) => n / FPS);
+  if (shotFrames.reduce((a, b) => a + b, 0) !== Math.round(total * FPS)) throw new Error(`${name}: picture timeline differs from approved frame count`);
+  for (const [i, scene] of scenes.entries()) {
+    const prefix = name === "film" ? `s${i + 1}` : `x${i}`;
+    const actual = shots.reduce((n, file, j) => n + (basename(file, ".mp4").startsWith(prefix) ? shotFrames[j] : 0), 0);
+    if (actual !== Math.round(scene.dur * FPS)) throw new Error(`${name}: scene ${i} has ${actual} frames, expected ${Math.round(scene.dur * FPS)}`);
+  }
   const plan = plans[voiceKey];
   const inputs = plan.clips.flatMap((c) => ["-i", c.file]);
   const delays = plan.clips.map((c) => c.start);
@@ -226,7 +295,7 @@ async function finish(name, shots, scenes, voiceKey, outFile) {
     const scene = scenes[c.scene], sceneStart = scenes.slice(0, c.scene).reduce((n, s) => n + s.dur, 0);
     const right = !!scene.capRight && c.start - sceneStart >= scene.capRight[0] && c.start - sceneStart < scene.capRight[1];
     const parts = chunk(c.text, right ? 40 : scene.capWidth ?? 52);
-    const style = right ? "left:1330px;max-width:1050px" : "";
+    const style = right ? "left:1230px;max-width:1140px;bottom:24px" : scene.capStyle ?? "";
     if (voiceManifest) {
       if (parts.length > 1) throw new Error(`Aligned caption too long in ${voiceKey}-${c.scene}; provide shorter measured cues instead of estimating word times`);
       return [{ ...c, text: parts[0], style }];
@@ -243,7 +312,7 @@ async function finish(name, shots, scenes, voiceKey, outFile) {
   writeFileSync(`${outFile}.srt`, cues.map((c, i) => { const f = (s) => { const ms = Math.round(s * 1000); return [ms / 3600000, (ms / 60000) % 60, (ms / 1000) % 60].map((v) => String(Math.floor(v)).padStart(2, "0")).join(":") + "," + String(ms % 1000).padStart(3, "0"); }; return `${i + 1}\n${f(c.start)} --> ${f(c.end)}\n${c.text}`; }).join("\n\n") + "\n");
   const exported = seconds(outFile);
   if (Math.abs(exported - total) > 0.001) throw new Error(`${name}: exported duration ${exported} differs from ${total}`);
-  writeFileSync(`${outFile}.provenance.json`, JSON.stringify({ candidate: true, final: false, durationSeconds: exported, takeDisclosure: TAKE, trimmedWaits: CUT_WAIT, narration: narrationDisclosure(plan), captionTiming: plan.captionTiming, segments: plan.segments, replacementManifest: voiceManifest ? manifestFile : null, recipient: realPhone ? "Provided recording at out/raw/recipient.mov; consent and real-device verification still required" : "Labelled mobile-browser emulation; actual iPhone/recipient recording missing" }, null, 2) + "\n");
+  writeFileSync(`${outFile}.provenance.json`, JSON.stringify({ candidate: true, final: false, durationSeconds: exported, takeDisclosure: TAKE, trimmedWaits: CUT_WAIT, narration: narrationDisclosure(plan), captionTiming: plan.captionTiming, segments: plan.segments, replacementManifest: voiceManifest ? manifestFile : null, recipient: phonePlan ? "User-reported iPhone 16 self-demo; not an independent recipient test" : "Labelled mobile-browser emulation; actual iPhone/recipient recording missing", ...(EDIT ? { edit: EDIT, editTiming, shotList: (await import(editModule)).shotList(voiceKey) } : { phoneEdit: phonePlan, heldDetailNote: phonePlan ? "Side detail is a labelled held crop from this source, not simultaneous live action" : null, sharingHold: "Saved source ends before the end marker; final link frame held to complete the 8s sharing slot" }), shots: shots.map((file, i) => ({ file, frames: shotFrames[i], durationSeconds: shotDurations[i] })), builderSha256: createHash("sha256").update(readFileSync(fileURLToPath(import.meta.url))).digest("hex") }, null, 2) + "\n");
   console.log(`${outFile}: ${exported.toFixed(3)} s`);
 }
 
@@ -265,18 +334,27 @@ async function film() {
   s.push(clip("s1d", "main", m.refined + 0.4, m.refined + 2.4, [at(0, STEP), at(2, RING)], { hold: 1.5, overlays: [o(A.title, 0.2, 3.5)] }));
   s.push(clip("s2a", "main", m.app, m.brush - 0.2, [at(0, FULL), at(4, FULL), at(6, REVIEW)], { hold: 5, overlays: [o(A.synth, 0, 12)] }));
   s.push(clip("s2b", "main", m.brush - 0.2, m.continue + 0.3, [at(0, REVIEW), at(1.4, NAME), at(3.8, NAME), at(5.2, LOWER), at(7.4, LOWER), at(8.6, AFTER)]));
-  s.push(await card("s2c", uploadHtml, 28 - (m.brush - 0.2 - m.app) - 5 - (m.continue + 0.3 - (m.brush - 0.2)), 1.4));
+  s.push(await card("s2c", uploadHtml, 28 - (frames(s.at(-2)) + frames(s.at(-1))) / FPS, 3.7));
   const s3from = CUT_WAIT ? m.step - 0.2 : m.continue + 0.3, s3move = m.step - s3from;
   s.push(clip("s3a", "main", s3from, m.refined + 0.6, [at(0, CUT_WAIT ? STEP : FULL), at(Math.max(0.1, s3move - 0.6), CUT_WAIT ? STEP : FULL), at(s3move + 0.8, STEP)], { overlays: [o(A.spark, 0, 99)], hold: CUT_WAIT ? 3.2 : 1 }));
-  const s3a = seconds(s.at(-1));
+  const s3a = frames(s.at(-1)) / FPS;
   s.push(await card("s3b", jsonHtml, 9.5, 1.1));
   s.push(clip("s3c", "main", m.refined + 1, m.refined + 3.5, [at(0, STEP), at(2.2, RING)], { hold: 31.7 - s3a - 9.5 - 2.5, overlays: [o(A.gate, 1.6, 99)] }));
-  s.push(clip("s4a", "main", m.end - 8, m.end, [at(0, { x: 500, y: 300, w: 1560 })], { overlays: [o(A.share, 0, 99)] }));
-  s.push(phoneShot("s4b", 12, A.phoneBg));
-  s.push(realPhone ? phoneShot("s4c", 14, A.phoneBg, 12) : phoneZoom("s4c", 14));
+  const shareEnd = Math.min(m.end, seconds(raw("main").file));
+  s.push(clip("s4a", "main", m.end - 8, shareEnd, [at(0, { x: 500, y: 300, w: 1560 })], { hold: m.end - shareEnd, overlays: [o(A.share, 0, 99)] }));
+  if (realPhone) {
+    s.push(await recordedPhoneShot("s4b", "guide"));
+    s.push(await recordedPhoneShot("s4c", "detail"));
+    s.push(await recordedPhoneShot("s4d", "original"));
+    s.push(await card("s4e", phoneRecapHtml(), phonePlan.recapDuration, 5));
+  } else {
+    s.push(phoneShot("s4b", 12, A.phoneBg));
+    s.push(phoneZoom("s4c", 14));
+  }
   const code = (nm, f, d) => card(nm, `<img src="${png(join(here, "../assets", f))}" style="position:absolute;left:0;top:0;width:1920px">`, d, 0.2);
   s.push(await code("s5a", "redaction-code.png", 12));
-  s.push(await code("s5b", "sam-gate-code.png", 9));
+  s.push(await code("s5b", "sam-gate-code.png", 5.2));
+  s.push(await card("s5c", boundaryHtml(), 3.8, 2.7));
   const ab = raw("absent").marks;
   s.push(clip("s6a", "absent", ab.result - 0.4, ab.result + 3, [at(0, STEP)], { hold: 0.8, overlays: [o(A.absent, 0, 99)] }));
   s.push(await card("s6b", evidenceHtml, 29.8, 1.9));
@@ -291,15 +369,29 @@ async function x() {
   s.push(await card("x0", bubbleHtml + `<div class="pill">Illustrative scenario · synthetic billing screen</div>`, 7.4, 1.2));
   s.push(clip("x1", "main", m.review + 0.3, m.review + 8.7, [at(0, REVIEW), at(1.4, NAME), at(5, NAME), at(6.6, LOWER)]));
   s.push(clip("x2", "main", m.refined - 1, m.refined + 3, [at(0, STEP), at(2.4, RING)], { hold: 4.2, overlays: [o(A.gate, 3, 99)] }));
-  s.push(phoneShot("x3", 5.6, A.phoneBg, realPhone ? 0 : raw("phone").marks.ring + 1.2));
+  s.push(realPhone ? await recordedPhoneShot("x3", "x") : phoneShot("x3", 5.6, A.phoneBg, raw("phone").marks.ring + 1.2));
   s.push(await card("x4", evidenceHtml, 11.82, 1.9));
   s.push(await card("x5", endHtml("x"), 3.18, 1.3));
   await finish("x", s, X_SCENES, "x", candidates.x);
 }
 
 try {
-  if (which === "film" || which === "all") await film();
-  if (which === "x" || which === "all") await x();
+  if (process.argv.includes("--preview")) {
+    if (!phonePlan) throw new Error("Phone preview needs a validated recording and EDL");
+    await recordedPhoneShot("preview-guide", "guide");
+    await recordedPhoneShot("preview-detail", "detail");
+    await recordedPhoneShot("preview-original", "original");
+    await card("preview-recap", phoneRecapHtml(), 10, 5);
+    await card("preview-privacy", uploadHtml, 6.7, 3.7);
+    await card("preview-boundary", boundaryHtml(), 3.8, 2.7);
+    console.log(`Preview shots: ${SHOTS}`);
+  } else if (EDIT) {
+    const { renderScenes } = await import("../redesign/motion/render.mjs");
+    for (const key of Object.keys(plans)) await finish(key, await renderScenes(key, join(SHOTS, key)), key === "film" ? FILM_SCENES : X_SCENES, key, candidates[key]);
+  } else {
+    if (which === "film" || which === "all") await film();
+    if (which === "x" || which === "all") await x();
+  }
 } finally {
   await browser.close();
 }

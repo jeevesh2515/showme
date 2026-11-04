@@ -1,0 +1,6 @@
+{
+  "note": "Edit-specific scene durations and segment offsets. v5 film slots were 18.3,28,31.7,34,21,34,13; X slots 7.4,8.4,8.2,5.6,11.82,3.18. Whole segments only; no word moved, no audio stretched.",
+  "film": [18.3, 25, 34.2, 26, 19.5, 42, 15],
+  "x": [7.4, 8.4, 8.0333, 5.6, 11.8333, 3.3334],
+  "offsets": { "film-5": 4.0 }
+}

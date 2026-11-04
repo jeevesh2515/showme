@@ -19,7 +19,7 @@
 
 ## 2. The Problem & Founder Story
 
-65% of older internet users surveyed got tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://www.researchgate.net/publication/392981775_How_Older_Adult_Internet_Users_Stay_Online_When_Technical_Problems_Arise), Journal of Applied Gerontology, 2025, N=1173). That help often starts with a screenshot sent to a relative:
+65% of older internet users surveyed got tech help from family at least some of the time (["How Older Adult Internet Users Stay Online When Technical Problems Arise"](https://journals.sagepub.com/doi/10.1177/07334648251349906), Journal of Applied Gerontology, first published online June 24, 2025; April 2026 issue, N=1173). That help often starts with a screenshot sent to a relative:
 
 - *"How do I cancel this gym membership?"*
 - *"Where is the renew button on the passport website?"*
@@ -81,7 +81,7 @@ We publish all evaluation numbers directly from raw output files in our open-sou
 
 ## 6. Video Demo Script Summary (3:00, per participant guide)
 
-Illustrative scenario with a made-up billing screenshot. Approved narration: [film transcript](video/narration.txt). Current readable-highlight edit: [handoff and media checks](video/redesign/READABLE-DELIVERY.md). The hosted video URL above remains pending actual upload and signed-out playback.
+Illustrative scenario with a made-up billing screenshot. Approved narration: [film transcript](video/narration.txt). Current readable-highlight edit: [handoff and media checks](video/redesign/READABLE-DELIVERY.md). The hosted film above is Unlisted and HD complete; the founder confirmed both YouTube and X playback in a normal incognito window. Final organizer submission remains separate.
 
 - **0:00 - 0:18.3**: Screenshot question, actual highlighted result, sourced family-help statistic and the product's purpose. Editorial text remains visible; light emphasis follows narration.
 - **0:18.3 - 0:43.3**: Browser privacy review, partial detection and real manual brushing, then the exact captured redacted upload.

@@ -11,7 +11,7 @@ Current files are linked in [READABLE-DELIVERY.md](redesign/READABLE-DELIVERY.md
 
 ## 2. Finish one scoped GitHub PR
 
-Verified current branch state: public default `main` at`d012d5c`; live remote refs matched local refs. Every historical day/release/fix branch is already contained in main. No old branch needs merging and no branch needs deleting. A new local branch, `codex/video-readable-highlights`, now holds the existing working changes; no commit or push has occurred.
+Verified current branch state: public default `main` at`d012d5c`; live remote refs matched local refs. Every historical day/release/fix branch is already contained in main. No old branch needs merging and no branch needs deleting. A new local branch, `feat/video-readable-highlights`, now holds the existing working changes; no commit or push has occurred.
 
 1. Stay on this branch. Review `git status --short` and the exact staging list in `RELEASE-STAGING-PATHS.txt` before using it. It includes the dependencies for all builder modes, not just readable mode. Raw movies, phone originals, voice/cache files and judging scratch remain local/ignored.
 2. Keep unrelated `docs/RUNBOOK.md` and `.learnings/daily/2026-11-03.md` edits out of this PR. Never run `git add .` for this mixed worktree.
@@ -37,8 +37,8 @@ git commit -m "feat(video): keep demo text readable with light emphasis" -m "Ref
 7. When ready for that external release step:
 
 ```sh
-git push -u origin codex/video-readable-highlights
-gh pr create --base main --head codex/video-readable-highlights --title "Keep ShowMe demo text readable and finish release materials" --body-file docs/video/RELEASE-PR-DRAFT.md
+git push -u origin feat/video-readable-highlights
+gh pr create --base main --head feat/video-readable-highlights --title "Keep ShowMe demo text readable and finish release materials" --body-file docs/video/RELEASE-PR-DRAFT.md
 ```
 
 8. Wait for CI on the **new commit**, including `ci` and `web`. The older green run at`d012d5c` does not validate this PR. Review the public diff and README video link.

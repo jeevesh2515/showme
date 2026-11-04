@@ -15,6 +15,8 @@ Operational procedures, health monitoring, rate limits, spend caps, log privacy,
 
 ## 2. 60-Second Health Smoke Check
 
+**Daily cadence (Nov 4–8):** run once each morning and once each evening; also after any production change. Record date, time and result in `docs/MEMORY.md`. Check spend the same way: Supabase `usage_counters` daily total vs the $5.00 cap in §3, plus `eval/results/spend.json` unchanged (no eval runs during judging).
+
 Run this single command from any terminal to verify end-to-end service availability:
 
 ```bash
@@ -41,6 +43,8 @@ To protect against runaway usage or adversarial scraping during judging while ke
 - **Client Rate Limiting**: 30 step requests per hour per connection (tracked via salted daily IP hash in Supabase, rotated every 24h, automatically deleted after 48h).
 - **Daily Spend Cap**: Hard trip at \$5.00/day. Once tripped, the API responds with `spend_cap_reached` and the UI shows calm, honest resting copy ("ShowMe is resting until tomorrow so it stays free. Your screenshot was not sent.").
 - **Model API Rate Limits**: Meta Model API team quota is 3,000 RPM. Automatic backoff + jitter retries handle transient 429 errors up to 3 times with exponential backoff.
+
+**If the cap trips (`spend_cap_reached` in logs/UI):** do not raise it during judging without a founder decision recorded in `docs/MEMORY.md`. Verify the daily counter in Supabase first (abuse vs genuine judging traffic), note the time in MEMORY.md, and let the cap reset next day. The UI resting copy is the intended public behaviour, not an outage.
 
 ---
 
@@ -71,6 +75,8 @@ curl -X POST https://showme-api-xi.vercel.app/internal/purge \
 ---
 
 ## 6. Incident Response & Rollback Procedures
+
+**Owner/contact:** solo project — founder/repo owner `jeevesh2515` via the public repo (https://github.com/jeevesh2515/showme/issues). No separate on-call. Platform status: Vercel and Meta API status pages first; organizer help via the hackathon participant guide channels.
 
 ### Scenario A: Meta API Outage or 502/504 Errors
 - The client UI handles model timeouts and 5xx errors gracefully with an unalarming notification and a "Try again" prompt.

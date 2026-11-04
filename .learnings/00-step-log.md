@@ -377,3 +377,12 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Verified the published native X film/reply and founder-supplied YouTube film; saved its metadata, Unlisted visibility and general-software audience classification. Entered both actual URLs and factual answers in the prepared form; replaced repository placeholders. Inspected Vercel Git settings before release work.
 - **Result/evidence:** Studio confirms correct source filename and HD complete; opening/near-end playback works from another viewer account. Anonymous embed returned153, leaving normal incognito playback open. make lint/test and42selected video tests pass. Independent code review found no blocker and77offline tests/all-mode preflights pass. No new paid calls or deployment.
 - **Decision:** Button replies and an enabled setting do not prove an upload. Require a real watch URL and observable playback. A filled form does not prove submission; founder owns surveys, promotional permission and final Submit. Public Git merge is separate from production deployment.
+
+- **Final evidence correction:** Founder confirmed both videos play in normal incognito browsing. Corrected continuity/readable source-window metadata from16.4–18.25s to16.4–18.7s to cover the unchanged2.3s shot;26affected tests pass. Reverified the65% study in its primary publication. Neither correction changes footage or narration. Local-media prerequisites and legacy verifier hardening remain explicit limits rather than claims of portable rendering or universal verification.
+
+## 2026-11-04 · S50 · Day 9 buffer verification and runbook close-out
+
+- **Why:** Buffer day: verify, do not build; submission deadline Nov 5 02:00 London.
+- **What I did:** 3 parallel read-only subagents (repo/CI/tags, live URLs/video, numbers/spend/runbook) + main smoke/lint/test; closed RUNBOOK cadence/cap-trip/contact gaps docs-only.
+- **Result/evidence:** All live endpoints 200, healthz ok, numbers cross-check ok, smoke 9/10 $0.00 cached, lint/test green. PR #3 merge + founder form submission remain the only gates.
+- **Decision:** No new features, no paid calls, no production change during judging except outage fixes recorded in MEMORY.md.

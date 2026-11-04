@@ -114,9 +114,9 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Buffer · Wed Nov 4 · Submit
 
-November4 release update: [three-minute film](https://youtu.be/RzdqrBMuqQ0) is hosted, HD complete and Unlisted; [native X demo](https://x.com/jeevesh2515/status/2118097660968128812) and project-links reply are published. Both actual URLs and factual fields are entered in the prepared form. Normal incognito/full playback, founder survey/permission review and actual submission confirmation remain open. No deployment or paid verification call is implied by this update.
+November4 release update: [three-minute film](https://youtu.be/RzdqrBMuqQ0) is hosted, HD complete and Unlisted; [native X demo](https://x.com/jeevesh2515/status/2118097660968128812) and project-links reply are published. Both actual URLs and factual fields are entered in the prepared form. Founder confirmed both videos play in normal incognito browsing; founder survey/permission review and actual submission confirmation remain open. No deployment or paid verification call is implied by this update.
 
-- [ ] Re-check the live URL, video link, repo visibility
+- [x] Re-check the live URL, video link, repo visibility — 2026-11-04 22:17 GMT: web/API-health/eval/GitHub all 200 unauthenticated, YouTube watch page 200, X status 200 (curl headers only; founder incognito playback confirmed separately)
 - [ ] Submit by 18:00 London (8 hours before the official deadline)
 - [x] `docs/RUNBOOK.md` for judging week (health, logs, spend, rollback) — written 2026-11-03
 - [x] Keep spend cap on; monitor during judging (Nov 4 to 8) — $5.00 daily trip enabled and active

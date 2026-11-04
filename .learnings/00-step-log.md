@@ -331,3 +331,42 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Saved findings verbatim in MEMORY (D59/D60). Verified Redo, brush-grow and Hide-all already in code; founder confirms phone now works well. Added SAM contour-sanity fallback, OCR-timeout worker termination, tap dedup, and honest review copy (auto-hide finds email/numbers only). Recorded long-flow design as D60 proposal, not built during freeze.
 - **Result / evidence:** `test_api_4_fragmented_contour_is_not_an_outline` failing-first then pass; `make lint test` green (169 backend, 33 eval, 99 web, scripts); Playwright 73/73; `scripts/check_submission_numbers.py` ok. Spend today: $0 Meta calls.
 - **Decision:** Multi-screenshot path already exists (one checked step per screenshot, up to 15-step shared guide). Upfront plans, recipient continuation, loop detection and >15-step chaining are post-hackathon, each needing a requirement ID and eval.
+
+## 2026-11-03 · S44 · Verified Callum film and X candidates
+
+- **Why:** The founder approved the shorter script and timing transfers needed to preserve speech while meeting total durations.
+- **What I did:** Generated the approved shorter film once, aligned both complete tracks locally, split13segments, applied only verified X silence trims and rendered new candidates through build.mjs. Independently checked actual soundtrack timing, captions, source identities, metrics and preservation.
+- **Result / evidence:** 180.000s film and44.600s X,1080p30 H.264/AAC. All25 new audio/alignment regressions pass; current make lint/test passes169backend,33eval,99web plus scripts. Cost6net credits,4remain. See docs/video/out/voice/higgsfield/candidate-verification.json.
+- **Decision:** Keep both exports labelled candidates until genuine recipient footage, device/parity checks and full human playback acceptance. Do not spend the reserved credits or regenerate product footage automatically.
+
+
+## 2026-11-04 · S45 · Actual phone and explanatory motion cuts
+
+- **Why:** The founder supplied their own iPhone16 recording and requested the saved video plan be implemented for submission/launch.
+- **What I did:** Integrated SHA-bound safe phone windows, full-portrait fitting, legible held detail crops and truthful self-demo/navigation-cut labels. Added motion explanations during long holds. Fixed desktop source-EOF drift, JSON frame probing and exact per-scene frame budgets; preserved every original/export.
+- **Result / evidence:** New v5 cuts180.000s/44.600s,1080p30 H.264/AAC, complete decode clean. All13narration offsets show0ms lag, final audio matches normalized mix above0.99997,43film/14X rendered-caption cues within one frame. make lint/test green;28audio/phone-plan and13alignment checks pass. Live Higgsfield balance4; new model spend0. Delivery: docs/video/SUBMISSION-VIDEO-READY-2026-11-04.md.
+- **Decision:** Correct total duration alone does not prove scene/caption synchronization. Verify each scene's actual frames and underlying source endpoints. A founder self-demo is useful footage, not an independent usability study. Full human playback/hosting/submission remain open.
+
+
+## 2026-11-04 · S46 · Restore story rhythm after the static-cut rejection
+
+- **Why:** Founder said the locked video was too static, boring and weak on story/payoff. Still-frame LLM scores did not answer this feedback.
+- **What I did:** Saved RESCUE-PLAN.md, implemented an X-only story edit via build.mjs and exported a complete44.6s candidate plus15.8s proof. Used14 idea-led shots, readable real result crops and actual brush/phone motion; retained approved narration and provenance.
+- **Result/evidence:** story-20261104-v1-verification.json:1338frames, clean decode, exact text, soundtrack correlation1.0 at0ms vs v8, burned captions within1frame,31earlier exports unchanged.32audio/phone/story tests and make lint/test pass.0paid calls.180s story edit not built.
+- **Decision:** Stable framing within a shot does not require one layout for the whole film. Judge a direction in moving playback before scaling it to three minutes; do not treat stills scores as audience evidence.
+
+
+## 2026-11-04 · S47 · Continuity fixes with an honest visual pass
+
+- **Why:** Founder identified orphaned “There” and authorized specific improvements with an8.5/10 target.
+- **What I did:** Created isolated continuity edit; removed orphan label/early phone cut, stabilized the opening result, simplified study, corrected stale labels, exposed real code context and matched units. Independent QA found X ring/disclosure overlap; fixed static crop and preserved original-speed footage/disclosure.
+- **Result/evidence:** Both v2 candidates exported180.000s/44.600s; verifier0failures,124prior outputs unchanged.40edit/audio/phone tests and make lint/test pass. Independent visual/sequence scores8.6film/8.5X; audio and real-time feel unassessed. CONTINUITY-HANDOFF.md has all links, limits and commands.0paid calls.
+- **Decision:** A target score is not authority to inflate a rating. Fix observable issues, state the rubric and distinguish editorial judgment from actual audience or judge evidence.
+
+
+## 2026-11-04 · S48 · Always-readable editorial text and a concrete release path
+
+- **Why:** Founder liked the cut but disliked words/numbers hidden beneath dark reveal bars.
+- **What I did:** Kept text visible from scene entry; added light background emphasis, pale complete tabs and clean cuts; preserved privacy/source pixels and all narration. Exported both full films, copied verified files into Downloads and prepared exact GitHub/X/submission handoff.
+- **Result/evidence:**42targeted tests; complete media verifier0failures;44/15caption starts/ends within1frame; AAC streams identical to liked v2. Independent sampled actual-media QA passes. Readable delivery/checklist documents record outputs and limits.0paid calls.
+- **Decision:** Removing editorial concealment does not authorize removing real privacy masks. Git push does not host ignored movies; all old branches already merged. Use one new scoped PR, real hosted/status URLs and new-SHA checks. Preserve history/alternatives and distinguish local preparation from external publication.

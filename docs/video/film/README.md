@@ -1,8 +1,8 @@
 # Authoritative film pipeline
 
-November 4 current candidate: `CANDIDATE_TAG=ink-20261104-v3`, selected with `FILM_EDIT=ink`; see [redesign/INK-HANDOFF.md](../redesign/INK-HANDOFF.md). Earlier candidate: `CANDIDATE_TAG=locked-20261104-v8`, selected with `FILM_EDIT=locked`. Previous `fixed-point` candidates are preserved and superseded. See [redesign/HANDOFF.md](../redesign/HANDOFF.md). Awaiting founder playback; v5 remains preserved.
+November 4 current delivery: `CANDIDATE_TAG=ink-continuity-readable-20261104-v1`, selected with `FILM_EDIT=readable`; see [redesign/READABLE-DELIVERY.md](../redesign/READABLE-DELIVERY.md). Editorial text stays visible while light emphasis follows the narration. Actual privacy masks remain intact. Earlier continuity, ink, locked, fixed-point and v5 exports remain preserved.
 
-[Certain] November4: latest exports use `CANDIDATE_TAG=phone-motion-20261104-v5`, actual user-reported iPhone16 self-demo and explanatory motion cards. See [delivery and verification](../SUBMISSION-VIDEO-READY-2026-11-04.md). Existing v1/v2 exports remain unchanged.
+[Certain] The readable delivery retains the actual user-reported iPhone16 self-demo and approved AI-generated narration. The earlier `phone-motion-20261104-v5` delivery and its [verification](../SUBMISSION-VIDEO-READY-2026-11-04.md) are historical alternatives.
 
 `build.mjs` edits existing captured footage into new 180-second film and 44.6-second X candidates. It must not record replacement product footage, overwrite existing exports or delete alternative work.
 
@@ -26,4 +26,4 @@ node --test docs/video/film/audio-plan.test.mjs docs/video/film/phone-plan.test.
 
 Do not use `assemble.py` or `review-narration.txt` for these cuts. They remain preserved as alternative work.
 
-Historical verified candidates used tag `callum-20261103-v1`; the current delivery is `phone-motion-20261104-v5`. Choose a new tag for any subsequent render; never overwrite them. The user-approved film slots are 18.3,28,31.7,34,21,34,13; X is 7.4,8.4,8.2,5.6,11.82,3.18. Both totals remain 180 and 44.6 seconds.
+Historical verified candidates used tags `callum-20261103-v1` and `phone-motion-20261104-v5`; the current delivery is `ink-continuity-readable-20261104-v1`. Choose a new tag for any subsequent render; never overwrite them. The user-approved film slots are 18.3,28,31.7,34,21,34,13; X is 7.4,8.4,8.2,5.6,11.82,3.18. Both totals remain 180 and 44.6 seconds.

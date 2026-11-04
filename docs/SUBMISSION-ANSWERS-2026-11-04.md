@@ -42,7 +42,11 @@ Build for Your World
 
 ### 5. Most Viral Track X post link
 
-[Certain] Paste the actual public launch-post URL, such as `https://x.com/jeevesh2515/status/<actual-post-id>`. Do not paste the profile URL, draft/composer URL or a made-up status ID. Publish the approved short demo first if entering this award; verify that exact post plays signed out.
+```text
+https://x.com/jeevesh2515/status/2118097660968128812
+```
+
+[Certain] The native short video and its project-links reply are published. This actual status URL is entered in the prepared submission form. Signed-in playback works; a separate browser could read the public post/reply but reported a media playback error, so a normal signed-out playback check remains.
 
 ### 6. Project Description
 
@@ -67,7 +71,11 @@ https://github.com/jeevesh2515/showme
 
 ### 8. 3-Minute Demo Video
 
-[Certain] Paste the final user-approved hosted three-minute URL after upload/HD processing and signed-out full-playback verification. Do not paste a local path or the44.6s X clip. The existing public README still has a pending video placeholder; replace it only after a real accessible URL exists. No video was uploaded in this review.
+```text
+https://youtu.be/RzdqrBMuqQ0
+```
+
+[Certain] The founder supplied this uploaded film URL. YouTube Studio confirms the correct readable MP4 filename, HD complete and Unlisted visibility. The agent saved the prepared title/description and corrected its audience to not made for kids. Opening and closing playback worked from another viewer account; anonymous embedded playback hit YouTube Error153, so normal incognito playback remains a human check. The actual link is entered in the prepared form; this is not a submission confirmation.
 
 ### 9. Describe your use of Meta products to build the submitted project
 

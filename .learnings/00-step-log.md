@@ -370,3 +370,10 @@ Format per entry: **Step**, **Why**, **What I did**, **Result / evidence**, **De
 - **What I did:** Kept text visible from scene entry; added light background emphasis, pale complete tabs and clean cuts; preserved privacy/source pixels and all narration. Exported both full films, copied verified files into Downloads and prepared exact GitHub/X/submission handoff.
 - **Result/evidence:**42targeted tests; complete media verifier0failures;44/15caption starts/ends within1frame; AAC streams identical to liked v2. Independent sampled actual-media QA passes. Readable delivery/checklist documents record outputs and limits.0paid calls.
 - **Decision:** Removing editorial concealment does not authorize removing real privacy masks. Git push does not host ignored movies; all old branches already merged. Use one new scoped PR, real hosted/status URLs and new-SHA checks. Preserve history/alternatives and distinguish local preparation from external publication.
+
+## 2026-11-04 · S49 · Host the proof and keep final consent with the founder
+
+- **Why:** Founder requested publishing the demo and preparing the actual hackathon form.
+- **What I did:** Verified the published native X film/reply and founder-supplied YouTube film; saved its metadata, Unlisted visibility and general-software audience classification. Entered both actual URLs and factual answers in the prepared form; replaced repository placeholders. Inspected Vercel Git settings before release work.
+- **Result/evidence:** Studio confirms correct source filename and HD complete; opening/near-end playback works from another viewer account. Anonymous embed returned153, leaving normal incognito playback open. make lint/test and42selected video tests pass. Independent code review found no blocker and77offline tests/all-mode preflights pass. No new paid calls or deployment.
+- **Decision:** Button replies and an enabled setting do not prove an upload. Require a real watch URL and observable playback. A filled form does not prove submission; founder owns surveys, promotional permission and final Submit. Public Git merge is separate from production deployment.

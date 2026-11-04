@@ -114,6 +114,8 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 
 ## Buffer · Wed Nov 4 · Submit
 
+November4 release update: [three-minute film](https://youtu.be/RzdqrBMuqQ0) is hosted, HD complete and Unlisted; [native X demo](https://x.com/jeevesh2515/status/2118097660968128812) and project-links reply are published. Both actual URLs and factual fields are entered in the prepared form. Normal incognito/full playback, founder survey/permission review and actual submission confirmation remain open. No deployment or paid verification call is implied by this update.
+
 - [ ] Re-check the live URL, video link, repo visibility
 - [ ] Submit by 18:00 London (8 hours before the official deadline)
 - [x] `docs/RUNBOOK.md` for judging week (health, logs, spend, rollback) — written 2026-11-03

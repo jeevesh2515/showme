@@ -95,7 +95,7 @@ Purpose: answer questions about limits, abuse control, unit cost, budget and wha
 **Detail:**
 - Default effort was p50 5,485 ms and max 12,814 ms. Wonder at minimal was p50 3,069 ms and max 5,069 ms.
 - Run in sequence, grounding plus SAM is about 4 to 5 s (RISKS R4). Production makes one SAM call, after the box is shown, so the box itself appears at the grounding time.
-- Client-side OCR adds time: 154 to 375 ms in Node on the M5. Browser time is UNVERIFIED.
+- Client-side OCR adds time: 154 to 375 ms in Node on the M5. Laptop browser: 106–214 ms. Phone: about 2.8 s, founder-reported (single verbal observation, no artifact, above the 2 s target).
 - Kill/pivot: if production grounding p95 exceeds 8 s, move to a smaller image (1280 px) after checking dev-split accuracy; if SAM p95 exceeds 4 s, the outline becomes opt-in.
 
 **Evidence:** [SPIKES.md (b) and (c)](../docs/SPIKES.md), [RISKS.md R4](../docs/RISKS.md), [PRD.md section 6.1](../docs/PRD.md)

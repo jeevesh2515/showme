@@ -49,7 +49,7 @@ Deleted from the repo working tree: only the four contact sheets above.
 - The legacy general/continuity verifiers have a latent empty-caption-edge false-pass path (see `MEMORY.md`); the readable delivery used its own per-cue verifier.
 - Spend: ledger $36.4092 plus about $3.32 unrecorded E2E estimate, about $39.73 of the $40 eval ceiling. No further paid runs without founder approval.
 - Independent recipient testing is not complete; published evaluation includes failures.
-- Founder phone run and usability sessions remain open founder items per `AGENTS.md`. Phone OCR timing: founder verbally reported about 2.8 s on the phone, similar to the Mac browser (single observation, no artifact; see `MEMORY.md`). Not published as a measured figure.
+- Founder phone run and usability sessions remain open founder items per `AGENTS.md`. Phone OCR timing: founder-reported about 2.8 s (single observation, no artifact), above the 2 s target; now stated as founder-reported in README, PHASES and `.learnings/`.
 
 ## Judging-week operations
 

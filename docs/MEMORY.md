@@ -40,7 +40,7 @@ Running log. Append, never rewrite history: if a decision changes, add a new ent
 | A1 | Muse Spark grounding stays ≥ 85% on ScreenSpot-v2 | **Supported**: held-out 90.7% (1063/1172) Day 3 | Measured Day 3 |
 | A2 | Confidence can gate honesty | **Refuted**: AUROC 0.622 on held-out; verifier lift <1 pt (D23) | Measured Day 3 |
 | A3 | `target_visible`/status catches absent targets | Mixed: strict `not_visible` 60.5% (121/200), +13 unsure; 61 false `ok` (30.5%) is the main honesty gap; injection 10/10, harmful 10/10, PRIV-10 2/2 | Negatives Day 3 |
-| A4 | tesseract.js runs ≤ 2 s on a mid-range phone browser | Laptop Chrome measured 106-214 ms (3 fixtures, real browser via OCR bench); phone still untested (founder task) | Day 3 laptop; phone pending |
+| A4 | tesseract.js runs ≤ 2 s on a mid-range phone browser | Laptop Chrome measured 106-214 ms (3 fixtures, real browser via OCR bench); iPhone 16 Safari 123-303 ms per image, 2 runs (D63) | Day 3 laptop; phone pending |
 | A5 | Vercel Python Functions accept our request size and duration | Untested | Day 4 deploy |
 | A6 | Standard-mode API content is not used for training | Supported by pricing page wording | Retention period still unknown (Q11) |
 | A7 | Downscaling to 1920 px does not hurt accuracy much | **Refuted**: 1920 = 85.0% vs native 93.0% on dev-100; 2560 = 93.0%. Cap raised to 2560 (D20) | Measured Day 2 (`eval/results/2026-10-28-*`) |
@@ -369,3 +369,5 @@ Resolved 2026-10-27 (D14): Q1 approved, Q2 public `showme` + MIT, Q3 Indie, Q5 a
 - [Founder-reported] Day 3 phone OCR timing: about 2.8 s on the founder phone, similar to the Mac browser. Single verbal observation; device model, image, date and Mac figure not captured, so no generated artifact exists and no number is published in README, RESULTS or SUBMISSION. PHASES.md Day 3 box stays unticked (verified-only rule). Refs: FLOW-2.
 - [Founder-reported] Scope: founder guesses the 2.8 s is the whole redaction step because OCR alone cannot be timed on the phone. Unconfirmed. Note it equals the 2.8 s grounding p50, so it may include the model call; a dev-only bench run would settle it.
 - [Certain] Superseding the line above on request: figure now stated as founder-reported (not measured) in README, PHASES (Day 3 ticked with that qualifier), AGENTS/CLAUDE and .learnings 05-07. It is above the 2 s target.
+
+- [Certain] D63: phone OCR measured. OCR bench on iPhone 16 Safari (dev server over LAN, 3 fixtures, two consecutive runs): 123–303 ms per image (run 1: 232/123/252 ms; run 2: 215/144/303 ms for billing/login_mobile/settings), well under the 2 s target. Values transcribed by the founder from the on-screen bench; no generated artifact. Supersedes the verbal 2.8 s (scope unconfirmed, matches grounding p50, most likely whole flow incl. model call; not used). A4 met on iPhone 16 Safari; mid-range Android untested. Refs: FLOW-2.

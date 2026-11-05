@@ -367,4 +367,5 @@ Resolved 2026-10-27 (D14): Q1 approved, Q2 public `showme` + MIT, Q3 Indie, Q5 a
 - [Open] Founder items unchanged: phone OCR timing, founder phone run, usability sessions. Judging-week monitoring per RUNBOOK continues through Nov 8.
 
 - [Founder-reported] Day 3 phone OCR timing: about 2.8 s on the founder phone, similar to the Mac browser. Single verbal observation; device model, image, date and Mac figure not captured, so no generated artifact exists and no number is published in README, RESULTS or SUBMISSION. PHASES.md Day 3 box stays unticked (verified-only rule). Refs: FLOW-2.
+- [Founder-reported] Scope: founder guesses the 2.8 s is the whole redaction step because OCR alone cannot be timed on the phone. Unconfirmed. Note it equals the 2.8 s grounding p50, so it may include the model call; a dev-only bench run would settle it.
 - [Certain] Superseding the line above on request: figure now stated as founder-reported (not measured) in README, PHASES (Day 3 ticked with that qualifier), AGENTS/CLAUDE and .learnings 05-07. It is above the 2 s target.

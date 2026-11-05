@@ -1,0 +1,40 @@
+{
+ "section": "x-1",
+ "overall": 7.0,
+ "framing": 6.5,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 6.5,
+ "elegance": 6.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 7.3,
+ "recordedProductIssues": [
+  "Redaction chips are tiny gold padlocks on dark bars; cursor wanders over the form."
+ ],
+ "defects": [
+  {
+   "at": "0-8 s",
+   "problem": "Screenshot occupies only about 2/3 of width at roughly 400 px at feed size; field labels and the masks are unreadable, so the privacy proof is carried only by the checklist.",
+   "fix": "Scale the screenshot up and stack the checklist beside or below it, tying each item to a mask.",
+   "severity": "major"
+  },
+  {
+   "at": "end",
+   "problem": "Switch to 'The exact upload' view changes layout (checklist removed, text moves right) with large empty right and bottom areas.",
+   "fix": "Keep the same layout and swap only the image.",
+   "severity": "minor"
+  },
+  {
+   "at": "whole",
+   "problem": "Four checklist items stay yellow while 'Name' is empty for long and the yellow marker under the title shifts length; reads busy for a static scene.",
+   "fix": "Reduce to one moving element.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Good story, but the evidence image is small and the final layout shifts."
+}

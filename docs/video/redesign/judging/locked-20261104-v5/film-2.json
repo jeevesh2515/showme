@@ -1,0 +1,42 @@
+{
+ "section": "film-2",
+ "overall": 7.8,
+ "framing": 8,
+ "stability": 8.5,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 7.5,
+ "uniqueness": 8,
+ "honesty": 8.5,
+ "overallEditOnly": 8.1,
+ "recordedProductIssues": [
+  "Phone card beside the dimmed screen is small and its buttons are tiny",
+  "Dim scrim and clipped ring detail as recorded"
+ ],
+ "defects": [
+  {
+   "at": "~30-34 s",
+   "problem": "'under 1c' appears at low opacity under the 2.8 s figure; the mid frame shows it nearly invisible while the caption already says 'under a cent'.",
+   "fix": "Bring the line in earlier or hold it at full strength before the caption mentions it.",
+   "severity": "minor"
+  },
+  {
+   "at": "~18-24 s",
+   "problem": "The JSON reply column fills line by line with empty space below; small mono text is hard to read at this size.",
+   "fix": "Increase the code size or use fewer lines.",
+   "severity": "minor"
+  },
+  {
+   "at": "~36-42 s",
+   "problem": "Gate stats sit in a narrow column while the screen stays unchanged, so the gate numbers are the only motion.",
+   "fix": "Highlight the box on the screen when each stat appears.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Concrete, honest and stable with a clear numbers rhythm, but small mono text and a faint cost line."
+}

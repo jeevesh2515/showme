@@ -1,0 +1,47 @@
+{
+ "section": "x-1",
+ "overall": 6.8,
+ "framing": 6.5,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 6.5,
+ "elegance": 6.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 7.0,
+ "recordedProductIssues": [
+  "Review screen text boxes and black masks are as recorded and read small"
+ ],
+ "defects": [
+  {
+   "at": "0-4.5",
+   "problem": "Screen tile is small with a wide empty zone under the checklist and below it; the four yellow-box items are legible but the screen and its masks are not at feed size.",
+   "fix": "Rebalance so the screen tile uses the width and the checklist sits beside it at larger size.",
+   "severity": "major"
+  },
+  {
+   "at": "5.0-9.0",
+   "problem": "Cursor is a few pixels and checkbox 'Name' toggles late; the key moment (hiding a missed item) is hard to see at feed size.",
+   "fix": "Hold on the Name check change and enlarge the checklist.",
+   "severity": "major"
+  },
+  {
+   "at": "3.5-8.0",
+   "problem": "Subline wraps with an orphaned 'it missed.' leaving an uneven caption block.",
+   "fix": "Shorten the line to fit on one line.",
+   "severity": "minor"
+  },
+  {
+   "at": "final frames",
+   "problem": "'The exact upload' headline floats top right with the blank band below; the final screen jumps layout from the checklist screen.",
+   "fix": "Keep the same headline slot and size across both states.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Honest and calm, yet small and sparse at feed size, with a late payoff."
+}

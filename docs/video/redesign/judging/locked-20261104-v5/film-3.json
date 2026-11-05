@@ -1,0 +1,48 @@
+{
+ "section": "film-3",
+ "overall": 7.3,
+ "framing": 7.5,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 7.5,
+ "elegance": 7.5,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 7.8,
+ "recordedProductIssues": [
+  "Phone panel notice flush against the top edge of the frame, clipped by the panel border",
+  "Stray yellow accent bar beside the phone panel"
+ ],
+ "defects": [
+  {
+   "at": "~12-35 s",
+   "problem": "Same two-pane layout holds for a long time with only the caption changing; little visual progress.",
+   "fix": "Cut the hold shorter or move the highlight to different regions of the phone UI per caption.",
+   "severity": "major"
+  },
+  {
+   "at": "~14 s on",
+   "problem": "Phone panel's top (yellow notice) touches the panel edge, and a floating yellow bar sits just left of it; reads as misalignment.",
+   "fix": "Remove the bar or attach it to the panel; add top padding.",
+   "severity": "major"
+  },
+  {
+   "at": "~10 s",
+   "problem": "Link row: share URL partly hidden by a redaction box that leaves a short stub on a second line, looks sloppy.",
+   "fix": "Extend the mask over the full token line.",
+   "severity": "minor"
+  },
+  {
+   "at": "whole",
+   "problem": "Left screen shows unredacted fake card and email; fine as synthetic, but the dense caption line is long.",
+   "fix": "Shorten the footer caption.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Honest and complete, but static with a clipped phone panel and a stray yellow bar."
+}

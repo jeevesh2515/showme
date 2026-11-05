@@ -1,0 +1,38 @@
+{
+ "section": "film-4",
+ "overall": 7.5,
+ "framing": 8,
+ "stability": 9,
+ "cuts": 8.5,
+ "legibility": 7.5,
+ "elegance": 6.5,
+ "uniqueness": 5.5,
+ "honesty": 9,
+ "overallEditOnly": 7.5,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "whole section",
+   "problem": "Five code excerpts in one white card with a big empty lower third and small file labels",
+   "fix": "Resize card to content or enlarge text",
+   "severity": "minor"
+  },
+  {
+   "at": "0-18 s",
+   "problem": "Identical layout for the full section, only highlights move; generic slide of code",
+   "fix": "Cut a beat shorter or add a visual of the data path without faking",
+   "severity": "major"
+  },
+  {
+   "at": "last frame",
+   "problem": "Section ends on a black frame",
+   "fix": "Hold last frame through the cut",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Honest and stable but the least distinctive section, reads as a plain code slide."
+}

@@ -1,0 +1,39 @@
+{
+ "section": "x-4",
+ "overall": 7.8,
+ "framing": 8,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 8,
+ "elegance": 8,
+ "uniqueness": 7.5,
+ "honesty": 8.5,
+ "overallEditOnly": 7.8,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "about 4.5",
+   "problem": "Dissolve from the app screen to the stat card shows overlapping text, cluttered for a moment.",
+   "fix": "Shorten the dissolve or cut.",
+   "severity": "minor"
+  },
+  {
+   "at": "final 3 s",
+   "problem": "Headline 'The failures are public' and subline 'The failures are public.' repeat each other; earlier the sentence breaks across two sublines ending in a comma.",
+   "fix": "Delete the repeated subline and rewrite the sublines as complete lines.",
+   "severity": "major"
+  },
+  {
+   "at": "all",
+   "problem": "Small gray subtext under each stat is tiny at feed size.",
+   "fix": "Raise subtext size by about 25 percent.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Best section: large honest numbers with a clean sequential highlight; copy repetition is the main flaw."
+}

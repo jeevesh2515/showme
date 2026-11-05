@@ -1,0 +1,45 @@
+{
+ "section": "film-4",
+ "overall": 7.5,
+ "framing": 8,
+ "stability": 9,
+ "cuts": 8.5,
+ "legibility": 7.5,
+ "elegance": 7,
+ "uniqueness": 7,
+ "honesty": 9,
+ "overallEditOnly": 7.7,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "whole section",
+   "problem": "Pure static code card for the full length; yellow highlight moves line to line, but nothing else; reads as a slide.",
+   "fix": "Cut section shorter or show one more concrete artifact (test name pass).",
+   "severity": "major"
+  },
+  {
+   "at": "right column",
+   "problem": "Thumbnail of the redacted screen is tiny and unreadable, and the four statements stay at similar weight, with the active one only slightly bolder.",
+   "fix": "Enlarge the thumbnail or drop it; make the active line stronger.",
+   "severity": "minor"
+  },
+  {
+   "at": "bottom of card",
+   "problem": "Large empty band under the five code lines.",
+   "fix": "Increase code size to fill the card.",
+   "severity": "minor"
+  },
+  {
+   "at": "caption",
+   "problem": "'I built this during the hackathon.' repeats the headline label with no new information; a very long 'Built during the hackathon' opening.",
+   "fix": "Shorten the first beat.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Rock stable and honest with real source, but static and slide-like with small side content."
+}

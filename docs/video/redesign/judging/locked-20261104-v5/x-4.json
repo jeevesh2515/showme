@@ -1,0 +1,38 @@
+{
+ "section": "x-4",
+ "overall": 7.4,
+ "framing": 7.5,
+ "stability": 8,
+ "cuts": 6.5,
+ "legibility": 8,
+ "elegance": 7.5,
+ "uniqueness": 7.0,
+ "honesty": 9,
+ "overallEditOnly": 7.6,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "4.5-5.5 s",
+   "problem": "Dissolve from the app screen to the stat card leaves a muddy overlap of two text layers (ghosted '151 / 200' over the Step card).",
+   "fix": "Hard cut or a short fade through the background colour.",
+   "severity": "major"
+  },
+  {
+   "at": "6-end",
+   "problem": "Yellow highlight swaps between numbers cleanly but the sample before 'Click point hit the target' shows the third caption lagging; the 'No highlight' scene is small and grey.",
+   "fix": "Enlarge the first scene or shorten it.",
+   "severity": "minor"
+  },
+  {
+   "at": "whole",
+   "problem": "Stat card is a standard three-row table; correct and readable but templated.",
+   "fix": "Make the number the hero.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Strongest feed-size legibility, spoiled by one muddy dissolve."
+}

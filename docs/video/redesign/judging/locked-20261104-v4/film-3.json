@@ -1,0 +1,41 @@
+{
+ "section": "film-3",
+ "overall": 7.8,
+ "framing": 7,
+ "stability": 8,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 7.5,
+ "uniqueness": 8.5,
+ "honesty": 9.5,
+ "overallEditOnly": 8.0,
+ "recordedProductIssues": [
+  "Phone footage is cropped at top (notch) and bottom (mid-text 'Y... 1 step' cut) as recorded",
+  "Phone screen text shows cropped footer"
+ ],
+ "defects": [
+  {
+   "at": "8-18 s",
+   "problem": "Phone frame cuts off the footer text at the bottom edge and the Dynamic Island is half cropped",
+   "fix": "Re-fit phone crop so the footer line is either full or fully out",
+   "severity": "major"
+  },
+  {
+   "at": "8-18 s",
+   "problem": "Same two-pane layout held for about ten seconds with only the kicker changing; feels like a long freeze",
+   "fix": "Vary the highlighted area or trim hold",
+   "severity": "minor"
+  },
+  {
+   "at": "8-18 s",
+   "problem": "Caption kicker is cramped under the left screen (about 18 px gap)",
+   "fix": "Add gap or move kicker",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Honest and clear self-demo framing, undermined by a clipped phone crop and long static hold."
+}

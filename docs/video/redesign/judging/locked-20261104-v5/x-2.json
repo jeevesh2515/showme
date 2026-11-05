@@ -1,0 +1,40 @@
+{
+ "section": "x-2",
+ "overall": 7.0,
+ "framing": 6.5,
+ "stability": 8,
+ "cuts": 7.0,
+ "legibility": 6.0,
+ "elegance": 6.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 7.3,
+ "recordedProductIssues": [
+  "Highlight ring and badge on the small Cancel button are tiny at feed size; dim scrim hides the page."
+ ],
+ "defects": [
+  {
+   "at": "0-4 s",
+   "problem": "Same still held with large 'Goal' column; screenshot small and masked, so feed-size shows only black bars.",
+   "fix": "Enlarge screen; drop the Goal column to a caption.",
+   "severity": "major"
+  },
+  {
+   "at": "5-end",
+   "problem": "Highlighted Cancel button is about 50 px wide at feed size; the SAM outline versus Spark box difference is not discernible, so the claim is carried by caption only.",
+   "fix": "Crop-free but larger layout: give the screen the full width and put the Step card below.",
+   "severity": "major"
+  },
+  {
+   "at": "whole",
+   "problem": "Caption 'Box overlap 0.89, needs 0.5' lingers many frames while the picture is unchanged; yellow title highlight is reused every slide (templated).",
+   "fix": "Cut the hold shorter.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Accurate and tidy but the key control is too small to read in a feed."
+}

@@ -187,6 +187,11 @@
       "date": "2026-11-02",
       "label": "2026-11-02-video-take-4-failed-share",
       "cost_usd": 0.0061
+    },
+    {
+      "date": "2026-11-04",
+      "label": "2026-11-04-screenspot-v2-dev-n10-c99e8b8f-muse-spark-1.3-minimal-samoff-max2560-pvv3-15766424",
+      "cost_usd": 0.0
     }
   ]
 }

@@ -1,0 +1,40 @@
+{
+ "section": "film-1",
+ "overall": 7.9,
+ "framing": 7.5,
+ "stability": 8.2,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 8,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 8.1,
+ "recordedProductIssues": [
+  "Review-screen overlay boxes and lock icons are tiny at this size"
+ ],
+ "defects": [
+  {
+   "at": "mid",
+   "problem": "Headline 'It misses things' sits almost touching the bottom edge of the screen card while other beats leave a gap, so caption stack spacing is inconsistent",
+   "fix": "Give the caption headline a fixed top margin matching the other beats",
+   "severity": "minor"
+  },
+  {
+   "at": "mid",
+   "problem": "Cursor sits on the StreamFlix logo and covers the 'x', reading as an accident",
+   "fix": "Hide or move the cursor off the wordmark on this frame",
+   "severity": "minor"
+  },
+  {
+   "at": "late",
+   "problem": "Right checklist has an empty 'Missed, hidden by hand' heading for several frames before items appear, and unredacted-to-redacted swap near the end is a hard state change",
+   "fix": "Reveal heading with its first item; fade the state swap",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Clearest section: the browser-found versus hand-hidden list is a distinctive, honest idea, with only spacing nitpicks."
+}

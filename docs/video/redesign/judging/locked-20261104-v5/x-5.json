@@ -1,0 +1,38 @@
+{
+ "section": "x-5",
+ "overall": 7.5,
+ "framing": 8,
+ "stability": 9,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 7.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 7.6,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "whole",
+   "problem": "Card is static across all samples with only the highlight growing; empty lower third inside the card and the whole frame feels like a slide.",
+   "fix": "Add a small clean change or tighten the card around the content.",
+   "severity": "minor"
+  },
+  {
+   "at": "whole",
+   "problem": "The two URLs are the same weight and the 'AI-generated narration.' note is tiny at feed size.",
+   "fix": "Make the URL larger and the note legible.",
+   "severity": "minor"
+  },
+  {
+   "at": "0 s",
+   "problem": "Highlight begins over only the S then widens; fine, but the hold after is long.",
+   "fix": "Shorten the hold.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Clean and legible close; static and slide-like."
+}

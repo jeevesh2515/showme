@@ -1,0 +1,38 @@
+{
+ "section": "film-5",
+ "overall": 7.8,
+ "framing": 8,
+ "stability": 8.3,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 7.8,
+ "uniqueness": 7.5,
+ "honesty": 9,
+ "overallEditOnly": 8,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "last 3s",
+   "problem": "Three-line footnote sits tight at the bottom and is very small; caption headline disappears so the footer carries essential caveats",
+   "fix": "Enlarge footnote or shorten to two lines",
+   "severity": "minor"
+  },
+  {
+   "at": "0-4s",
+   "problem": "Tax-invoice opening uses a mostly empty page with small controls and a card on the right",
+   "fix": "Crop tighter without scaling the layout",
+   "severity": "minor"
+  },
+  {
+   "at": "5-14s",
+   "problem": "Yellow highlight block shifts its own size across rows, so number width changes",
+   "fix": "Use a fixed-width highlight",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Clean, stable, honest evidence table with good hierarchy; the only issues are small caveat text and a plain look."
+}

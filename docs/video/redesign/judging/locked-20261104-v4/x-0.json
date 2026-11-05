@@ -1,0 +1,41 @@
+{
+ "section": "x-0",
+ "overall": 7.0,
+ "framing": 7,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 6.5,
+ "elegance": 7,
+ "uniqueness": 7.5,
+ "honesty": 8.5,
+ "overallEditOnly": 7.2,
+ "recordedProductIssues": [
+  "Dim scrim and masked black bars on the review screen; yellow ring and badge on Cancel button are recorded and small"
+ ],
+ "defects": [
+  {
+   "at": "0.45-3.95",
+   "problem": "Screenshot occupies a small top-left tile with a large empty band between it and the caption line; at feed size the billing form is unreadable and the hook rests only on the headline.",
+   "fix": "Enlarge the screenshot tile to fill the empty band (layout only, no zoom of content) or drop the empty band.",
+   "severity": "major"
+  },
+  {
+   "at": "5.45",
+   "problem": "Dissolve frame shows the old headline ghosted over the new screen, a muddy overlap at feed size.",
+   "fix": "Shorten the dissolve or fade the headline out before the screen dims.",
+   "severity": "minor"
+  },
+  {
+   "at": "5.95-6.95",
+   "problem": "The Cancel button in the main tile is about 40 px wide; the inset crop does the work but its caption is tiny, so muted viewers lose the 'recorded, iPhone 16' label.",
+   "fix": "Raise the inset caption size and merge it with the main caption.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Clear hook idea and stable, but the content is small and the layout leaves dead space; reads as a clean slide, not top craft."
+}

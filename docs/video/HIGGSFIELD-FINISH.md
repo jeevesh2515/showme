@@ -1,6 +1,18 @@
 # ShowMe candidate finishing · November 3, 2026
 
+[Certain] **November4 supersession:** the physical phone source has arrived and is integrated as a user-confirmed iPhone16 self-demo in the new `phone-motion-20261104-v5` cuts. Read [the delivery checklist](SUBMISSION-VIDEO-READY-2026-11-04.md) and current verification receipt before acting. Historical missing-phone/emulation and v1/v2 status below is retained for provenance. Fresh MCP balance is4credits; this local edit spent0 and requires no new generation. Full human playback and hosting/submission remain open.
+
 References: WEB-1, ENG-4, EVAL-7. The user designated `film/build.mjs`, `narration.txt` (7 paragraphs) and `x-narration.txt` (6 paragraphs) as authoritative. Do not use `assemble.py` or `film/review-narration.txt` for these candidates. Existing exports and alternative work must remain intact. No deployment, publishing, submission, replacement product footage or new Meta call is authorized here.
+
+## Latest verified state · approvals completed
+
+[Certain] Both candidates now exist at out/ShowMe-3min-hackathon-candidate-callum-20261103-v1.mp4 (180.000s) and out/ShowMe-X-launch-candidate-callum-20261103-v1.mp4 (44.600s). Full decode, source identity, approved caption transcript and actual soundtrack timing checks pass. Existing exports are unchanged. No continuous human perceptual review is claimed.
+
+[Certain] The user approved the 1,983-character film and timing transfer from the opening to the model scene. Final film slots are18.3,28,31.7,34,21,34,13; X slots are7.4,8.4,8.2,5.6,11.82,3.18. Earlier pending-decision sections below describe history and are superseded by these approvals.
+
+[Certain] All generation is finished: net6credits spent,4remain reserved; gross8charges minus2refund. Do not generate or retry another paid job automatically. Read candidate-verification.json, budget-status.json, merged segments.json and the individual request/result/receipt files under out/voice/higgsfield/.
+
+[Certain] The remaining gates are the genuine recipient.mov with consent/coaching/action observations, the emulated phone highlight/readability and stale copy, current deployment/source parity, real-device verification and complete human playback acceptance. No deployment, Meta call, publishing or submission is authorized.
 
 ## Higgsfield account and spend
 

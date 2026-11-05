@@ -1,0 +1,47 @@
+{
+ "section": "film-3",
+ "overall": 7.5,
+ "framing": 7,
+ "stability": 7.2,
+ "cuts": 7.6,
+ "legibility": 7.2,
+ "elegance": 7.5,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 7.7,
+ "recordedProductIssues": [
+  "Phone footage is cropped by its rounded frame so the top and bottom of the guide are clipped",
+  "Phone thumbnail screenshot inside the guide is tiny"
+ ],
+ "defects": [
+  {
+   "at": "mid",
+   "problem": "Phone panel is cropped at top and bottom and shows only part of the guide, so the 'one instruction' framing is cramped",
+   "fix": "Fit the whole phone viewport or state it is a crop",
+   "severity": "major"
+  },
+  {
+   "at": "throughout",
+   "problem": "Yellow margin bar moves between the notice, the step and the Stuck note, but it is a thin sliver that jumps position and is easy to miss or read as an edge artifact",
+   "fix": "Make the bar longer and cross-fade between positions, or tie it to a visible label",
+   "severity": "minor"
+  },
+  {
+   "at": "late",
+   "problem": "Left panel swaps from dimmed screen to bright synthetic original while the phone stays, a large luminance jump",
+   "fix": "Cross-dissolve or keep brightness consistent",
+   "severity": "minor"
+  },
+  {
+   "at": "0-5s",
+   "problem": "Share and review again beats use a mostly empty white area with small controls",
+   "fix": "Crop to the relevant controls without scaling the layout",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Honest and well-explained, but the cropped phone, jumping margin bar and brightness swap leave it only competent."
+}

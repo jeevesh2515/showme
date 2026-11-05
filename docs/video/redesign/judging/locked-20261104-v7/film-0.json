@@ -1,0 +1,41 @@
+{
+ "section": "film-0",
+ "overall": 7.4,
+ "framing": 7.5,
+ "stability": 8.5,
+ "cuts": 7.5,
+ "legibility": 7,
+ "elegance": 7.5,
+ "uniqueness": 7,
+ "honesty": 9,
+ "overallEditOnly": 7.6,
+ "recordedProductIssues": [
+  "Dim scrim and black masks make the demo screen murky and low-contrast beside the bright hook text",
+  "White cut-out around the highlighted button is a hard rectangle"
+ ],
+ "defects": [
+  {
+   "at": "0-12s",
+   "problem": "Large dead band between the screen card and the caption line, and the caption plus small footnote sit low and tiny; the frame feels top-heavy with the bottom third empty",
+   "fix": "Move caption closer to the card or enlarge the footnote, keeping position fixed across the section",
+   "severity": "minor"
+  },
+  {
+   "at": "5-6s",
+   "problem": "'There.' detail inset has a ragged black top edge and the crop of the highlight looks cramped inside its box",
+   "fix": "Reframe the inset crop so the ring has even padding and no stray edge",
+   "severity": "minor"
+  },
+  {
+   "at": "12-15s",
+   "problem": "Left screen is dimmed so field labels are barely readable while the 65 percent stat carries the beat; the screen is dead weight",
+   "fix": "Hold the dim consistently from the 'There.' beat and keep the stat as the single focal point",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Stable and clean, honest labelling, but the layout is a templated card-plus-text with an empty lower band and a murky dimmed screen."
+}

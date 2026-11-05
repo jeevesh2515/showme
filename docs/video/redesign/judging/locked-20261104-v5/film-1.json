@@ -1,0 +1,48 @@
+{
+ "section": "film-1",
+ "overall": 7.5,
+ "framing": 7.5,
+ "stability": 8,
+ "cuts": 7.5,
+ "legibility": 7.5,
+ "elegance": 7.5,
+ "uniqueness": 8,
+ "honesty": 8.5,
+ "overallEditOnly": 8,
+ "recordedProductIssues": [
+  "Review overlay text boxes ragged and doubled in places",
+  "Cursor sits over the StreamFlix logo and clips it"
+ ],
+ "defects": [
+  {
+   "at": "~12-18 s",
+   "problem": "Cursor covers the 'StreamFlix' wordmark in the top-left while the caption says 'It misses things', pulling the eye to the wrong place.",
+   "fix": "Trim or hold the cursor path so it starts at the first missed field, not on the logo.",
+   "severity": "minor"
+  },
+  {
+   "at": "~28-30 s",
+   "problem": "A vertical wipe line is visible across the screen in one sampled frame at the redaction-to-final transition.",
+   "fix": "Replace with a clean dissolve or clear the line before the cut.",
+   "severity": "major"
+  },
+  {
+   "at": "~1-6 s",
+   "problem": "Right-column checklist grows item by item, so the 'Found by the browser' label sits alone for long, and 'Missed, hidden by hand' jumps in mid-column.",
+   "fix": "Fix the column heights so rows appear in place without the block reflowing.",
+   "severity": "minor"
+  },
+  {
+   "at": "~20 s",
+   "problem": "Caption sub-line empty for 'It misses things' while the headline holds, a dead beat.",
+   "fix": "Fill or shorten the hold.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Clear story and honest about misses, but a stray wipe line and cursor on the logo cost polish."
+}

@@ -1,0 +1,40 @@
+{
+ "section": "film-2",
+ "overall": 8,
+ "framing": 8,
+ "stability": 8.3,
+ "cuts": 7.8,
+ "legibility": 8,
+ "elegance": 8.2,
+ "uniqueness": 7.8,
+ "honesty": 9,
+ "overallEditOnly": 8.2,
+ "recordedProductIssues": [
+  "Tiny review-style content in the phone-like card is small"
+ ],
+ "defects": [
+  {
+   "at": "~8s",
+   "problem": "'2.8 s' and 'under 1c' appear in two staggered fades, so the sub-line is faint for a frame and the stat block grows downward",
+   "fix": "Lay out both lines at final position and fade together",
+   "severity": "minor"
+  },
+  {
+   "at": "~12s",
+   "problem": "Spark's reply panel text is small monospace, hard to read at video size",
+   "fix": "Increase size or trim fields shown",
+   "severity": "minor"
+  },
+  {
+   "at": "~19s",
+   "problem": "Last beat starts on an unredacted state then jumps to dimmed highlight frames, a hard change",
+   "fix": "Dissolve or order states so the jump is not abrupt",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Strong, honest technical explanation with stable composition; small mono text and staggered stat reveal hold it back."
+}

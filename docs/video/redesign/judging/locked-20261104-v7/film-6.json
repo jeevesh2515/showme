@@ -1,0 +1,38 @@
+{
+ "section": "film-6",
+ "overall": 7.6,
+ "framing": 7.8,
+ "stability": 8,
+ "cuts": 7,
+ "legibility": 8,
+ "elegance": 7.5,
+ "uniqueness": 6.8,
+ "honesty": 9,
+ "overallEditOnly": 7.7,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "~8s",
+   "problem": "Crossfade to end card shows ghost 'The person you help stays in control' text and the old screen bleeding behind 'ShowMe' and the URLs",
+   "fix": "Hard-cut or fade through the background so the text does not overlap",
+   "severity": "major"
+  },
+  {
+   "at": "last 6s",
+   "problem": "End card is a static hold of roughly half the section with nothing changing, and 'Where do I press?' above the logo is small and low-contrast",
+   "fix": "Shorten the hold or add a subtle reveal; enlarge the line",
+   "severity": "minor"
+  },
+  {
+   "at": "last 3s",
+   "problem": "Footnote about solo build and AI narration is tiny",
+   "fix": "Enlarge slightly",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing"
+ ],
+ "oneLineVerdict": "Legible, honest close whose overlapping dissolve and long static end card keep it from polish."
+}

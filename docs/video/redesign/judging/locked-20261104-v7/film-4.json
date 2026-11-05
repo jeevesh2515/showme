@@ -1,0 +1,39 @@
+{
+ "section": "film-4",
+ "overall": 7,
+ "framing": 7.5,
+ "stability": 6.8,
+ "cuts": 7.5,
+ "legibility": 7,
+ "elegance": 6.8,
+ "uniqueness": 7,
+ "honesty": 9,
+ "overallEditOnly": 7.2,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "4-8s",
+   "problem": "Bold weight on the active line on the right changes wrapping ('The browser re-encodes the reviewed image' goes to three lines) and pushes the other lines, causing layout jump",
+   "fix": "Use fixed line breaks or colour change only instead of weight",
+   "severity": "major"
+  },
+  {
+   "at": "throughout",
+   "problem": "Five code snippets with tiny path labels are dense; only one line is emphasised and the left card reads as a wall of text",
+   "fix": "Show fewer lines or enlarge path labels",
+   "severity": "minor"
+  },
+  {
+   "at": "throughout",
+   "problem": "No motion idea: static code card with text highlight, generic compared to other sections",
+   "fix": "Use a single pointer or line connector to tie claims to code",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "Motion, easing and dissolve quality between sampled frames",
+  "Audio and narration timing",
+  "Black cells at the end of sheet treated as unused space"
+ ],
+ "oneLineVerdict": "Honest source excerpts, but static, dense and with a reflowing right column."
+}

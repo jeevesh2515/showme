@@ -1,0 +1,40 @@
+{
+ "section": "film-2",
+ "overall": 8.2,
+ "framing": 8.5,
+ "stability": 8.5,
+ "cuts": 8.5,
+ "legibility": 8,
+ "elegance": 8,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 8.3,
+ "recordedProductIssues": [
+  "Dim scrim, ring and badge position as recorded"
+ ],
+ "defects": [
+  {
+   "at": "10-12 s",
+   "problem": "'under 1c' is faded to near-invisible at the middle frame so the stat looks half-built",
+   "fix": "Fade it in sooner than the narration word",
+   "severity": "minor"
+  },
+  {
+   "at": "5-9 s",
+   "problem": "JSON reply text in the right column is small and grey",
+   "fix": "Enlarge reply text",
+   "severity": "minor"
+  },
+  {
+   "at": "16-18 s",
+   "problem": "State list at right is tiny and its crop of the screen swaps between unredacted and dim states",
+   "fix": "Keep one frame size, enlarge list",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Well-structured proof sequence with honest caveats, a little small in the side panels."
+}

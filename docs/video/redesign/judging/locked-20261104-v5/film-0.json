@@ -1,0 +1,42 @@
+{
+ "section": "film-0",
+ "overall": 7.8,
+ "framing": 8,
+ "stability": 8.5,
+ "cuts": 8,
+ "legibility": 7.5,
+ "elegance": 7.5,
+ "uniqueness": 7.5,
+ "honesty": 8.5,
+ "overallEditOnly": 8.2,
+ "recordedProductIssues": [
+  "Heavy black masks over the dimmed review screen read as a blunt block",
+  "Highlight inset crops the ring and shows a clipped 'oc' sliver at left"
+ ],
+ "defects": [
+  {
+   "at": "~3-5 s",
+   "problem": "Hard swap from light screen to dimmed, ringed screen while the headline swaps; the inset detail card is cropped at its left edge (a stray 'oc').",
+   "fix": "Match the inset crop to the ring bounds or add a few px of padding so no neighbouring text fragment shows.",
+   "severity": "minor"
+  },
+  {
+   "at": "~8-14 s",
+   "problem": "Right column is mostly empty for several seconds under the small '1,173' label, and the 65% stat enters from near-invisible, which looks timid.",
+   "fix": "Reserve the stat's position from the start and fade it at full size, or tighten the column.",
+   "severity": "minor"
+  },
+  {
+   "at": "whole section",
+   "problem": "Caption plus footnote stack under the screen leaves a large dead band between caption and footnote.",
+   "fix": "Tighten the caption/footnote spacing consistently.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Stable and clean, a clear improvement on the anchor, but a quiet hook with a clipped inset and a weak stat entrance."
+}

@@ -1,0 +1,41 @@
+{
+ "section": "film-5",
+ "overall": 8.3,
+ "framing": 8.5,
+ "stability": 9,
+ "cuts": 8.5,
+ "legibility": 8.5,
+ "elegance": 8,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 8.5,
+ "recordedProductIssues": [
+  "Dimmed scrim and ring on the scroll step card as recorded"
+ ],
+ "defects": [
+  {
+   "at": "~4-7 s",
+   "problem": "Hard jump from the synthetic screen with 'Scroll down' card to the stats table; stats table appears at once with no lead-in.",
+   "fix": "Add a short dissolve or hold on the 'not visible' screen with the caption matching.",
+   "severity": "minor"
+  },
+  {
+   "at": "last 3 s",
+   "problem": "Three-line footnote in very small text, hard to read at normal viewing size.",
+   "fix": "Increase size or trim to one line.",
+   "severity": "minor"
+  },
+  {
+   "at": "~10-24 s",
+   "problem": "Yellow row highlight jumps between rows with the whole table staying; fine, but the white space is repeated and the right-hand numbers do not move.",
+   "fix": "Acceptable; consider easing the highlight.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "The strongest section, a clear and honest stats table with a restrained highlight; minor lead-in and footnote issues."
+}

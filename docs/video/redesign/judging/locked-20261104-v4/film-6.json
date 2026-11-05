@@ -1,0 +1,38 @@
+{
+ "section": "film-6",
+ "overall": 6.8,
+ "framing": 6,
+ "stability": 6.5,
+ "cuts": 6.5,
+ "legibility": 7,
+ "elegance": 6.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 6.8,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "8-11 s",
+   "problem": "Outgoing end-card kicker 'Try ShowMe, and read the code.' overlaps the legal line 'Built solo...' as unreadable text for about 3 s, visible over two sample frames",
+   "fix": "Fade out the old caption fully before the new line appears, or stack them",
+   "severity": "blocker"
+  },
+  {
+   "at": "7-9 s",
+   "problem": "White end-card panel jumps from the screen's frame shape to a larger shape while ShowMe wordmark fades over the still-visible billing screen",
+   "fix": "Use a clean crossfade into the held end card, no ghosted overlap",
+   "severity": "major"
+  },
+  {
+   "at": "10-18 s",
+   "problem": "End card holds about eight seconds with the right half and bottom empty, content left-aligned",
+   "fix": "Centre or balance the lockup within the panel",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Opening three beats are clean, but the end card transition has visible text collision."
+}

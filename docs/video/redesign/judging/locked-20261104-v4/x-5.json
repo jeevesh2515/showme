@@ -1,0 +1,39 @@
+{
+ "section": "x-5",
+ "overall": 7.3,
+ "framing": 8,
+ "stability": 9,
+ "cuts": 8,
+ "legibility": 8,
+ "elegance": 7.2,
+ "uniqueness": 6,
+ "honesty": 8.5,
+ "overallEditOnly": 7.3,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "all",
+   "problem": "Large empty space in the lower half of the card and a tiny 'Where do I press?' label; reads plain.",
+   "fix": "Scale the wordmark and URLs up to fill the card.",
+   "severity": "minor"
+  },
+  {
+   "at": "all",
+   "problem": "'AI-generated narration.' label is tiny and the caption area is a thin line at feed size.",
+   "fix": "Raise the label size for muted viewers.",
+   "severity": "minor"
+  },
+  {
+   "at": "0-1",
+   "problem": "ShowMe highlight wipe is the only motion; the end card is generic.",
+   "fix": "Hold longer on the URL line so it can be read.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Clean, stable and legible close, but generic and underscaled."
+}

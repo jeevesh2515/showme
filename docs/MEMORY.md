@@ -358,3 +358,10 @@ Resolved 2026-10-27 (D14): Q1 approved, Q2 public `showme` + MIT, Q3 Indie, Q5 a
 - [Certain] Phase 1 verification (3 parallel read-only subagents + main): repo PUBLIC, CI green on main, tags v1.0.0/v1.0.0-rc1/rc2 present (v1.0.0 = origin/main d012d5c); live web, /v1/healthz {"status":"ok"}, /eval, GitHub all 200 unauthenticated; youtu.be/RzdqrBMuqQ0 resolves 200; X status URL 200 (headers only). check_submission_numbers.py ok. make lint test passes (169 backend, 33 eval, 99 web). make smoke 9/10, $0.0000 (cached) — Day 9 live spend $0 of $2 budget.
 - [Certain] Spend: recorded $36.4092 + ~$3.32 unrecorded E2E estimate ≈ $39.73 effective vs $40 eval ceiling (~$0.27 headroom). No further paid runs without founder approval.
 - [Open] PR #3 (feat/video-readable-highlights) merge brings hosted URLs to public main (main README still placeholder until merge). Founder-only gates remain: phone full flow, form surveys/consent, actual Submit before Nov 5 02:00 London (18:00 target passed; deadline not). Agent never submits on founder's behalf.
+
+
+### 2026-11-05 — Project close-out (D62)
+
+- [Certain] D62: founder reports the hackathon submission complete; no submission time, confirmation ID or entry URL supplied or recorded. Links re-verified 200: youtu.be/RzdqrBMuqQ0, GitHub, live web, API healthz ok. PR #3 merged; main 5919f56. This supersedes the earlier "form unsubmitted" and "README placeholder until merge" snapshots above.
+- [Certain] Leftovers reconciled and committed; four unreferenced contact sheets archived with checksums then removed. Eval smoke row reconciled offline (RESULTS.md regenerates identical, spend unchanged at $36.4092). 0 paid calls, 0 deploys. Details, archive path and resume steps: docs/CLOSEOUT.md.
+- [Open] Founder items unchanged: phone OCR timing, founder phone run, usability sessions. Judging-week monitoring per RUNBOOK continues through Nov 8.

@@ -1,0 +1,41 @@
+{
+ "section": "x-3",
+ "overall": 6.8,
+ "framing": 6.5,
+ "stability": 7.5,
+ "cuts": 7,
+ "legibility": 6.0,
+ "elegance": 6.8,
+ "uniqueness": 7,
+ "honesty": 9,
+ "overallEditOnly": 6.9,
+ "recordedProductIssues": [
+  "Phone footage is a self-demo and the recorded guide is small"
+ ],
+ "defects": [
+  {
+   "at": "0-3",
+   "problem": "Link card fills the left, but the redaction bar wraps onto a second line under the URL, looking like a stray black block.",
+   "fix": "Make the mask one line, matching the URL width.",
+   "severity": "minor"
+  },
+  {
+   "at": "3.5-8",
+   "problem": "Phone panel is a narrow tall tile; instruction text inside it is unreadable at feed size, and the main tile shows the same tiny screenshot again.",
+   "fix": "Enlarge the phone tile and drop the redundant screenshot or reduce it.",
+   "severity": "major"
+  },
+  {
+   "at": "3.5",
+   "problem": "Dissolve from the link card to the phone shows overlapping ghost text; phone top edge looks clipped.",
+   "fix": "Cut cleanly or shorten the dissolve; keep the phone edge fully inside the frame.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Clear message of link to phone, but the phone proof is too small to read in a feed."
+}

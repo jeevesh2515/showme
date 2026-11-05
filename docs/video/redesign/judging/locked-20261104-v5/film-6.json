@@ -1,0 +1,45 @@
+{
+ "section": "film-6",
+ "overall": 6.8,
+ "framing": 7,
+ "stability": 8,
+ "cuts": 7,
+ "legibility": 8,
+ "elegance": 6,
+ "uniqueness": 6,
+ "honesty": 9,
+ "overallEditOnly": 7,
+ "recordedProductIssues": [],
+ "defects": [
+  {
+   "at": "~8-16 s",
+   "problem": "ShowMe card is a large mostly empty white panel, with text clustered top-left and a big dead area at right and bottom; composition looks unfinished.",
+   "fix": "Centre the lockup in the card or shrink the card to its content.",
+   "severity": "major"
+  },
+  {
+   "at": "~7-9 s",
+   "problem": "Transition from the screen to the end card shows a cross-fade of mismatched layouts (faded caption over a faint screen) before the card pops in.",
+   "fix": "Cut cleanly or fade the whole frame once.",
+   "severity": "major"
+  },
+  {
+   "at": "~10 s",
+   "problem": "Second URL (github) line is missing in the mid frame yet present in later frames, so the lockup changes height mid-hold; the caption bar shifts between frames.",
+   "fix": "Reserve space for both lines before they appear.",
+   "severity": "minor"
+  },
+  {
+   "at": "~12-18 s",
+   "problem": "Small disclosure footers (hackathon, AI narration) are tiny and low contrast under a large empty area.",
+   "fix": "Enlarge slightly and group with the URLs.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness, easing of dissolves",
+  "audio and narration sync",
+  "feed-size legibility (not a feed section)"
+ ],
+ "oneLineVerdict": "Stable and honest but the close is a plain, half-empty end card with an awkward cross-fade into it."
+}

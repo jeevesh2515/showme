@@ -1,0 +1,41 @@
+{
+ "section": "x-2",
+ "overall": 6.8,
+ "framing": 6.5,
+ "stability": 7,
+ "cuts": 7.5,
+ "legibility": 6.0,
+ "elegance": 6.5,
+ "uniqueness": 7,
+ "honesty": 8.5,
+ "overallEditOnly": 6.9,
+ "recordedProductIssues": [
+  "The highlighted Cancel button with yellow ring and badge is small and low-left in the recorded frame; the step card text boxes are as recorded"
+ ],
+ "defects": [
+  {
+   "at": "about 6.0",
+   "problem": "Layout switches from the Goal headline to the step card at once; the sheet shows a dissolve frame with a faint screen.",
+   "fix": "Use a short clean dissolve or hard cut on the beat.",
+   "severity": "minor"
+  },
+  {
+   "at": "6.5-11",
+   "problem": "Highlight, SAM outline and the claim 'Box overlap 0.89, needs 0.5' are tiny at feed size; the proof of the claim is unreadable muted.",
+   "fix": "Increase the claim text size or place it large beside the tile.",
+   "severity": "major"
+  },
+  {
+   "at": "last frames",
+   "problem": "Sub caption disappears while the headline stays, leaving an empty gap and a visible layout change.",
+   "fix": "Keep the subline until the section ends.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion smoothness",
+  "audio and narration sync",
+  "real phone-screen playback speed"
+ ],
+ "oneLineVerdict": "Idea is good and honest, but the evidence is small and the caption area shifts."
+}

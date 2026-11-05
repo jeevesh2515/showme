@@ -1,0 +1,40 @@
+{
+ "section": "film-0",
+ "overall": 8.0,
+ "framing": 8,
+ "stability": 8.5,
+ "cuts": 8.5,
+ "legibility": 7.5,
+ "elegance": 8,
+ "uniqueness": 7.5,
+ "honesty": 9,
+ "overallEditOnly": 8.2,
+ "recordedProductIssues": [
+  "Dim scrim and recorded highlight cut-out are recorded product, plain white block around the ring"
+ ],
+ "defects": [
+  {
+   "at": "2-4 s",
+   "problem": "Detail inset of the highlight is cropped at its left edge (stray 'oc' sliver) and sits tight under 'There.'",
+   "fix": "Re-crop the inset so it ends on a clean edge of the button, with even margin",
+   "severity": "minor"
+  },
+  {
+   "at": "whole section",
+   "problem": "Large dead band between the screen frame and the caption, and the 3-line source note is very small",
+   "fix": "Tighten vertical rhythm, raise note size",
+   "severity": "minor"
+  },
+  {
+   "at": "9-17 s",
+   "problem": "Right column stacks 1,173 and 65% beside a static dimmed screen with no change; reads as slide, not film",
+   "fix": "Keep as is but hold the stat block position steady and reduce text-fade pops",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Stable and clean, honest labels, but reads like a tidy slide with small notes."
+}

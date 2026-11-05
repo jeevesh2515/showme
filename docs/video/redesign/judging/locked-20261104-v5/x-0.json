@@ -1,0 +1,46 @@
+{
+ "section": "x-0",
+ "overall": 6.8,
+ "framing": 6.5,
+ "stability": 8,
+ "cuts": 6,
+ "legibility": 5.5,
+ "elegance": 6.5,
+ "uniqueness": 6.5,
+ "honesty": 9,
+ "overallEditOnly": 7.2,
+ "recordedProductIssues": [
+  "Recorded guide tile under 'There.' shows heavy yellow ring and black mask edges cropped at the left (blue sliver)."
+ ],
+ "defects": [
+  {
+   "at": "0-4 s",
+   "problem": "Billing screenshot fills only the top-left; headline column right; roughly the lower third is empty caption space. At feed size the form text is unreadable and the screen reads as a grey box.",
+   "fix": "Enlarge the screenshot to fill the width of the frame, put the headline above or below it, and drop the empty band.",
+   "severity": "major"
+  },
+  {
+   "at": "4.5-5.5 s",
+   "problem": "Cross-dissolve to scene two overlaps both layouts with ghosted 'Where do I press?' over the dimmed screen; scene two then uses a different layout (small headline, 'There.' badge, inset tile), so layout jumps.",
+   "fix": "Hard cut on a held beat, or keep the same layout grid in both scenes.",
+   "severity": "major"
+  },
+  {
+   "at": "0-4 s",
+   "problem": "Same frame held for about 8 samples with no change; footnote 'Synthetic billing screen' is tiny at feed size.",
+   "fix": "Shorten the hold or give the hook one small purposeful change; raise footnote size.",
+   "severity": "minor"
+  },
+  {
+   "at": "5.5-end",
+   "problem": "Inset highlight tile is tiny and cut by a blue sliver; the main screen is dim with a faint badge, so the hero control is hard to find at feed size.",
+   "fix": "Give the tile more room than the dimmed full screen.",
+   "severity": "major"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Clear message but small, grey and a layout jump at the dissolve; feed-size screenshot is illegible."
+}

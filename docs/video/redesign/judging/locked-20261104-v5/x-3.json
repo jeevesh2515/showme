@@ -1,0 +1,46 @@
+{
+ "section": "x-3",
+ "overall": 6.4,
+ "framing": 5.0,
+ "stability": 7.5,
+ "cuts": 6.5,
+ "legibility": 6.5,
+ "elegance": 6.0,
+ "uniqueness": 6.5,
+ "honesty": 8.5,
+ "overallEditOnly": 6.8,
+ "recordedProductIssues": [
+  "Phone-guide panel is a recorded crop that is clipped top and bottom."
+ ],
+ "defects": [
+  {
+   "at": "0-3 s",
+   "problem": "Link card is flush against the frame edges and the card background runs past the frame top and bottom; left button and text are cramped.",
+   "fix": "Add margin around the link card.",
+   "severity": "major"
+  },
+  {
+   "at": "4-end",
+   "problem": "Phone panel text is clipped at top ('November.') and bottom ('person who shared this.'), with a stray yellow tab on its left; text is tiny at feed size.",
+   "fix": "Frame the panel so the whole card shows.",
+   "severity": "major"
+  },
+  {
+   "at": "4-end",
+   "problem": "Six samples show a static two-pane layout; the main screenshot is small and plain.",
+   "fix": "Shorten and enlarge.",
+   "severity": "minor"
+  },
+  {
+   "at": "0-3 s",
+   "problem": "Cursor sits over the link text ('itself on').",
+   "fix": "Move cursor off text.",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and audio",
+  "whether captions sync with narration"
+ ],
+ "oneLineVerdict": "Link step is clear but the phone panel is clipped and the layout feels cramped."
+}

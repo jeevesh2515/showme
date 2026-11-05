@@ -1,0 +1,40 @@
+{
+ "section": "film-1",
+ "overall": 8.0,
+ "framing": 7.5,
+ "stability": 8,
+ "cuts": 8.5,
+ "legibility": 7.5,
+ "elegance": 8,
+ "uniqueness": 8,
+ "honesty": 9,
+ "overallEditOnly": 8.2,
+ "recordedProductIssues": [
+  "Review-screen lock icons and redaction bars as recorded"
+ ],
+ "defects": [
+  {
+   "at": "6-12 s",
+   "problem": "Cursor sits on the StreamFlix logo and clips it, and the heading tag 'It misses things' is tight (about 20 px) under the screen frame",
+   "fix": "Hold cursor away from the logo; add 16 px gap under the frame",
+   "severity": "minor"
+  },
+  {
+   "at": "18-19 s",
+   "problem": "Vertical wipe line crosses the screen mid-transition; text of fields looks jagged",
+   "fix": "Replace with a plain crossfade or end the wipe cleaner",
+   "severity": "minor"
+  },
+  {
+   "at": "whole section",
+   "problem": "Right-hand checklist is a good device but its heading is small relative to the caption",
+   "fix": "Raise heading size",
+   "severity": "minor"
+  }
+ ],
+ "couldNotAssess": [
+  "motion, easing and dissolve timing",
+  "audio and narration sync"
+ ],
+ "oneLineVerdict": "Clear story of found vs missed fields, honest, slightly cramped caption stack."
+}

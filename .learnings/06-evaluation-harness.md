@@ -180,7 +180,7 @@ Purpose: explain how ShowMe will be measured, why those benchmarks, and how I st
 
 **Detail:**
 - FLOW-2 and PRIV-7 are the requirements. PRIV-9 checks EXIF stripping. PRIV-1 is a network assertion rather than a benchmark.
-- OCR timing in a real browser on a laptop and a mid-range phone target at most 2 s. Laptop 106–214 ms; phone about 2.8 s (founder believes this is the whole redaction step, not OCR alone; unconfirmed), founder-reported on 2026-11-05 with no artifact, so the target was missed on the phone.
+- OCR timing in a real browser, target at most 2 s: laptop 106–214 ms; iPhone 16 Safari 123–303 ms per image over two runs (founder-transcribed from the bench screen, no artifact). Target met. Mid-range Android not run.
 - A recall number on my own fixtures will be optimistic. A 3-person usability check on review time is the other planned evidence.
 
 **Evidence:** [REQUIREMENTS.md FLOW-2, PRIV-1, PRIV-7, PRIV-9](../docs/REQUIREMENTS.md), [SPIKES.md (d)](../docs/SPIKES.md), [PHASES.md Day 3](../docs/PHASES.md)

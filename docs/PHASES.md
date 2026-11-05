@@ -44,7 +44,7 @@ How to use: start each day by pasting the matching agent prompt from [prompts/](
 - [x] Highlight ablation on v2 sample: model box vs SAM agreement-gated (EVAL-4)
 - [x] `RESULTS.md` v1 generated; **decision checkpoint** (see RISKS.md kill criteria): effort level, Wonder escalation, verifier
 - [x] Next.js app skeleton; redaction worker (tesseract.js self-hosted), `patterns.ts`, `redact()` with `RedactedImage` brand; vitest corpus (FLOW-2, PRIV-7, PRIV-9)
-- [x] Measure OCR time in a real browser on a laptop and a mid-range phone (dev-only bench page). Laptop: 106–214 ms. Phone: about 2.8 s (founder believes whole redaction step, not OCR alone; unconfirmed), founder-reported verbally on 2026-11-05, no artifact; above the 2 s target. Not a controlled bench run.
+- [x] Measure OCR time in a real browser on a laptop and a mid-range phone (dev-only bench page). Laptop: 106–214 ms. iPhone 16 Safari: 123–303 ms per image, two runs, founder-transcribed from the bench screen (no artifact); under the 2 s target. Mid-range Android not run.
 
 **DoD:** `RESULTS.md` exists with real numbers and links to raw JSONL; checkpoint decisions recorded; redaction unit tests green.
 

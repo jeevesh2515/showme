@@ -142,7 +142,7 @@ Purpose: answer "what happens when..." and "who does this not work for". Tags ar
 
 **Detail:**
 - Timeouts: ground 15 s, SAM 4 s, whole request 25 s.
-- OCR was 154 to 375 ms in Node on an M5. Laptop browser was 106–214 ms. Phone was about 2.8 s (founder-reported, no artifact), above the 2 s target; mid-range Android was not separately timed.
+- OCR was 154 to 375 ms in Node on an M5. Laptop browser was 106–214 ms. Phone was about 2.8 s (founder-reported, no artifact; likely the whole redaction step, not OCR alone), above the 2 s target; mid-range Android was not separately timed.
 - The outline is progressive: the box appears first, SAM is optional.
 - Low-bandwidth retry behaviour and offline handling are not specified.
 

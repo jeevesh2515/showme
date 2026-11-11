@@ -3,6 +3,7 @@ import base64
 import io
 import json
 import logging
+from typing import Any
 
 import httpx
 import pytest
@@ -46,7 +47,7 @@ def meta_reply(content: str | None = None, status: int = 200) -> httpx.Response:
     return httpx.Response(status, json=body)
 
 
-def step_payload(**over: object) -> dict:
+def step_payload(**over: Any) -> dict:
     payload = {
         "goal": "cancel my subscription",
         "history": [],
@@ -74,7 +75,7 @@ def refine_payload() -> dict:
     }
 
 
-def client(**over: object) -> TestClient:
+def client(**over: Any) -> TestClient:
     return TestClient(create_app(ApiSettings(model_api_key="test", **over)))
 
 

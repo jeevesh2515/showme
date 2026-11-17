@@ -32,6 +32,7 @@ from showme.api.guides import (
     purge_expired,
 )
 from showme.api.ratelimit import (
+    CounterStore,
     InMemoryCounterStore,
     InMemoryRateLimiter,
     InMemorySpendCap,
@@ -146,6 +147,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     )
     app.state.settings = cfg
     # API-6/PRIV-5: Supabase-backed stores when configured (ARCH §8/§9), in-memory otherwise.
+    counters: CounterStore
     if cfg.supabase_url and cfg.supabase_service_role_key:
         counters = SupabaseCounterStore(cfg.supabase_url, cfg.supabase_service_role_key)
         app.state.rate = SupabaseRateLimiter(counters)
